@@ -12,5 +12,11 @@ type usuarioHandler struct {
 
 func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController) {
 	handler := usuarioHandler{Controller: controller}
-	e.POST("/registraUsuario", handler.Controller.RegistrarUsuario)
+	// Registrar Usuario
+	e.POST("/registrarUsuario", handler.Controller.RegistrarUsuario)
+	// Inciar Session
+	e.POST("/login", handler.Controller.Login)
+	// Cerrar Sesion
+	e.POST("/logout", handler.Controller.Logout)
 }
+
