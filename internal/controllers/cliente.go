@@ -29,7 +29,7 @@ func NewClienteController(repo repository.ClienteRepository) ClienteController {
 func (controller clienteController) CrearCliente(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		Nombres   string
+		Nombre   string
 		Direccion string
 	}
 
@@ -41,7 +41,7 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 
 	// Crear una instancia del modelo
 	cliente := models.Cliente{
-		Nombres:   requestBody.Nombres,
+		Nombre:   requestBody.Nombre,
 		Direccion: requestBody.Direccion,
 	}
 
