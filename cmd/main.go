@@ -19,12 +19,15 @@ func main() {
 
 	//Repositorios
 	usuarioRepo := repository.NewUsuarioRepository(db)
+	clienteRepo := repository.NewClienterepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
+	clienteController := controllers.NewClienteController(clienteRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController)
+	routes.NewClienteHandler(e, clienteController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(":8080"))
