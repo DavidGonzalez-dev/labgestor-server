@@ -18,4 +18,5 @@ func NewClienteHandler(e *echo.Echo, controller controllers.ClienteController) {
 
 	// Definir EndPoints (Puntos de entrada a la API)
 	e.POST("/clientes/crearCliente", hanlder.Controller.CrearCliente)
+	e.POST("/clientes/actualizarCliente", hanlder.Controller.ActualizarCliente)
 }
