@@ -28,14 +28,17 @@ func main() {
 	//Repositorios
 	usuarioRepo := repository.NewUsuarioRepository(db)
 	clienteRepo := repository.NewClienterepository(db)
+	fabricanteRepo := repository.NewFabricanterepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
 	clienteController := controllers.NewClienteController(clienteRepo)
+	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
+	routes.NewFabricanteHandler(e, fabricanteController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
