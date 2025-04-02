@@ -8,8 +8,9 @@ import (
 
 // Interfaz que define los metodos que se emplean en la tabla de los usuarios en la base datos
 type UsuarioRepository interface {
-	ObtenerUsuarioID(id string) (*models.Usuario, error)
-	CrearUsuario(usuario *models.Usuario) error
+	ObtenerUsuarioID(id string) *models.Usuario
+	CrearUsuario(usuario *models.Usuario)
+	ActualizarUsuario(usuario *models.Usuario)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -26,16 +27,19 @@ func NewUsuarioRepository(db *gorm.DB) UsuarioRepository {
 // Metodos de la estructura
 // ---------------------------
 
-func (repo *usuarioRepository) ObtenerUsuarioID(id string) (*models.Usuario, error) {
+func (repo *usuarioRepository) ObtenerUsuarioID(id string) *models.Usuario {
 	var usuario models.Usuario
-	if err := repo.DB.Preload("Rol").First(&usuario, id).Error; err != nil {
-		return nil, err
-	}
-	return &usuario, nil
+	repo.DB.Preload("Rol").First(&usuario, id)
+
+	return &usuario
 }
 
-func (repo *usuarioRepository) CrearUsuario(usuario *models.Usuario) error {
-	return repo.DB.Create(&usuario).Error
+func (repo *usuarioRepository) CrearUsuario(usuario *models.Usuario) {
+	repo.DB.Create(&usuario)
+}
+
+func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) {
+	repo.DB.Save(usuario)
 }
 
 

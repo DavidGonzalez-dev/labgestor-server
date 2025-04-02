@@ -30,7 +30,7 @@ func NewClienteController(repo repository.ClienteRepository) ClienteController {
 func (controller clienteController) CrearCliente(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		Nombre    string
+		Nombre   string
 		Direccion string
 	}
 
