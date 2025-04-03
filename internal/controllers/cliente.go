@@ -12,6 +12,8 @@ import (
 type ClienteController interface {
 	CrearCliente(c echo.Context) error
 	ActualizarCliente(c echo.Context) error
+	ObtenerCliente(c echo.Context) error
+	ObtenerClientes(c echo.Context) error
 }
 
 // Structura que conecte con el repositorio
@@ -101,4 +103,31 @@ func (controller clienteController) ActualizarCliente(c echo.Context) error {
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
 	return c.JSON(http.StatusOK, map[string]string{"message": "Se actualizo el cliente con exito"})
+}
+
+func (controller clienteController) ObtenerCliente(c echo.Context) error {
+	ID := c.Param("id")
+
+	// Llamamos al repositorio para obtener el cliente por ID
+	cliente, err := controller.Repo.ObtenerCliente(ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener el cliente",
+			"error": err.Error(),
+		})
+	}
+	// Si todo salió bien, respondemos con un estado 200 y el cliente
+	return c.JSON(http.StatusOK, cliente)
+}
+
+func (controller clienteController) ObtenerClientes(c echo.Context) error {
+	// Llamamos al repositorio para obtener todos los clientes
+	clientes, err := controller.Repo.ObtenerClientes()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener los clientes",
+			"error": err.Error(),
+		})
+	}
+
+	// Si todo salió bien, respondemos con un estado 200 y la lista de clientes
+	return c.JSON(http.StatusOK, clientes)
 }
