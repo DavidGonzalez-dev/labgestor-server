@@ -19,4 +19,6 @@ func NewFabricanteHandler(e *echo.Echo, controller controllers.FabricanteControl
 	// Definir EndPoints (Puntos de entrada a la API)
 	e.POST("/fabricante/crearFabricante", handler.Controller.CrearFabricante)
 	e.POST("/fabricante/actualizarFabricante", handler.Controller.ActualizarFabricante)
+	e.GET("/fabricante/obtenerFabricante/:id", handler.Controller.ObtenerFabricante)
+	e.GET("/fabricante/obtenerFabricantes", handler.Controller.ObtenerFabricantes)
 }
