@@ -18,6 +18,8 @@ type Response struct {
 type FabricanteController interface {
 	CrearFabricante(c echo.Context) error
 	ActualizarFabricante(c echo.Context) error
+	ObtenerFabricante(c echo.Context) error
+	ObtenerFabricantes(c echo.Context) error
 }
 
 // Structura que conecte con el repositorio
@@ -110,4 +112,29 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
 	return c.JSON(http.StatusOK, map[string]string{"message": "Se actualizo el fabricante con exito"})
+}
+
+func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
+	ID := c.Param("id")
+
+	// Llamamos al repositorio para obtener el fabricante por ID
+	fabricante, err := controller.Repo.ObtenerFabricante(ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener el fabrcicante",
+			"error": err.Error(),
+		})
+	}
+	// Si todo salió bien, respondemos con un estado 200 y el cliente
+	return c.JSON(http.StatusOK, fabricante)
+}
+
+func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error {
+	fabricantes, err := controller.Repo.ObtenerFabricantes()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener el fabricante",
+			"error": err.Error(),
+		})
+	}
+	// Si todo salió bien, respondemos con un estado 200 y el cliente
+	return c.JSON(http.StatusOK, fabricantes)
 }
