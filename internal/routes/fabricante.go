@@ -17,8 +17,8 @@ func NewFabricanteHandler(e *echo.Echo, controller controllers.FabricanteControl
 	handler := fabricanteHandler{Controller: controller}
 
 	// Definir EndPoints (Puntos de entrada a la API)
-	e.POST("/fabricante/crearFabricante", handler.Controller.CrearFabricante)
-	e.POST("/fabricante/actualizarFabricante", handler.Controller.ActualizarFabricante)
-	e.GET("/fabricante/obtenerFabricante/:id", handler.Controller.ObtenerFabricante)
-	e.GET("/fabricante/obtenerFabricantes", handler.Controller.ObtenerFabricantes)
+	e.POST("/fabricantes/registrar", handler.Controller.CrearFabricante) // Registrar un nuevo fabricante
+	e.PUT("/fabricantes/actualizar", handler.Controller.ActualizarFabricante) // Actualizar la informacion de un fabricante en especifico
+	e.GET("/fabricantes/:id", handler.Controller.ObtenerFabricante) // Obtener informacion de un fabricante en especifico
+	e.GET("/fabricantes/", handler.Controller.ObtenerFabricantes) // Obtener la informacion de todos los fabricantes
 }

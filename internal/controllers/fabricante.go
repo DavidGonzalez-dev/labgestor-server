@@ -3,16 +3,11 @@ package controllers
 import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
+	"labgestor-server/utils/response"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
-
-// Response struct to standardize API responses
-type Response struct {
-	Message string `json:"message"`
-	Error   string `json:"error,omitempty"`
-}
 
 // Interfaz que define los metodos del controlador
 type FabricanteController interface {
@@ -43,19 +38,14 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "No se pudo leer el cuerpo de request", "error": err.Error()})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	// TODO: Realizar validaciones de campos
 	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, Response{
-			Message: "El campo 'Nombre' es obligatorio",
-		})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
 	}
 	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, Response{
-			Message: "El campo 'Direccion' es obligatorio",
-		})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
 	}
 	// Crear una instancia del modelo
 	fabricante := models.Fabricante{
@@ -65,11 +55,11 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 
 	// Se crea el fabricante haciendo uso de la capa del repositorio
 	if err := controller.Repo.CrearFabricante(&fabricante); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "No se pudo crear el fabricante", "error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el fabricante", Error: err.Error()})
 	}
 
 	// Si todo sale bien se retorna un estado de 200
-	return c.JSON(http.StatusOK, map[string]string{"message": "Se registro el fabricante con exito"})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se registro el fabricante con exito"})
 }
 
 func (controller fabricanteController) ActualizarFabricante(c echo.Context) error {
@@ -79,19 +69,15 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 		Direccion string
 	}
 	if err := c.Bind(&requestBody); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "No se pudo leer el cuerpo del request", "error": err.Error()})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
 	// Realizar validaciones de campos
 	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, Response{
-			Message: "El campo 'Nombre' es obligatorio",
-		})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
 	}
 	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, Response{
-			Message: "El campo 'Direccion' es obligatorio",
-		})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
 	}
 
 	// Crear una instancia del modelo
@@ -104,14 +90,14 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 	// Llamamos al repositorio para actualizar el fabricante en la base de datos
 	if err := controller.Repo.ActualizarFabricante(&fabricante); err != nil {
 		// Si hay un error al actualizar, lo retornamos con un mensaje adecuado
-		return c.JSON(http.StatusInternalServerError, Response{
+		return c.JSON(http.StatusInternalServerError, response.Response{
 			Message: "No se pudo actualizar el fabricante",
 			Error:   err.Error(),
 		})
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
-	return c.JSON(http.StatusOK, map[string]string{"message": "Se actualizo el fabricante con exito"})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se actualizo el fabricante con exito"})
 }
 
 func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
@@ -120,21 +106,17 @@ func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
 	// Llamamos al repositorio para obtener el fabricante por ID
 	fabricante, err := controller.Repo.ObtenerFabricante(ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener el fabrcicante",
-			"error": err.Error(),
-		})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener el fabricante", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
-	return c.JSON(http.StatusOK, fabricante)
+	return c.JSON(http.StatusOK, response.Response{Body: fabricante})
 }
 
 func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error {
 	fabricantes, err := controller.Repo.ObtenerFabricantes()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener el fabricante",
-			"error": err.Error(),
-		})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener los farbicantes", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
-	return c.JSON(http.StatusOK, fabricantes)
+	return c.JSON(http.StatusOK, response.Response{Body: fabricantes})
 }
