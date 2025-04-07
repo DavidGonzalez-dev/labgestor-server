@@ -9,6 +9,8 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	
 )
 
 func main() {
@@ -18,6 +20,12 @@ func main() {
 	
 	// Servidor Echo
 	e := echo.New()
+
+	// Configuracion para evitar errores CORS
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:5173"},
+		AllowMethods: []string{echo.GET},
+	}))
 
 	// Conexion a la base de datos
 	db, err := infrastructure.NewConexionDB()
