@@ -11,6 +11,7 @@ type UsuarioRepository interface {
 	ObtenerUsuarioID(id string) (*models.Usuario, error)
 	CrearUsuario(usuario *models.Usuario) error
 	ActualizarUsuario(usuario *models.Usuario) error
+	ObtenerUsuarios() (*[]models.Usuario, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -29,25 +30,32 @@ func NewUsuarioRepository(db *gorm.DB) UsuarioRepository {
 
 func (repo *usuarioRepository) ObtenerUsuarioID(id string) (*models.Usuario, error) {
 	var usuario models.Usuario
-	if err := repo.DB.Preload("Rol").First(&usuario, id).Error; err != nil{
+	if err := repo.DB.Preload("Rol").First(&usuario, id).Error; err != nil {
 		return nil, err
 	}
 	return &usuario, nil
 }
 
-func (repo *usuarioRepository) CrearUsuario(usuario *models.Usuario) error{
-	if err := repo.DB.Create(&usuario).Error; err != nil{
+func (repo *usuarioRepository) CrearUsuario(usuario *models.Usuario) error {
+	if err := repo.DB.Create(&usuario).Error; err != nil {
 		return err
 	}
 	return nil
-	
+
 }
 
-func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) error{
-	if err := repo.DB.Save(usuario).Error; err != nil{
+func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) error {
+	if err := repo.DB.Save(usuario).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
+func (repo *usuarioRepository) ObtenerUsuarios() (*[]models.Usuario, error) {
+	var usuarios []models.Usuario
+	if err := repo.DB.Preload("Rol").Find(&usuarios).Error; err != nil {
+		return nil, err
+	}
+	return &usuarios, nil
 
+}
