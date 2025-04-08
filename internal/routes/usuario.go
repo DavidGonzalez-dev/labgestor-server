@@ -26,6 +26,6 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	// -----------------------------------
 	e.POST("/usuarios/registrar", controller.RegistrarUsuario) // Registrar Usuario en el sistema
 	e.GET("/usuarios/:id", controller.ObtenerPerfil, middleware.RequireAuth(repo, "admin")) // Obtener la info de un usuario
-	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario) // Dehabilitar el Ingreso de un Usuario
+	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario, middleware.RequireAuth(repo, "admin")) // Dehabilitar el Ingreso de un Usuario
 }	
 
