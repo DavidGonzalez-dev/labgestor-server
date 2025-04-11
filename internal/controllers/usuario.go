@@ -21,6 +21,7 @@ var EXPTIME time.Time = time.Now().Add((time.Hour * 24) * 1)
 type UsuarioController interface {
 	// Metodos CRUD
 	ObtenerUsuarios(c echo.Context) error
+	ActualizarUsuario(c echo.Context) error
 
 	// Metodos de autenticacion
 	RegistrarUsuario(c echo.Context) error
@@ -226,4 +227,50 @@ func (controller *usuarioController) ObtenerUsuarios(c echo.Context) error {
 	// Si todo salió bien, respondemos con un estado 200 y los usuarios
 	return c.JSON(http.StatusOK, usuarios)
 
+}
+
+func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
+	// Se lee el cuerpo del request
+	var requestBody struct {
+		ID        string
+		Nombres   string
+		Apellidos string
+		Correo    string
+		RolID     int
+	}
+
+	if err := c.Bind(&requestBody); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
+	}
+
+	// Obtenemos el usuario de la base de datos
+	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
+	}
+
+	if requestBody.Nombres == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
+	}
+	if requestBody.Apellidos == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Apellidos' es obligatorio"})
+	}
+
+	if requestBody.Correo == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Correo' es obligatorio"})
+	}
+
+	usuario.Nombres = requestBody.Nombres
+	usuario.Apellidos = requestBody.Apellidos
+	usuario.Correo = requestBody.Correo
+	usuario.Firma = utils.GenerarFirmaUsuario(requestBody.Nombres, requestBody.Apellidos)
+	usuario.Estado = true
+	usuario.RolID = requestBody.RolID
+
+	// Se actualiza el usuario
+	if err := controller.Repo.ActualizarUsuario(usuario); err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Se actualizo el usuario con exito"})
 }
