@@ -266,7 +266,7 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	usuario.Firma = utils.GenerarFirmaUsuario(requestBody.Nombres, requestBody.Apellidos)
 	usuario.Estado = true
 	usuario.RolID = requestBody.RolID
-
+	println(usuario.RolID)
 	// Se actualiza el usuario
 	if err := controller.Repo.ActualizarUsuario(usuario); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
