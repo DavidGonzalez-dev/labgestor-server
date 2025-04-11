@@ -12,8 +12,8 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	// -----------------------------------
 	// Rutas Publicas Autenticacion
 	// -----------------------------------
-	e.POST("/login", controller.Login)                            // Iniciar Sesion de Usuario
-	e.PUT("/contrasena/actualizar", controller.CambiarContrasena) // Actualizar la contraseña
+	e.POST("/login", controller.Login)                              // Iniciar Sesion de Usuario
+	e.PATCH("/contrasena/actualizar", controller.CambiarContrasena) // Actualizar la contraseña
 
 	// -----------------------------------
 	// Rutas Privadas Autenticacion
@@ -24,8 +24,8 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	// Rutas CRUD
 	// -----------------------------------
 	e.POST("/usuarios/registrar", controller.RegistrarUsuario)                              // Registrar Usuario en el sistema
+	e.PUT("/usuarios/actualizar", controller.ActualizarUsuario)                             // Actualizar la info de un usuario
 	e.GET("/usuarios/:id", controller.ObtenerPerfil, middleware.RequireAuth(repo, "admin")) // Obtener la info de un usuario
 	e.GET("/usuarios", controller.ObtenerUsuarios, middleware.RequireAuth(repo, "admin"))   // Obtener la lista de usuarios
 	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario)                               // Dehabilitar el Ingreso de un Usuario
-
 }
