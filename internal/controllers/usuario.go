@@ -96,13 +96,13 @@ func (controller *usuarioController) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al hacer la validacion del usuario", Error: err.Error()})
 	}
 	if usuario.ID == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Id o contrasena Invalidos"})
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Id o contrasena Invalidos"})
 	}
 
 	//Comparar la contrasena enviada con la contrasena encriptada del usuario
 	err = bcrypt.CompareHashAndPassword([]byte(usuario.Contrasena), []byte(credenciales.Contrasena))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID o Contrasena Invalidos", Error: err.Error()})
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "ID o Contrasena Invalidos", Error: err.Error()})
 	}
 
 	// Verificar que el usuario este habilitado para el ingreso
@@ -125,7 +125,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 
 	// Enviar de vuelta la token
 	c.SetCookie(&http.Cookie{Name: "sesionUsuario", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false})
-	return c.JSON(http.StatusInternalServerError, response.Response{Message: "Se ha generado el token con exito"})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito"})
 }
 
 // Este handler se usa para cerrar la sesion del usuario e inhabilitar el token JWT generado
@@ -266,7 +266,7 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	usuario.Firma = utils.GenerarFirmaUsuario(requestBody.Nombres, requestBody.Apellidos)
 	usuario.Estado = true
 	usuario.RolID = requestBody.RolID
-
+	println(usuario.RolID)
 	// Se actualiza el usuario
 	if err := controller.Repo.ActualizarUsuario(usuario); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})

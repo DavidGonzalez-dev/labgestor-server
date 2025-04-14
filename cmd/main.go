@@ -10,21 +10,22 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	
 )
 
 func main() {
 
 	// Cargar Variables de entorno
 	utils.LoadEnvVariables()
-	
+
 	// Servidor Echo
 	e := echo.New()
 
 	// Configuracion para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:5173"},
-		AllowMethods: []string{echo.GET},
+		AllowOrigins: []string{"http://localhost:4321"},
+		AllowMethods: []string{echo.GET, echo.POST},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowCredentials: true,
 	}))
 
 	// Conexion a la base de datos
