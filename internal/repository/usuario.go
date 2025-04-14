@@ -45,7 +45,14 @@ func (repo *usuarioRepository) CrearUsuario(usuario *models.Usuario) error {
 }
 
 func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) error {
-	if err := repo.DB.Save(usuario).Error; err != nil {
+	if err := repo.DB.Model(&models.Usuario{}).Where("id = ?", usuario.ID).Updates(map[string]any{
+			"nombres":   usuario.Nombres,
+			"apellidos": usuario.Apellidos,
+			"correo":    usuario.Correo,
+			"firma":     usuario.Firma,
+			"estado":    usuario.Estado,
+			"rol_id":    usuario.RolID,
+		}).Error; err != nil {
 		return err
 	}
 	return nil
