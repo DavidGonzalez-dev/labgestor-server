@@ -10,6 +10,7 @@ import (
 type ProductoRepository interface {
 	ObtenerProductoID(Numero_Registro string) (*models.Producto, error)
 	ObtenerProductos() (*[]models.Producto, error)
+	CrearProducto(producto *models.Producto) error
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -40,4 +41,12 @@ func (repo *productoRepository) ObtenerProductos() (*[]models.Producto, error) {
 	}
 	return &productos, nil
 
+}
+
+func (repo *productoRepository) CrearProducto(producto *models.Producto) error {
+	// Se crea el producto en la base de datos
+	if err := repo.DB.Create(producto).Error; err != nil {
+		return err
+	}
+	return nil
 }
