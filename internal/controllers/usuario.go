@@ -120,11 +120,11 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Errror al generar el token", Error: err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al generar el token", Error: err.Error()})
 	}
 
 	// Enviar de vuelta la token
-	c.SetCookie(&http.Cookie{Name: "sesionUsuario", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false})
+	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
 	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito"})
 }
 
