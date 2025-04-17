@@ -15,4 +15,5 @@ func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController)
 	// Definir EndPoints (Puntos de entrada a la API)
 	e.GET("/productos/:numero_registro", handler.ObtenerProductoID) // Obtener informacion de un producto en especifico
 	e.GET("/productos/", handler.ObtenerProductos)                  // Obtener la informacion de todos los productos
+	e.POST("/productos/crear", handler.CrearProducto)               // Crear un nuevo producto
 }
