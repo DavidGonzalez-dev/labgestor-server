@@ -6,6 +6,7 @@ import (
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
 	"labgestor-server/utils/initialization"
+	"net/http"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -23,7 +24,7 @@ func main() {
 	// Configuracion para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:4321"},
-		AllowMethods: []string{echo.GET, echo.POST},
+		AllowMethods: []string{http.MethodGet, http.MethodPost},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
@@ -38,16 +39,19 @@ func main() {
 	usuarioRepo := repository.NewUsuarioRepository(db)
 	clienteRepo := repository.NewClienterepository(db)
 	fabricanteRepo := repository.NewFabricanterepository(db)
+	productoRepo := repository.NewProductoRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
+	productoController := controllers.NewProductoController(productoRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
 	routes.NewFabricanteHandler(e, fabricanteController)
+	routes.NewProductoHandler(e, productoController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))

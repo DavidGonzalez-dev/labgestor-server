@@ -107,7 +107,7 @@ func (controller clienteController) ObtenerCliente(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener el cliente", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
-	return c.JSON(http.StatusOK, response.Response{Body: cliente})
+	return c.JSON(http.StatusOK, response.Response{Data: cliente})
 }
 
 func (controller clienteController) ObtenerClientes(c echo.Context) error {
@@ -118,5 +118,5 @@ func (controller clienteController) ObtenerClientes(c echo.Context) error {
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y la lista de clientes
-	return c.JSON(http.StatusOK,response.Response{Body: clientes})
+	return c.JSON(http.StatusOK,response.Response{Data: clientes})
 }
