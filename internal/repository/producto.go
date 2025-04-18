@@ -2,7 +2,6 @@ package repository
 
 import (
 	"labgestor-server/internal/models"
-
 	"gorm.io/gorm"
 )
 
@@ -23,6 +22,10 @@ func NewProductoRepository(db *gorm.DB) ProductoRepository {
 	return &productoRepository{DB: db}
 }
 
+
+// -----------------------------------
+// METODOS CRUD
+// -----------------------------------
 func (repo *productoRepository) ObtenerProductoID(Numero_Registro string) (*models.Producto, error) {
 	var producto models.Producto
 

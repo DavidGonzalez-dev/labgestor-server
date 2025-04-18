@@ -221,11 +221,11 @@ func (controller *usuarioController) ObtenerUsuarios(c echo.Context) error {
 	// Llamamos al repositorio para obtener todos los usuarios
 	usuarios, err := controller.Repo.ObtenerUsuarios()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "No se pudo obtener los usuarios", "error": err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo obtener los usuarios", Error: err.Error()})
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y los usuarios
-	return c.JSON(http.StatusOK, usuarios)
+	return c.JSON(http.StatusOK, response.Response{Data: usuarios})
 
 }
 

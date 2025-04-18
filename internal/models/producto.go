@@ -1,18 +1,33 @@
 package models
 
+// Declare Foreign key tables related to product
+type tipoProducto struct {
+	ID         int `gorm:"primaryKey" json:"-"`
+	nombreTipo string
+}
+
+type estadoProducto struct {
+	ID           int `gorm:"primaryKey" json:"-"`
+	nombreEstado string
+}
+
 type Producto struct {
-	Numero_Registro   string `gorm:"foreignKey"`
-	Nombre            string
-	Fecha_fabricacion string
-	Fecha_vencimiento string
-	Descripcion       string
-	Compuesto_activo  string
-	Presentacion      string
-	Cantidad          string
-	Numero_lote       string
-	Tamano_lote       string
-	Id_cliente        int
-	Id_fabricante     int
-	Id_tipo           int
-	Id_estado         int
+	NumeroRegistro   string `gorm:"primaryKey"`
+	Nombre           string
+	FechaFabricacion string
+	FechaVencimiento string
+	Descripcion      string
+	CompuestoActivo  string
+	Presentacion     string
+	Cantidad         string
+	NumeroLote       string
+	TamanoLote       string
+	ClienteID        int            `json:"-"`
+	FabricanteID     int            `json:"-"`
+	TipoID           int            `json:"-"`
+	EstadoID         int            `json:"-"`
+	Cliente          Cliente        `gorm:"foreignKey: ClienteID"`
+	Fabricante       Fabricante     `gorm:"foreignKey: FabricanteID"`
+	Tipo             tipoProducto   `gorm:"foreignKey: TipoID"`
+	Estado           estadoProducto `gorm:"foreignKey: EstadoID"`
 }

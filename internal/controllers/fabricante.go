@@ -109,7 +109,7 @@ func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener el fabricante", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
-	return c.JSON(http.StatusOK, response.Response{Body: fabricante})
+	return c.JSON(http.StatusOK, response.Response{Data: fabricante})
 }
 
 func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error {
@@ -118,5 +118,5 @@ func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error 
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener los farbicantes", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
-	return c.JSON(http.StatusOK, response.Response{Body: fabricantes})
+	return c.JSON(http.StatusOK, response.Response{Data: fabricantes})
 }
