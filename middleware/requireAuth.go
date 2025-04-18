@@ -17,7 +17,7 @@ func RequireAuth(repo repository.UsuarioRepository, rolPermitido string) echo.Mi
 	return func(next echo.HandlerFunc) echo.HandlerFunc{
 		return func(c echo.Context) error {
 			// Obtener la cookie del request
-			tokenCookie, err := c.Cookie("sesionUsuario")
+			tokenCookie, err := c.Cookie("authToken")
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no autorizado"})
 			}
