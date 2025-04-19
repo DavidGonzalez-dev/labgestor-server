@@ -4,7 +4,9 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 )
@@ -33,19 +35,12 @@ func NewClienteController(repo repository.ClienteRepository) ClienteController {
 func (controller clienteController) CrearCliente(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		Nombre   string
+		Nombre    string
 		Direccion string
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "No se pudo leer el cuerpo del request", Error: err.Error()})
-	}
-
-	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
-	}
-	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
 	}
 
 	// Crear una instancia del modelo
@@ -54,13 +49,23 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 		Direccion: requestBody.Direccion,
 	}
 
+	// Validamos los campos
+	validationRules := map[string]validation.ValidationRule{
+		"Nombre":    {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
+		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida"},
+	}
+	
+	if err := validation.Validate(cliente.ToMap(), validationRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	}
+
 	// Se crea el cliente haciendo uso de la capa del repositorio
 	if err := controller.Repo.CrearCliente(&cliente); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear el cliente", Error: err.Error()})
 	}
 
 	// Si todo sale bien se retorna un estado de 200
-	return c.JSON(http.StatusOK, response.Response{Message: "Cliente creado con exito"})
+	return c.JSON(http.StatusCreated, response.Response{Message: "Cliente creado con exito"})
 }
 
 func (controller clienteController) ActualizarCliente(c echo.Context) error {
@@ -118,5 +123,5 @@ func (controller clienteController) ObtenerClientes(c echo.Context) error {
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y la lista de clientes
-	return c.JSON(http.StatusOK,response.Response{Data: clientes})
+	return c.JSON(http.StatusOK, response.Response{Data: clientes})
 }
