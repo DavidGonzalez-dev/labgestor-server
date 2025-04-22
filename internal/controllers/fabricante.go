@@ -41,6 +41,7 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	//TODO:CAMBIAR POR LAS REGLAS REGEXP
 	if requestBody.Nombre == "" {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
 	}
@@ -55,11 +56,11 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 
 	// Se crea el fabricante haciendo uso de la capa del repositorio
 	if err := controller.Repo.CrearFabricante(&fabricante); err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el fabricante", Error: err.Error()})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear el fabricante", Error: err.Error()})
 	}
 
 	// Si todo sale bien se retorna un estado de 200
-	return c.JSON(http.StatusOK, response.Response{Message: "Se registro el fabricante con exito"})
+	return c.JSON(http.StatusCreated, response.Response{Message: "Se registro el fabricante con exito"})
 }
 
 func (controller fabricanteController) ActualizarFabricante(c echo.Context) error {
@@ -72,7 +73,7 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
-	// Realizar validaciones de campos
+	// TODO:CAMBIAR POR LAS REGLAS REGEXP
 	if requestBody.Nombre == "" {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
 	}
@@ -90,10 +91,7 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 	// Llamamos al repositorio para actualizar el fabricante en la base de datos
 	if err := controller.Repo.ActualizarFabricante(&fabricante); err != nil {
 		// Si hay un error al actualizar, lo retornamos con un mensaje adecuado
-		return c.JSON(http.StatusInternalServerError, response.Response{
-			Message: "No se pudo actualizar el fabricante",
-			Error:   err.Error(),
-		})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "No se pudo actualizar el fabricante", Error: err.Error()})
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
@@ -106,7 +104,7 @@ func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
 	// Llamamos al repositorio para obtener el fabricante por ID
 	fabricante, err := controller.Repo.ObtenerFabricante(ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener el fabricante", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al obtener el fabricante", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
 	return c.JSON(http.StatusOK, response.Response{Data: fabricante})
