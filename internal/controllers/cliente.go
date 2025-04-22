@@ -4,7 +4,9 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 )
@@ -40,18 +42,21 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "No se pudo leer el cuerpo del request", Error: err.Error()})
 	}
-	//TODO:CAMBIAR POR LAS REGLAS REGEXP
-	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
-	}
-	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
-	}
 
 	// Crear una instancia del modelo
 	cliente := models.Cliente{
 		Nombre:    requestBody.Nombre,
 		Direccion: requestBody.Direccion,
+	}
+
+	// Validamos los campos
+	validationRules := map[string]validation.ValidationRule{
+		"Nombre":    {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
+		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida"},
+	}
+	
+	if err := validation.Validate(cliente.ToMap(), validationRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	// Se crea el cliente haciendo uso de la capa del repositorio

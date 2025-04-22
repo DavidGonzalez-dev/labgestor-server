@@ -6,3 +6,10 @@ type Cliente struct {
 	Nombre    string
 	Direccion string
 }
+
+func (cliente Cliente) ToMap() map[string]any {
+	return map[string]any {
+		"Nombre": cliente.Nombre,
+		"Direccion": cliente.Direccion,
+	}
+}
