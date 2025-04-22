@@ -35,8 +35,8 @@ func NewClienteController(repo repository.ClienteRepository) ClienteController {
 func (controller clienteController) CrearCliente(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		Nombre    string
-		Direccion string
+		Nombre    string `json:"nombre"`
+		Direccion string `json:"direccion"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
@@ -54,7 +54,7 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 		"Nombre":    {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
 		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida"},
 	}
-	
+
 	if err := validation.Validate(cliente.ToMap(), validationRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
@@ -70,9 +70,9 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 
 func (controller clienteController) ActualizarCliente(c echo.Context) error {
 	var requestBody struct {
-		ID        int
-		Nombre    string
-		Direccion string
+		ID        int    `json:"id"`
+		Nombre    string `json:"nombre"`
+		Direccion string `json:"direccion"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
@@ -96,7 +96,7 @@ func (controller clienteController) ActualizarCliente(c echo.Context) error {
 	// Llamamos al repositorio para actualizar el Cliente en la base de datos
 	if err := controller.Repo.ActualizarCliente(&cliente); err != nil {
 		// Si hay un error al actualizar, lo retornamos con un mensaje adecuado
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "No se pudo actualizar el cliente", Error: err.Error()})
+		return c.JSON(http.StatusNotModified, response.Response{Message: "No se pudo actualizar el cliente", Error: err.Error()})
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
