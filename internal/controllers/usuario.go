@@ -53,11 +53,11 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 
 	// Obtener la informacion presente en el cuerpo del request
 	var requestBody struct {
-		ID        string
-		Nombres   string
-		Apellidos string
-		Correo    string
-		RolID     int
+		ID        string `json:"id"`
+		Nombres   string `json:"nombres"`
+		Apellidos string `json:"apellidos"`
+		Correo    string `json:"correo"`
+		RolID     int    `json:"rolId"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
@@ -84,8 +84,8 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 func (controller *usuarioController) Login(c echo.Context) error {
 	// Obtener el Nombre de usuario y la contraseña
 	var credenciales struct {
-		ID         string
-		Contrasena string
+		ID         string `json:"id"`
+		Contrasena string `json:"contrasena"`
 	}
 	if err := c.Bind(&credenciales); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
@@ -164,7 +164,7 @@ func (controller *usuarioController) ValidarToken(c echo.Context) error {
 	}
 
 	// Si se llega este punto el token es valido
-	return c.JSON(http.StatusOK ,response.Response{Message: "El token es valido", Data: map[string]bool{"valid": true}})
+	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido", Data: map[string]bool{"valid": true}})
 }
 
 // Este handler se usa para actualizar la contraseña de un usuario ya creado. La contraseña se encripta antes de hacer el update en la base de datos.
@@ -172,8 +172,8 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
-		ID         string
-		Contrasena string
+		ID         string `json:"id"`
+		Contrasena string `json:"contrasena"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
@@ -264,11 +264,11 @@ func (controller *usuarioController) ObtenerUsuarios(c echo.Context) error {
 func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		ID        string
-		Nombres   string
-		Apellidos string
-		Correo    string
-		RolID     int
+		ID        string `json:"id"`
+		Nombres   string `json:"nombres"`
+		Apellidos string `json:"apellidos"`
+		Correo    string `json:"correo"`
+		RolID     int    `json:"rolId"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {

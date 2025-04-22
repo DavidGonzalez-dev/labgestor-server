@@ -33,8 +33,8 @@ func NewFabricanteController(repo repository.FabricanteRepository) FabricanteCon
 func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		Nombre    string
-		Direccion string
+		Nombre    string `json:"nombre"`
+		Direccion string `json:"direccion"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
@@ -65,12 +65,12 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 
 func (controller fabricanteController) ActualizarFabricante(c echo.Context) error {
 	var requestBody struct {
-		ID        int
-		Nombre    string
-		Direccion string
+		ID        int    `json:"id"`
+		Nombre    string `json:"nombre"`
+		Direccion string `json:"direccion"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
 	// TODO:CAMBIAR POR LAS REGLAS REGEXP
@@ -91,7 +91,7 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 	// Llamamos al repositorio para actualizar el fabricante en la base de datos
 	if err := controller.Repo.ActualizarFabricante(&fabricante); err != nil {
 		// Si hay un error al actualizar, lo retornamos con un mensaje adecuado
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "No se pudo actualizar el fabricante", Error: err.Error()})
+		return c.JSON(http.StatusNotModified, response.Response{Message: "No se pudo actualizar el fabricante", Error: err.Error()})
 	}
 
 	// Si todo salió bien, respondemos con un estado 200 y un mensaje de éxito
@@ -113,7 +113,7 @@ func (controller fabricanteController) ObtenerFabricante(c echo.Context) error {
 func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error {
 	fabricantes, err := controller.Repo.ObtenerFabricantes()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener los farbicantes", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al obtener los farbicantes", Error: err.Error()})
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
 	return c.JSON(http.StatusOK, response.Response{Data: fabricantes})

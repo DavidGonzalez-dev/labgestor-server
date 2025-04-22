@@ -4,7 +4,6 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
-	"labgestor-server/utils/validation"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -59,7 +58,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	// Se lee el cuerpo del request
 	// Se lee la informacion del producto
 	var requestBody struct {
-
 		Producto struct {
 			Numero_Registro   string `json:"numeroRegistro"`
 			Nombre            string `json:"nombre"`
@@ -80,10 +78,10 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 			PropositoAnalisis      string `json:"propositoAnalisis"`
 			CondicionesAmbientales string `json:"condicionesAmbientales"`
 			FechaRecepcion         string `json:"fechaRecepcion"`
-			FechaInicioAnalisis     string `json:"fechaInicioAnalisis"`
+			FechaInicioAnalisis    string `json:"fechaInicioAnalisis"`
 			FechaFinalAnalisis     string `json:"fechaFinalAnalisis"`
-			IDUsuario              string   `json:"idUsuario"`
-			NumeroRegistroProducto string   `json:"numeroRegistroProducto"`
+			IDUsuario              string `json:"idUsuario"`
+			NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 		} `json:"detallesEntrada"`
 	}
 
@@ -111,12 +109,12 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	}
 
 	entradaProducto := models.EntradaProducto{
-		PropositoAnalisis: requestBody.DetallesEntrada.PropositoAnalisis,
+		PropositoAnalisis:      requestBody.DetallesEntrada.PropositoAnalisis,
 		CondicionesAmbientales: requestBody.DetallesEntrada.CondicionesAmbientales,
-		FechaRecepcion: requestBody.DetallesEntrada.FechaRecepcion,
-		FechaInicioAnalisis: requestBody.DetallesEntrada.FechaInicioAnalisis,
-		FechaFinalAnalisis: requestBody.DetallesEntrada.FechaFinalAnalisis,
-		IDUsuario: requestBody.DetallesEntrada.IDUsuario,
+		FechaRecepcion:         requestBody.DetallesEntrada.FechaRecepcion,
+		FechaInicioAnalisis:    requestBody.DetallesEntrada.FechaInicioAnalisis,
+		FechaFinalAnalisis:     requestBody.DetallesEntrada.FechaFinalAnalisis,
+		IDUsuario:              requestBody.DetallesEntrada.IDUsuario,
 		NumeroRegistroProducto: requestBody.DetallesEntrada.NumeroRegistroProducto,
 	}
 
