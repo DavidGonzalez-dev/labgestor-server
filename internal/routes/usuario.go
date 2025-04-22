@@ -14,6 +14,7 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	// -----------------------------------
 	e.POST("/login", controller.Login)                              // Iniciar Sesion de Usuario
 	e.PATCH("/contrasena/actualizar", controller.CambiarContrasena) // Actualizar la contraseña
+	e.GET("/validar-token", controller.ValidarToken)				// Validar el token
 
 	// -----------------------------------
 	// Rutas Privadas Autenticacion

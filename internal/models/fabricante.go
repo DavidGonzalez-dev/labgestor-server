@@ -6,3 +6,11 @@ type Fabricante struct {
 	Nombre    string
 	Direccion string
 }
+
+func (fabricante Fabricante) ToMap()  map[string]any{
+	return map[string]any{
+		"ID" : fabricante.ID,
+		"Nombre" : fabricante.Nombre,
+		"Direccion" :fabricante.Direccion,
+	}
+}

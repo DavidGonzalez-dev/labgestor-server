@@ -12,7 +12,7 @@ import (
 
 type ProductoController interface {
 	ObtenerProductoID(c echo.Context) error
-	ObtenerProductos(c echo.Context) error
+	ObtenerEntradasProductos(c echo.Context) error
 	CrearProducto(c echo.Context) error
 }
 
@@ -45,10 +45,9 @@ func (controller productoController) ObtenerProductoID(c echo.Context) error {
 	return c.JSON(http.StatusFound, response.Response{Data: producto})
 }
 
-// TODO: Modificar de donde sale la informacion de los productos. Sale de la tabla entradas de productos no de la de productos
-func (controller productoController) ObtenerProductos(c echo.Context) error {
+func (controller productoController) ObtenerEntradasProductos(c echo.Context) error {
 	// Se obtiene el producto haciendo uso de la capa del repositorio
-	productos, err := controller.Repo.ObtenerProductos()
+	productos, err := controller.Repo.ObtenerEntradasProductos()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los usuarios", Error: err.Error()})
 	}
@@ -60,25 +59,32 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	// Se lee el cuerpo del request
 	// Se lee la informacion del producto
 	var requestBody struct {
-		producto struct {
-			Numero_Registro   string
-			Nombre            string
-			Fecha_fabricacion string
-			Fecha_vencimiento string
-			Descripcion       string
-			Compuesto_activo  string
-			Presentacion      string
-			Cantidad          string
-			Numero_lote       string
-			Tamano_lote       string
-			Id_cliente        int
-			Id_fabricante     int
-			Id_tipo           int
-			Id_estado         int
-		}
-		detallesEntrada struct {
-			// TODO: Valores de la tabla de entradas de productos
-		}
+
+		Producto struct {
+			Numero_Registro   string `json:"numeroRegistro"`
+			Nombre            string `json:"nombre"`
+			Fecha_fabricacion string `json:"fechaFabricacion"`
+			Fecha_vencimiento string `json:"fechaVencimiento"`
+			Descripcion       string `json:"descripcion"`
+			Compuesto_activo  string `json:"compuestoActivo"`
+			Presentacion      string `json:"presentacion"`
+			Cantidad          string `json:"cantidad"`
+			Numero_lote       string `json:"numeroLote"`
+			Tamano_lote       string `json:"tamanoLote"`
+			IDCliente         int    `json:"idCliente"`
+			IDFabricante      int    `json:"idFabricante"`
+			IDTipo            int    `json:"idTipo"`
+			IDEstado          int    `json:"idEstado"`
+		} `json:"producto"`
+		DetallesEntrada struct {
+			PropositoAnalisis      string `json:"propositoAnalisis"`
+			CondicionesAmbientales string `json:"condicionesAmbientales"`
+			FechaRecepcion         string `json:"fechaRecepcion"`
+			FechaInicioAnalisis     string `json:"fechaInicioAnalisis"`
+			FechaFinalAnalisis     string `json:"fechaFinalAnalisis"`
+			IDUsuario              string   `json:"idUsuario"`
+			NumeroRegistroProducto string   `json:"numeroRegistroProducto"`
+		} `json:"detallesEntrada"`
 	}
 
 	// Se lee la informacion de los detalles de la entrada del producto
@@ -86,34 +92,37 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	// Hacer validaciones de campo
-	validationRules := []validation.ValidationRule{}
-	err := validation.Validate(map[string]any{}, validationRules)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{})
-	}
-
 	// Crear una instancia del modelo del producto
 	producto := models.Producto{
-		NumeroRegistro:   requestBody.producto.Numero_Registro,
-		Nombre:           requestBody.producto.Nombre,
-		FechaFabricacion: requestBody.producto.Fecha_fabricacion,
-		FechaVencimiento: requestBody.producto.Fecha_vencimiento,
-		Descripcion:      requestBody.producto.Descripcion,
-		CompuestoActivo:  requestBody.producto.Compuesto_activo,
-		Presentacion:     requestBody.producto.Presentacion,
-		Cantidad:         requestBody.producto.Cantidad,
-		NumeroLote:       requestBody.producto.Numero_lote,
-		TamanoLote:       requestBody.producto.Tamano_lote,
-		ClienteID:        requestBody.producto.Id_cliente,
-		FabricanteID:     requestBody.producto.Id_fabricante,
-		TipoID:           requestBody.producto.Id_tipo,
-		EstadoID:         requestBody.producto.Id_estado,
+		NumeroRegistro:   requestBody.Producto.Numero_Registro,
+		Nombre:           requestBody.Producto.Nombre,
+		FechaFabricacion: requestBody.Producto.Fecha_fabricacion,
+		FechaVencimiento: requestBody.Producto.Fecha_vencimiento,
+		Descripcion:      requestBody.Producto.Descripcion,
+		CompuestoActivo:  requestBody.Producto.Compuesto_activo,
+		Presentacion:     requestBody.Producto.Presentacion,
+		Cantidad:         requestBody.Producto.Cantidad,
+		NumeroLote:       requestBody.Producto.Numero_lote,
+		TamanoLote:       requestBody.Producto.Tamano_lote,
+		IDCliente:        requestBody.Producto.IDCliente,
+		IDFabricante:     requestBody.Producto.IDFabricante,
+		IDTipo:           requestBody.Producto.IDTipo,
+		IDEstado:         requestBody.Producto.IDEstado,
 	}
 
-	// TODO: Se crea una instancia del registro de la entrada del producto
+	entradaProducto := models.EntradaProducto{
+		PropositoAnalisis: requestBody.DetallesEntrada.PropositoAnalisis,
+		CondicionesAmbientales: requestBody.DetallesEntrada.CondicionesAmbientales,
+		FechaRecepcion: requestBody.DetallesEntrada.FechaRecepcion,
+		FechaInicioAnalisis: requestBody.DetallesEntrada.FechaInicioAnalisis,
+		FechaFinalAnalisis: requestBody.DetallesEntrada.FechaFinalAnalisis,
+		IDUsuario: requestBody.DetallesEntrada.IDUsuario,
+		NumeroRegistroProducto: requestBody.DetallesEntrada.NumeroRegistroProducto,
+	}
 
-	controller.Repo.CrearProducto(&producto)
+	if err := controller.Repo.CrearProducto(&producto, &entradaProducto); err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el producto", Error: err.Error()})
+	}
 
 	// Se retorna una respuesta exitosa
 	return c.JSON(http.StatusCreated, response.Response{Message: "El Producto ha sido registrado con exito"})
