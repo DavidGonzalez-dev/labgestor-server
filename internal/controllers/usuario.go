@@ -60,7 +60,7 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
 	//Creacion del usuario
@@ -76,7 +76,7 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 	controller.Repo.CrearUsuario(&usuario)
 
 	// Se retorna una respuesta exitosa
-	return c.JSON(http.StatusOK, response.Response{Message: "El usuario ha sido registrado con exito"})
+	return c.JSON(http.StatusCreated, response.Response{Message: "El usuario ha sido registrado con exito"})
 }
 
 // Este handler se usa para iniciar sesion con un token JWT, el token se guarda en una cookie segura el navegador
@@ -87,7 +87,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 		Contrasena string
 	}
 	if err := c.Bind(&credenciales); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
 	// Verificar que el usuario este registrado en la base de datos
@@ -145,7 +145,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
 	// Obtenemos el usuario y verificamos que exista
@@ -154,7 +154,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al cambiar la contraseña", Error: err.Error()})
 	}
 	if usuario.ID == "0" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Usuario no encontrado"})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Usuario no encontrado"})
 	}
 
 	// Hasheamos la contraseña

@@ -3,8 +3,8 @@ package controllers
 import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
-	"labgestor-server/utils/validation"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -42,7 +42,7 @@ func (controller productoController) ObtenerProductoID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado"})
 	}
 
-	return c.JSON(http.StatusOK, response.Response{Data: producto})
+	return c.JSON(http.StatusFound, response.Response{Data: producto})
 }
 
 // TODO: Modificar de donde sale la informacion de los productos. Sale de la tabla entradas de productos no de la de productos
@@ -53,14 +53,14 @@ func (controller productoController) ObtenerProductos(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los usuarios", Error: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, response.Response{Data: productos})
+	return c.JSON(http.StatusFound, response.Response{Data: productos})
 }
 
 func (controller productoController) CrearProducto(c echo.Context) error {
 	// Se lee el cuerpo del request
 	// Se lee la informacion del producto
 	var requestBody struct {
-		producto struct{
+		producto struct {
 			Numero_Registro   string
 			Nombre            string
 			Fecha_fabricacion string
@@ -76,7 +76,7 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 			Id_tipo           int
 			Id_estado         int
 		}
-		detallesEntrada struct{
+		detallesEntrada struct {
 			// TODO: Valores de la tabla de entradas de productos
 		}
 	}
@@ -93,17 +93,16 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{})
 	}
 
-
 	// Crear una instancia del modelo del producto
 	producto := models.Producto{
 		NumeroRegistro:   requestBody.producto.Numero_Registro,
-		Nombre:            requestBody.producto.Nombre,
+		Nombre:           requestBody.producto.Nombre,
 		FechaFabricacion: requestBody.producto.Fecha_fabricacion,
 		FechaVencimiento: requestBody.producto.Fecha_vencimiento,
-		Descripcion:       requestBody.producto.Descripcion,
+		Descripcion:      requestBody.producto.Descripcion,
 		CompuestoActivo:  requestBody.producto.Compuesto_activo,
-		Presentacion:      requestBody.producto.Presentacion,
-		Cantidad:          requestBody.producto.Cantidad,
+		Presentacion:     requestBody.producto.Presentacion,
+		Cantidad:         requestBody.producto.Cantidad,
 		NumeroLote:       requestBody.producto.Numero_lote,
 		TamanoLote:       requestBody.producto.Tamano_lote,
 		ClienteID:        requestBody.producto.Id_cliente,
@@ -114,10 +113,8 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 
 	// TODO: Se crea una instancia del registro de la entrada del producto
 
-
-
 	controller.Repo.CrearProducto(&producto)
 
 	// Se retorna una respuesta exitosa
-	return c.JSON(http.StatusOK, response.Response{Message: "El Producto ha sido registrado con exito"})
+	return c.JSON(http.StatusCreated, response.Response{Message: "El Producto ha sido registrado con exito"})
 }
