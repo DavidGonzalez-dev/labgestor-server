@@ -4,7 +4,9 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo/v4"
 )
@@ -41,17 +43,18 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	//TODO:CAMBIAR POR LAS REGLAS REGEXP
-	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
-	}
-	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
-	}
 	// Crear una instancia del modelo
 	fabricante := models.Fabricante{
 		Nombre:    requestBody.Nombre,
 		Direccion: requestBody.Direccion,
+	}
+	validationRules := map[string]validation.ValidationRule{
+		"Nombre":    {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El nombre no puede contener numeros"},
+		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida ejm:AV 45 n° 12, Calle 105 n° 8"},
+	}
+
+	if err := validation.Validate(fabricante.ToMap(), validationRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	// Se crea el fabricante haciendo uso de la capa del repositorio
@@ -73,19 +76,19 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
-	// TODO:CAMBIAR POR LAS REGLAS REGEXP
-	if requestBody.Nombre == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
-	}
-	if requestBody.Direccion == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Direccion' es obligatorio"})
-	}
-
 	// Crear una instancia del modelo
 	fabricante := models.Fabricante{
 		ID:        requestBody.ID,
 		Nombre:    requestBody.Nombre,
 		Direccion: requestBody.Direccion,
+	}
+	validationRules := map[string]validation.ValidationRule{
+		"Nombre":    {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El nombre no puede contener numeros"},
+		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida ejm:AV 45 n° 12, Calle 105 n° 8"},
+	}
+
+	if err := validation.Validate(fabricante.ToMap(), validationRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	// Llamamos al repositorio para actualizar el fabricante en la base de datos
