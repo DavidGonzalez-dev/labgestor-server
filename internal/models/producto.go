@@ -23,13 +23,13 @@ type Producto struct {
 	Cantidad         string
 	NumeroLote       string
 	TamanoLote       string
-	IDCliente        int            `json:"-"`
+	IDCliente        int             `json:"-"`
 	Cliente          *Cliente        `gorm:"foreignKey: IDCliente" json:"cliente,omitempty"`
-	IDFabricante     int            `json:"-"`
+	IDFabricante     int             `json:"-"`
 	Fabricante       *Fabricante     `gorm:"foreignKey: IDFabricante" json:"fabricante,omitempty"`
-	IDTipo           int            `json:"-"`
+	IDTipo           int             `json:"-"`
 	TipoProducto     *tipoProducto   `gorm:"foreignKey: IDTipo" json:"tipo,omitempty"`
-	IDEstado         int            `json:"-"`
+	IDEstado         int             `json:"-"`
 	EstadoProducto   *estadoProducto `gorm:"foreignKey: IDEstado" json:"estado,omitempty"`
 }
 
@@ -55,10 +55,10 @@ type EntradaProducto struct {
 	CondicionesAmbientales string
 	FechaRecepcion         string
 	FechaInicioAnalisis    string
-	FechaFinalAnalisis     string 	
-	IDUsuario              string   `json:"-"`
+	FechaFinalAnalisis     string
+	IDUsuario              string    `json:"-"`
 	Usuario                *Usuario  `gorm:"foreignKey: IDUsuario" json:"usuario,omitempty"`
-	NumeroRegistroProducto string   `json:"numeroRegistroProducto"`
+	NumeroRegistroProducto string    `json:"numeroRegistroProducto"`
 	Producto               *Producto `gorm:"foreignKey:NumeroRegistroProducto" json:"producto,omitempty"`
 }
 
