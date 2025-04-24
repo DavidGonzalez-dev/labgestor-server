@@ -13,7 +13,7 @@ type productoHandler struct {
 func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController) {
 	handler := productoHandler{controller}
 	// Definir EndPoints (Puntos de entrada a la API)
-	e.GET("/productos/:numero_registro", handler.ObtenerProductoID) // Obtener informacion de un producto en especifico
-	e.GET("/entradas-productos/", handler.ObtenerEntradasProductos)                  // Obtener la informacion de todos los productos
+	e.GET("/productos/:id", handler.ObtenerProductoID)              // Obtener informacion de un producto en especifico
+	e.GET("/entradas-productos/", handler.ObtenerEntradasProductos) // Obtener la informacion de todos los productos
 	e.POST("/productos/crear", handler.CrearProducto)               // Crear un nuevo producto
 }

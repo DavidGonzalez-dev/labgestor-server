@@ -1,14 +1,13 @@
 package controllers
 
 import (
+	"github.com/labstack/echo/v4"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
 	"regexp"
-
-	"github.com/labstack/echo/v4"
 )
 
 type ProductoController interface {
@@ -57,24 +56,27 @@ func (controller productoController) ObtenerEntradasProductos(c echo.Context) er
 }
 
 func (controller productoController) CrearProducto(c echo.Context) error {
-	// Se lee el cuerpo del request
-	// Se lee la informacion del producto
+
+	//? --------------------------------------------------------------------------
+	//? Bind de la informacion del request
+	//? --------------------------------------------------------------------------
+	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
 		Producto struct {
-			Numero_Registro   string `json:"numeroRegistro"`
-			Nombre            string `json:"nombre"`
-			Fecha_fabricacion string `json:"fechaFabricacion"`
-			Fecha_vencimiento string `json:"fechaVencimiento"`
-			Descripcion       string `json:"descripcion"`
-			Compuesto_activo  string `json:"compuestoActivo"`
-			Presentacion      string `json:"presentacion"`
-			Cantidad          string `json:"cantidad"`
-			Numero_lote       string `json:"numeroLote"`
-			Tamano_lote       string `json:"tamanoLote"`
-			IDCliente         int    `json:"idCliente"`
-			IDFabricante      int    `json:"idFabricante"`
-			IDTipo            int    `json:"idTipo"`
-			IDEstado          int    `json:"idEstado"`
+			NumeroRegistro   string `json:"numeroRegistro"`
+			Nombre           string `json:"nombre"`
+			FechaFabricacion string `json:"fechaFabricacion"`
+			FechaVencimiento string `json:"fechaVencimiento"`
+			Descripcion      string `json:"descripcion"`
+			CompuestoActivo  string `json:"compuestoActivo"`
+			Presentacion     string `json:"presentacion"`
+			Cantidad         string `json:"cantidad"`
+			NumeroLote       string `json:"numeroLote"`
+			TamanoLote       string `json:"tamanoLote"`
+			IDCliente        int    `json:"idCliente"`
+			IDFabricante     int    `json:"idFabricante"`
+			IDTipo           int    `json:"idTipo"`
+			IDEstado         int    `json:"idEstado"`
 		} `json:"producto"`
 		DetallesEntrada struct {
 			PropositoAnalisis      string `json:"propositoAnalisis"`
@@ -83,35 +85,35 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 			FechaInicioAnalisis    string `json:"fechaInicioAnalisis"`
 			FechaFinalAnalisis     string `json:"fechaFinalAnalisis"`
 			IDUsuario              string `json:"idUsuario"`
-			NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 		} `json:"detallesEntrada"`
 	}
-
-	// Se lee la informacion de los detalles de la entrada del producto
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	//? --------------------------------------------------------------------------
+	//? Lectura y validacion de los atributos del producto
+	//? --------------------------------------------------------------------------
 	// Crear una instancia del modelo del producto
 	producto := models.Producto{
-		NumeroRegistro:   requestBody.Producto.Numero_Registro,
+		NumeroRegistro:   requestBody.Producto.NumeroRegistro,
 		Nombre:           requestBody.Producto.Nombre,
-		FechaFabricacion: requestBody.Producto.Fecha_fabricacion,
-		FechaVencimiento: requestBody.Producto.Fecha_vencimiento,
+		FechaFabricacion: requestBody.Producto.FechaFabricacion,
+		FechaVencimiento: requestBody.Producto.FechaVencimiento,
 		Descripcion:      requestBody.Producto.Descripcion,
-		CompuestoActivo:  requestBody.Producto.Compuesto_activo,
+		CompuestoActivo:  requestBody.Producto.CompuestoActivo,
 		Presentacion:     requestBody.Producto.Presentacion,
 		Cantidad:         requestBody.Producto.Cantidad,
-		NumeroLote:       requestBody.Producto.Numero_lote,
-		TamanoLote:       requestBody.Producto.Tamano_lote,
+		NumeroLote:       requestBody.Producto.NumeroLote,
+		TamanoLote:       requestBody.Producto.TamanoLote,
 		IDCliente:        requestBody.Producto.IDCliente,
 		IDFabricante:     requestBody.Producto.IDFabricante,
 		IDTipo:           requestBody.Producto.IDTipo,
 		IDEstado:         requestBody.Producto.IDEstado,
 	}
-
+	// Se definene las regals de validacion para los campos del producto
 	validationRules := map[string]validation.ValidationRule{
-		"NumeroRegistro":   {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de registro no puede contener caracteres especiales"},
+		"NumeroRegistro":   {Regex: regexp.MustCompile(`^[A-Z]{4}-\d{4}-\d{4}$`), Message: "Error en el formato del numero de registro asegurate que el formato sea: AAAA-0000-0000"},
 		"Nombre":           {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
 		"FechaFabricacion": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de fabricacion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
 		"FechaVencimiento": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de vencimiento no es valida asegurese de que sea en el formato yyyy-mm-dd"},
@@ -122,11 +124,15 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		"NumeroLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de lote no puede contener caracteres especiales"},
 		"TamanoLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El tamano de lote no puede contener caracteres especiales"},
 	}
-
+	// Se hace la validacion de los campos y en caso de no cumplir con alguna regla se devuelve un error con la informacion del campo que no cumple las reglas de validacion
 	if err := validation.Validate(producto.ToMap(), validationRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
+	//? --------------------------------------------------------------------------
+	//? Lectura y validacion de los atributos del registro de entrada del producto
+	//? --------------------------------------------------------------------------
+	//Se crea una instancia de la entrada del producto
 	entradaProducto := models.EntradaProducto{
 		PropositoAnalisis:      requestBody.DetallesEntrada.PropositoAnalisis,
 		CondicionesAmbientales: requestBody.DetallesEntrada.CondicionesAmbientales,
@@ -134,20 +140,30 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		FechaInicioAnalisis:    requestBody.DetallesEntrada.FechaInicioAnalisis,
 		FechaFinalAnalisis:     requestBody.DetallesEntrada.FechaFinalAnalisis,
 		IDUsuario:              requestBody.DetallesEntrada.IDUsuario,
-		NumeroRegistroProducto: requestBody.DetallesEntrada.NumeroRegistroProducto,
+		NumeroRegistroProducto: requestBody.Producto.NumeroRegistro,
 	}
+	// Se definene las reglas de validacion para los campos de registro de entrada de productos
 	validationRulesEntrada := map[string]validation.ValidationRule{
 		"PropositoAnalisis":      {Regex: regexp.MustCompile(`^.+$`), Message: "El proposito de analisis no puede estar vacio"},
 		"CondicionesAmbientales": {Regex: regexp.MustCompile(`^.+$`), Message: "Las condiciones ambientales no pueden estar vacias"},
+		"FechaRecepcion":         {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de recepcion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
+		"FechaInicioAnalisis":    {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de incio de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
+		"FechaFinalAnalisis":     {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de final de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
+		"IDUsuario":              {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El id de usuario solo puede contener numeros"},
 	}
+	// Se hace la validacion de los campos y en caso de no cumplir con alguna regla se devuelve un error con la informacion del campo que no cumple las reglas de validacion
 	if err := validation.Validate(entradaProducto.ToMap(), validationRulesEntrada); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
+	//? --------------------------------------------------------------------------
+	//? Creacion del producto en la base de datos
+	//? --------------------------------------------------------------------------
+	// Si todas las reglas de validacion pasaron se crea el producto en la base de datos ,si hay algun error mientras se crea se retorna el error
 	if err := controller.Repo.CrearProducto(&producto, &entradaProducto); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el producto", Error: err.Error()})
 	}
 
-	// Se retorna una respuesta exitosa
+	// Si todo salio bien se retorna una respuesta exitosa que indique que el producto se ha registrado con exito
 	return c.JSON(http.StatusCreated, response.Response{Message: "El Producto ha sido registrado con exito"})
 }

@@ -38,8 +38,8 @@ func (producto Producto) ToMap() map[string]any {
 		"NumeroRegistro":   producto.NumeroRegistro,
 		"Nombre":           producto.Nombre,
 		"FechaFabricacion": producto.FechaFabricacion,
-		"FechaVencimiento": producto.FechaFabricacion,
-		"Descripcion":      producto.FechaFabricacion,
+		"FechaVencimiento": producto.FechaVencimiento,
+		"Descripcion":      producto.Descripcion,
 		"CompuestoActivo":  producto.CompuestoActivo,
 		"Presentacion":     producto.Presentacion,
 		"Cantidad":         producto.Cantidad,
@@ -64,11 +64,13 @@ type EntradaProducto struct {
 
 func (entrada EntradaProducto) ToMap() map[string]any {
 	return map[string]any{
-		"CodigoEntrada":          entrada.CodigoEntrada,
-		"PropositoAnalisis":      entrada.PropositoAnalisis,
-		"CondicionesAmbientales": entrada.CondicionesAmbientales,
-		"FechaRecepcion":         entrada.FechaRecepcion,
-		"FechaInicioAnalsis":     entrada.FechaInicioAnalisis,
-		"FechaFinalAnalisis":     entrada.FechaFinalAnalisis,
+        "CodigoEntrada":          entrada.CodigoEntrada,
+        "PropositoAnalisis":      entrada.PropositoAnalisis,
+        "CondicionesAmbientales": entrada.CondicionesAmbientales,
+        "FechaRecepcion":         entrada.FechaRecepcion,
+        "FechaInicioAnalisis":    entrada.FechaInicioAnalisis,
+        "FechaFinalAnalisis":     entrada.FechaFinalAnalisis,
+        "IDUsuario":              entrada.IDUsuario,
+        "NumeroRegistroProducto": entrada.NumeroRegistroProducto,
 	}
 }
