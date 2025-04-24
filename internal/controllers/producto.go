@@ -113,18 +113,14 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	validationRules := map[string]validation.ValidationRule{
 		"NumeroRegistro":   {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de registro no puede contener caracteres especiales"},
 		"Nombre":           {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
-		"FechaFabricacion": {Regex: regexp.MustCompile(`^(0[1-9]|[12][0-9]|3[01])[-\/](0[1-9]|1[0-2])[-\/](\d{4})$`), Message: "La fecha de fabricacion no es valida asegurese de que sea en el formato dd/mm/yyyy"},
-		"FechaVencimiento": {Regex: regexp.MustCompile(`^(0[1-9]|[12][0-9]|3[01])[-\/](0[1-9]|1[0-2])[-\/](\d{4})$`), Message: "La fecha de vencimiento no es valida asegurese de que sea en el formato dd/mm/yyyy"},
+		"FechaFabricacion": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de fabricacion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
+		"FechaVencimiento": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de vencimiento no es valida asegurese de que sea en el formato yyyy-mm-dd"},
 		"Descripcion":      {Regex: regexp.MustCompile(`^.+$`), Message: "La descripcion no puede estar vacia"},
 		"CompuestoActivo":  {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El compuesto activo no puede contener numeros"},
 		"Presentacion":     {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "La presentacion no puede contener numeros"},
 		"Cantidad":         {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "La cantidad no puede contener caracteres especiales"},
 		"NumeroLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de lote no puede contener caracteres especiales"},
 		"TamanoLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El tamano de lote no puede contener caracteres especiales"},
-		"IDCliente":        {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El ID del cliente no es valido"},
-		"IDFabricante":     {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El ID del fabricante no es valido"},
-		"IDTipo":           {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El ID del tipo no es valido"},
-		"IDEstado":         {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El ID del estado no es valido"},
 	}
 
 	if err := validation.Validate(producto.ToMap(), validationRules); err != nil {
@@ -143,11 +139,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	validationRulesEntrada := map[string]validation.ValidationRule{
 		"PropositoAnalisis":      {Regex: regexp.MustCompile(`^.+$`), Message: "El proposito de analisis no puede estar vacio"},
 		"CondicionesAmbientales": {Regex: regexp.MustCompile(`^.+$`), Message: "Las condiciones ambientales no pueden estar vacias"},
-		"FechaRecepcion":         {Regex: regexp.MustCompile(`^(0[1-9]|[12][0-9]|3[01])[-\/](0[1-9]|1[0-2])[-\/](\d{4})$`), Message: "La fecha de recepcion no es valida asegurese de que sea en el formato dd/mm/yyyy"},
-		"FechaInicioAnalisis":    {Regex: regexp.MustCompile(`^(0[1-9]|[12][0-9]|3[01])[-\/](0[1-9]|1[0-2])[-\/](\d{4})$`), Message: "La fecha de inicio de analisis no es valida asegurese de que sea en el formato dd/mm/yyyy"},
-		"FechaFinalAnalisis":     {Regex: regexp.MustCompile(`^(0[1-9]|[12][0-9]|3[01])[-\/](0[1-9]|1[0-2])[-\/](\d{4})$`), Message: "La fecha de final de analisis no es validad asegurese de que sea en el formato dd/mm/yyyy"},
-		"IDUsuario":              {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El ID del usuario no es valido"},
-		"NumeroRegistroProducto": {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de registro del producto no es valido"},
 	}
 	if err := validation.Validate(entradaProducto.ToMap(), validationRulesEntrada); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
