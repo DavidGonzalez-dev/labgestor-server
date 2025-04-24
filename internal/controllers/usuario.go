@@ -5,8 +5,10 @@ import (
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -275,21 +277,12 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
+	//Todo:Verificar que el usuario existe
+
 	// Obtenemos el usuario de la base de datos
 	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
-	}
-
-	if requestBody.Nombres == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Nombre' es obligatorio"})
-	}
-	if requestBody.Apellidos == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Apellidos' es obligatorio"})
-	}
-
-	if requestBody.Correo == "" {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El campo 'Correo' es obligatorio"})
 	}
 
 	usuario.Nombres = requestBody.Nombres
@@ -299,6 +292,17 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	usuario.Estado = true
 	usuario.RolID = requestBody.RolID
 	println(usuario.RolID)
+
+	validationRules := map[string]validation.ValidationRule{
+		"Nombres":   {Regex: regexp.MustCompile(`^[a-zA-Z]+$`), Message: "El campo 'Nombres' solo puede contener letras y espacios(No puede estar vacio)"},
+		"Apellidos": {Regex: regexp.MustCompile(`^[a-zA-Z]+$`), Message: "El campo 'Apellidos' solo puede contener letras y espacios(No puede estar vacio)"},
+		"Correo":    {Regex: regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), Message: "El campo 'Correo' no es valido"},
+	}
+
+	if err := validation.Validate(usuario.ToMap(), validationRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	}
+
 	// Se actualiza el usuario
 	if err := controller.Repo.ActualizarUsuario(usuario); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
