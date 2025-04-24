@@ -29,7 +29,7 @@ func (repo *productoRepository) ObtenerProductoID(numeroRegistro string) (*model
 	var producto models.Producto
 
 	//realizamos la consulta utilizando el valor del ID como parametro
-	if err := repo.DB.Preload("Cliente").Preload("Fabricante").Preload("TipoProducto").Preload("EstadoProducto").First(&producto, numeroRegistro).Error; err != nil {
+	if err := repo.DB.Preload("Cliente").Preload("Fabricante").Preload("TipoProducto").Preload("EstadoProducto").First(&producto).Where("numero_registro=?", numeroRegistro).Error; err != nil {
 		return nil, err
 	}
 
