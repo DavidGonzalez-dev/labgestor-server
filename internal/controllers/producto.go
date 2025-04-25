@@ -12,7 +12,7 @@ import (
 
 type ProductoController interface {
 	ObtenerProductoID(c echo.Context) error
-	ObtenerEntradasProductos(c echo.Context) error
+	ObtenerRegistrosEntradaProductos(c echo.Context) error
 	CrearProducto(c echo.Context) error
 }
 
@@ -27,34 +27,37 @@ func NewProductoController(repo repository.ProductoRepository) ProductoControlle
 // -------------------------------------
 // CONTROLADORES CURD
 // -------------------------------------
+
+// Este handler nos devuelve con la informacion completa de un producto incluyendo los detalles del registro de la entrada al area
 func (controller productoController) ObtenerProductoID(c echo.Context) error {
+	//? -------------------------------------------------------------------
+	//? Obtenemos el id del producto y se busca en la capa del repositorio
+	//? -------------------------------------------------------------------
 	// Se lee el cuerpo del request
-	numeroRegistro := c.Param("id")
-
-	// Se obtiene el producto haciendo uso de la capa del repositorio
-	producto, err := controller.Repo.ObtenerProductoID(numeroRegistro)
+	numeroRegistroProducto := c.Param("id")
+	// Se obtiene el producto haciendo uso de la capa del repositorio y en caso de no encontrarlo se retorna un estado de notFound
+	registroEntradaProducto, err := controller.Repo.ObtenerProductoID(numeroRegistroProducto)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener el producto", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado", Error: err.Error()})
 	}
-
-	// Verificar si existe el producto
-	if producto.NumeroRegistro == "" {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado"})
-	}
-
-	return c.JSON(http.StatusFound, response.Response{Data: producto})
+	//  Se retorna el registro de la entrada del producto con todos los detalles del mismo
+	return c.JSON(http.StatusFound, response.Response{Data: registroEntradaProducto})
 }
-
-func (controller productoController) ObtenerEntradasProductos(c echo.Context) error {
-	// Se obtiene el producto haciendo uso de la capa del repositorio
+// Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
+func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Context) error {
+	//? --------------------------------------------------------------
+	//? Se Obtienen todos los registros de entrada de los productos
+	//? --------------------------------------------------------------
+	// Se obtiene el producto haciendo uso de la capa del repositorio y en dado caso de presentarse un error no se retorna informacion sino el error
 	productos, err := controller.Repo.ObtenerEntradasProductos()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los usuarios", Error: err.Error()})
 	}
 
+	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
 	return c.JSON(http.StatusFound, response.Response{Data: productos})
 }
-
+// Este handler nos permite crear un producto en la base de datos con su respectivo registro de entrada al area
 func (controller productoController) CrearProducto(c echo.Context) error {
 
 	//? --------------------------------------------------------------------------
@@ -133,7 +136,7 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	//? Lectura y validacion de los atributos del registro de entrada del producto
 	//? --------------------------------------------------------------------------
 	//Se crea una instancia de la entrada del producto
-	entradaProducto := models.EntradaProducto{
+	entradaProducto := models.RegistroEntradaProducto{
 		PropositoAnalisis:      requestBody.DetallesEntrada.PropositoAnalisis,
 		CondicionesAmbientales: requestBody.DetallesEntrada.CondicionesAmbientales,
 		FechaRecepcion:         requestBody.DetallesEntrada.FechaRecepcion,

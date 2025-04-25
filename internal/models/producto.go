@@ -49,20 +49,20 @@ func (producto Producto) ToMap() map[string]any {
 }
 
 // Declaracion del modelo de entrada de un producto
-type EntradaProducto struct {
+type RegistroEntradaProducto struct {
 	CodigoEntrada          int `gorm:"primaryKey"`
 	PropositoAnalisis      string
 	CondicionesAmbientales string
 	FechaRecepcion         string
 	FechaInicioAnalisis    string
 	FechaFinalAnalisis     string
-	IDUsuario              string    `json:"-"`
-	Usuario                *Usuario  `gorm:"foreignKey: IDUsuario" json:"usuario,omitempty"`
 	NumeroRegistroProducto string    `json:"numeroRegistroProducto"`
 	Producto               *Producto `gorm:"foreignKey:NumeroRegistroProducto" json:"producto,omitempty"`
+	IDUsuario              string    `json:"-"`
+	Usuario                *Usuario  `gorm:"foreignKey: IDUsuario" json:"usuario,omitempty"`
 }
 
-func (entrada EntradaProducto) ToMap() map[string]any {
+func (entrada RegistroEntradaProducto) ToMap() map[string]any {
 	return map[string]any{
         "CodigoEntrada":          entrada.CodigoEntrada,
         "PropositoAnalisis":      entrada.PropositoAnalisis,
