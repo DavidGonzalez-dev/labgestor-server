@@ -47,10 +47,10 @@ func NewUsuarioController(repo repository.UsuarioRepository) UsuarioController {
 	return &usuarioController{Repo: repo}
 }
 
-// --------------------------------------------------
-// Definicion de los Controladores para Autenticacion
-// --------------------------------------------------
-// Este handler se usa para registrar un usuario en el sistema
+//? --------------------------------------------------
+//? Definicion de los Controladores para Autenticacion
+//? --------------------------------------------------
+//? Este handler se usa para registrar un usuario en el sistema
 func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 
 	// Obtener la informacion presente en el cuerpo del request
@@ -205,9 +205,9 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.Response{Message: "Se actualizo la contrasena con exito"})
 }
 
-// --------------------------------------------------
-// Definicion de los Controladores CRUD
-// --------------------------------------------------
+//? --------------------------------------------------
+//? Definicion de los Controladores CRUD
+//? --------------------------------------------------
 // Este handler retorna un objeto JSON con la informacion del usuario cuyo ID es pasado como parametro
 func (controller *usuarioController) ObtenerPerfil(c echo.Context) error {
 	id := c.Param("id")

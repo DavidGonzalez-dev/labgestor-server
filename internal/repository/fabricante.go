@@ -10,7 +10,7 @@ import (
 type FabricanteRepository interface {
 	CrearFabricante(fabricante *models.Fabricante) error
 	ActualizarFabricante(fabricante *models.Fabricante) error
-	ObtenerFabricante(ID string) (*models.Fabricante, error)
+	ObtenerFabricanteID(ID int) (*models.Fabricante, error)
 	ObtenerFabricantes() (*[]models.Fabricante, error)
 }
 
@@ -36,7 +36,7 @@ func (repo *fabricanteRepository) ActualizarFabricante(fabricante *models.Fabric
 	return repo.DB.Save(&fabricante).Error
 }
 
-func (repo *fabricanteRepository) ObtenerFabricante(ID string) (*models.Fabricante, error) {
+func (repo *fabricanteRepository) ObtenerFabricanteID(ID int) (*models.Fabricante, error) {
 	var fabricante models.Fabricante
 
 	// Realizamos la consulta utilizando el valor del ID como parámetro
