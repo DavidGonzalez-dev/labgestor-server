@@ -68,6 +68,7 @@ func (controller clienteController) CrearCliente(c echo.Context) error {
 	return c.JSON(http.StatusCreated, response.Response{Message: "Cliente creado con exito"})
 }
 
+// TODO: Serciorarse que solamente se este actualizando un usuarioq ue ya este creado esto con el fin de evitar registros de usuarios imprevistos
 func (controller clienteController) ActualizarCliente(c echo.Context) error {
 	var requestBody struct {
 		ID        int    `json:"id"`
