@@ -7,9 +7,9 @@ import (
 
 // Interfaz que define los metodos que se emplean en la tabla de los productos en la base datos
 type ProductoRepository interface {
-	ObtenerProductoID(numeroRegistro string) (*models.Producto, error)
-	ObtenerEntradasProductos() (*[]models.EntradaProducto, error)
-	CrearProducto(producto *models.Producto, entradaProducto *models.EntradaProducto) error
+	ObtenerProductoID(numeroRegistro string) (*models.RegistroEntradaProducto, error)
+	ObtenerEntradasProductos() (*[]models.RegistroEntradaProducto, error)
+	CrearProducto(producto *models.Producto, entradaProducto *models.RegistroEntradaProducto) error
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -25,42 +25,76 @@ func NewProductoRepository(db *gorm.DB) ProductoRepository {
 // -----------------------------------
 // METODOS CRUD
 // -----------------------------------
-func (repo *productoRepository) ObtenerProductoID(numeroRegistro string) (*models.Producto, error) {
-	var producto models.Producto
+// Este metodo nos permite obtener todos los detalles del registro del producto incluyendo la entrada del mismo
+func (repo *productoRepository) ObtenerProductoID(numeroRegistroProducto string) (*models.RegistroEntradaProducto, error) {
 
-	//realizamos la consulta utilizando el valor del ID como parametro
-	if err := repo.DB.Preload("Cliente").Preload("Fabricante").Preload("TipoProducto").Preload("EstadoProducto").First(&producto).Where("numero_registro=?", numeroRegistro).Error; err != nil {
+	//? ------------------------------------------------------------------
+	//? Instanciamos y Precargamos toda la informacion de un producto
+	//? ------------------------------------------------------------------
+	// Realizamos la consulta utilizando el valor del numero de registro del producto como parametro
+	var entradaProducto models.RegistroEntradaProducto
+	if err := repo.DB.
+		Preload("Producto").                                         // Preload para que aparezca la informacion del producto
+		Preload("Producto.Cliente").                                 // Preload para que aparezca la informacion del cliente del producto
+		Preload("Producto.Fabricante").                              // Preload para que aparezca la informacion del fabricante del producto
+		Preload("Producto.TipoProducto").                            // Preload para que aparezca la informacion del tipo del producto
+		Preload("Producto.EstadoProducto").                          // Preload para que aparezca la informacion del estado del producto
+		Where("numero_registro_producto=?", numeroRegistroProducto). // Filtro para seleccionar solo el registro que coincida con el numero de registro de producto pasado.
+		First(&entradaProducto).Error; err != nil {
+		// En caso de un error al momento de hacer la precarga de los datos se retorna el error y nil
 		return nil, err
 	}
 
-	return &producto, nil
+	//? ------------------------------------------------------------------
+	//? Se retorna el objeto ya poblado con la informacion de la base de datos
+	//? ------------------------------------------------------------------
+	// Se retorna el objeto con la informacion
+	return &entradaProducto, nil
 }
 
-func (repo *productoRepository) ObtenerEntradasProductos() (*[]models.EntradaProducto, error) {
-	var entradasProductos []models.EntradaProducto
-	if err := repo.DB.Preload("Usuario", func(db *gorm.DB)*gorm.DB {return db.Select("id", "nombres", "apellidos")}).Find(&entradasProductos).Error; err != nil {
+// Este metodo nos permite obtener solo los detalles del registro de la entrada del producto al area.
+func (repo *productoRepository) ObtenerEntradasProductos() (*[]models.RegistroEntradaProducto, error) {
+	//? ---------------------------------------------------------------------
+	//? Se crea un slice para guardar los registros de entrada de productos
+	//? ---------------------------------------------------------------------
+	var registrosEntradaProducto []models.RegistroEntradaProducto
+	// Se hace un preload de la tablas anidadas para obtener infromacion adicional
+	if err := repo.DB.
+		Preload("Usuario", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "nombres", "apellidos") // Se obtiene el id, los nombres y los apellidos del usuario responsable
+		}).
+		Find(&registrosEntradaProducto).Error; err != nil { // Se guardan los resultados en el slice declarado
+
+		// En caso de haber ocurrido algun error devolvemos nil y el error
 		return nil, err
 	}
-	return &entradasProductos, nil
 
+	// En caso de que todo halla salido bien se retorna el slice con los registro de entrada de productos y nil
+	return &registrosEntradaProducto, nil
 }
 
-func (repo *productoRepository) CrearProducto(producto *models.Producto, entradaProducto *models.EntradaProducto) error {
-	// Se hace uso de una transaccion para asegurarse dfe que ambos registros queden registrados de manera correcta
+// Este metodo nos permite crear un producto en la base de datos junto a su respectivo producto
+func (repo *productoRepository) CrearProducto(producto *models.Producto, entradaProducto *models.RegistroEntradaProducto) error {
 
-	err := repo.DB.Transaction(func (tx *gorm.DB) error {
-		// Se crea el producto
+	//? -----------------------------------------------------------------
+	//? Se crea el producto mediante una transaccion en la base de datos
+	//? -----------------------------------------------------------------
+	// Se hace uso de una transaccion para asegurarse de que ambos registros queden en la base de datos y no solo uno.
+	err := repo.DB.Transaction(func(tx *gorm.DB) error {
+
+		// Se crea el producto y se verifica que no hallan errores
 		if err := tx.Create(producto).Error; err != nil {
 			return err
 		}
-	
-		// Se crea la entrada del producto en la base de datos
-		if err := tx.Create(entradaProducto).Error; err != nil{
+
+		// Se crea el registro de entrada del producto y se verifica que no hallan errores
+		if err := tx.Create(entradaProducto).Error; err != nil {
 			return err
 		}
-		
+		// Si todo salio bien se retorna nil
 		return nil
 	})
 
+	// Se retorna el valor de retorno de la transaccion
 	return err
 }
