@@ -22,7 +22,7 @@ func RequireAuth(repo repository.UsuarioRepository, rolPermitido string) echo.Mi
 			tokenCookie, err := c.Cookie("authToken")
 			// Caso: La cookie no existe y se devuelve un error de autenticacion
 			if err != nil {
-				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no autorizado"})
+				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no autorizado", Error: "Token no encontrado"})
 			}
 
 			//? ----------------------------------------------------------------------------------
@@ -59,19 +59,23 @@ func RequireAuth(repo repository.UsuarioRepository, rolPermitido string) echo.Mi
 				// Verificamos que el usuario exista o que este activo
 				usuario, err := repo.ObtenerUsuarioID(userID)
 				if err != nil {
-					return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener usuario", Error: err.Error()})
+					return c.JSON(http.StatusInternalServerError, response.Response{Message: "Este usuario no existe", Error: err.Error()})
 				}
 				if usuario.ID == "0" || !usuario.Estado {
 					return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no autorizado: El usuario esta inhabilitado "})
 				}
 
-				// Verificar que el rol que esta intentando acceder este permitido
-				if usuario.Rol.NombreRol != rolPermitido {
-
-					return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no permitido", Error: fmt.Sprintf("Rol requerido para acceso %s", rolPermitido)})
+				// Verificar si se pide un rol especifico para entrar a la ruta
+				if rolPermitido != "" {
+					
+					// En caso de que se pase un rol se verifica si el usuario tiene este rol
+					if usuario.Rol.NombreRol != rolPermitido {
+						return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no permitido", Error: fmt.Sprintf("Rol requerido para acceso %s", rolPermitido)})
+					}
 				}
-				// Se retorna un error de autorizacion en caso de no poder acceder a los claims
+
 			} else {
+				// Se retorna un error de autorizacion en caso de no poder acceder a los claims
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no permitido: Token invalido"})
 			}
 
