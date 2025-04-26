@@ -1,18 +1,18 @@
 package models
 
-// Declaracion del modelo de referencia de la tabla rol_usuarios
+//? Declaracion del modelo de referencia de la tabla rol_usuarios
 type rolUsuario struct {
 	ID        int `gorm:"primaryKey" json:"-"`
 	NombreRol string
 }
 
-// Declaracion del modelo de referencia de la tabla usuarios
+//? Declaracion del modelo de referencia de la tabla usuarios
 type Usuario struct {
 	ID         string     `gorm:"primaryKey,omitempty"` // Llave primaria
 	Nombres    string     `json:"nombres,omitempty"`
 	Apellidos  string     `json:"apellidos,omitempty"`
 	Correo     string     `json:"correo,omitempty"`
-	Contrasena string     `json:"contrasena,omitempty"`
+	Contrasena string     `json:"-"`
 	Firma      string     `json:"firma,omitempty"`
 	Estado     bool       `json:"estado,omitempty"`
 	RolID      int        `json:"-"`                 // Llave Secundaria
