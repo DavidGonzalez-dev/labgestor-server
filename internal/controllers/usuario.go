@@ -58,11 +58,11 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 	// ? ---------------------------------------------------------------
 	// Obtener la informacion presente en el cuerpo del request
 	var requestBody struct {
-		ID        string `json:"id"`
+		ID        string `json:"documento"`
 		Nombres   string `json:"nombres"`
 		Apellidos string `json:"apellidos"`
 		Correo    string `json:"correo"`
-		RolID     int    `json:"rolId"`
+		RolID     int    `json:"rol"`
 	}
 	// En caso de error al leeer el cuerpo del request se devuelve un error
 	if err := c.Bind(&requestBody); err != nil {
@@ -121,8 +121,8 @@ func (controller *usuarioController) Login(c echo.Context) error {
 
 	// Obtener el Nombre de usuario y la contraseña
 	var credenciales struct {
-		ID         string `json:"id"`
-		Contrasena string `json:"contrasena"`
+		ID         string `json:"documento"`
+		Contrasena string `json:"password"`
 	}
 	// Verificamos qyue no halla habido un error al momento de leer el cuerpo de request
 	if err := c.Bind(&credenciales); err != nil {
