@@ -69,6 +69,10 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	if usuario, _ := controller.Repo.ObtenerUsuarioID(requestBody.ID); usuario != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear el usuario", Error: "El usuario ya existe"})
+	}
+
 	// ? ---------------------------------------------------------------
 	// ? Se instancia el modelo y se validan los campos
 	// ? ---------------------------------------------------------------
@@ -82,6 +86,8 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 		Estado:    true,
 		RolID:     requestBody.RolID,
 	}
+
+	
 
 	// Se definen las reglas de validacion
 	validationRules := map[string]validation.ValidationRule{

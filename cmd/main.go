@@ -24,7 +24,7 @@ func main() {
 	// Configuracion para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:4321"},
-		AllowMethods: []string{http.MethodGet, http.MethodPost},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
