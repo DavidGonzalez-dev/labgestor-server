@@ -87,8 +87,6 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 		RolID:     requestBody.RolID,
 	}
 
-	
-
 	// Se definen las reglas de validacion
 	validationRules := map[string]validation.ValidationRule{
 		"ID":        {Regex: regexp.MustCompile(`^\d+$`), Message: "El id de usuario solo puede contener numeros"},
@@ -142,7 +140,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	// Verificar que el usuario este registrado en la base de datos
 	usuario, err := controller.Repo.ObtenerUsuarioID(credenciales.ID)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, response.Response{Message: "ID o contraseña invalidos", Error: err.Error()})
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Acceso denegado", Error: "Ups! su id o contraseña son incorrectos, vuelva a intentarlo"})
 	}
 
 	// ? --------------------------------------------------
@@ -151,13 +149,13 @@ func (controller *usuarioController) Login(c echo.Context) error {
 
 	// Verificar que el usuario este habilitado para el ingreso
 	if !usuario.Estado {
-		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Acceso Denegado"})
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Acceso Denegado", Error: "Este usuario ha sido deshabilitado por el administrador del sistema. Para poder ingresar de nuevo al sistema comuniquese con su empleador"})
 	}
 
 	//Comparar la contrasena enviada con la contrasena encriptada del usuario
 	err = bcrypt.CompareHashAndPassword([]byte(usuario.Contrasena), []byte(credenciales.Contrasena))
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, response.Response{Message: "ID o Contrasena Invalidos", Error: err.Error()})
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Acceso denegado", Error: "Ups! su id o contraseña son incorrectos, vuelva a intentarlo"})
 	}
 
 	// ? --------------------------------------------------
@@ -183,7 +181,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 
 	// Enviar de vuelta la token
 	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
-	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"rol": usuario.Rol.NombreRol}})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol}})
 }
 
 // Este handler se usa para cerrar la sesion del usuario e inhabilitar el token JWT generado
@@ -229,14 +227,15 @@ func (controller *usuarioController) ValidarToken(c echo.Context) error {
 	// ? -----------------------------------------------------------
 
 	//Verificar el token
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok {
 		// Validamos la expiracion del token
 		if time.Now().Unix() > int64(claims["exp"].(float64)) {
 			return c.JSON(http.StatusUnauthorized, response.Response{Message: "Token Expirado", Data: map[string]bool{"valid": false}})
 		}
 	}
 	// Si se llega este punto el token es valido
-	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido", Data: map[string]bool{"valid": true}})
+	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido", Data: map[string]any{"valid": true, "rol": claims["rol"]}})
 }
 
 // Este handler se usa para actualizar la contraseña de un usuario ya creado. La contraseña se encripta antes de hacer el update en la base de datos.
