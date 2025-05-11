@@ -79,7 +79,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 			IDCliente        int    `json:"idCliente"`
 			IDFabricante     int    `json:"idFabricante"`
 			IDTipo           int    `json:"idTipo"`
-			IDEstado         int    `json:"idEstado"`
 		} `json:"producto"`
 		DetallesEntrada struct {
 			PropositoAnalisis      string `json:"propositoAnalisis"`
@@ -112,7 +111,7 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		IDCliente:        requestBody.Producto.IDCliente,
 		IDFabricante:     requestBody.Producto.IDFabricante,
 		IDTipo:           requestBody.Producto.IDTipo,
-		IDEstado:         requestBody.Producto.IDEstado,
+		IDEstado:         1,
 	}
 	// Se definene las regals de validacion para los campos del producto
 	validationRules := map[string]validation.ValidationRule{
