@@ -18,6 +18,7 @@ type FabricanteController interface {
 	ActualizarFabricante(c echo.Context) error
 	ObtenerFabricante(c echo.Context) error
 	ObtenerFabricantes(c echo.Context) error
+	EliminarFabricante(c echo.Context) error
 }
 
 // Structura que conecte con el repositorio
@@ -172,4 +173,37 @@ func (controller fabricanteController) ObtenerFabricantes(c echo.Context) error 
 	}
 	// Si todo salió bien, respondemos con un estado 200 y el cliente
 	return c.JSON(http.StatusOK, response.Response{Data: fabricantes})
+}
+
+// Este handler se encarga de eliminar un fabricante de la base de datos
+func (controller fabricanteController) EliminarFabricante(c echo.Context) error {
+	// ? ----------------------------------------------------------------------
+	// ? Obtenemos el ID y lo convertimos en un entero
+	// ? ----------------------------------------------------------------------
+	// Obtenemos el id desde el aprametro del endpoint
+	idParam := c.Param("id")
+	// Convertimos el id en un entero y nos cersioramos que nos hallan pasado un numero como id
+	idFabricante, err := strconv.Atoi(idParam)
+	// Verficamos que el usuario nos halla pasado un numero como parametro
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El id del fabricante tiene que ser un numero entero"})
+	}
+
+	// ? ----------------------------------------------------------------------
+	// ? Obtenemos el registro del fabricante desde el repositorio
+	// ? ----------------------------------------------------------------------
+	// Llamamos al repositorio para obtener el fabricante por ID
+	fabricante, err := controller.Repo.ObtenerFabricanteID(idFabricante)
+	// Verificamos que el usuario exista
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro no encontrado", Error: err.Error()})
+	}
+
+	// ? ----------------------------------------------------------------------
+	// ? Eliminamos el registro del fabricante desde la base de datos
+	// ? ----------------------------------------------------------------------
+	if err := controller.Repo.EliminarFabricante(fabricante); err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al eliminar el fabricante", Error: err.Error()})
+	}
+	return c.JSON(http.StatusOK, response.Response{Message: "Se elimino"})
 }

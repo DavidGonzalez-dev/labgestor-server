@@ -18,6 +18,7 @@ type ClienteController interface {
 	ActualizarCliente(c echo.Context) error
 	ObtenerCliente(c echo.Context) error
 	ObtenerClientes(c echo.Context) error
+	EliminarCliente(c echo.Context) error
 }
 
 // Structura que conecte con el repositorio
@@ -171,4 +172,36 @@ func (controller clienteController) ObtenerClientes(c echo.Context) error {
 	}
 	// Si todo salió bien, respondemos con un estado 200 y la lista de clientes
 	return c.JSON(http.StatusOK, response.Response{Data: clientes})
+}
+
+func (controller clienteController) EliminarCliente(c echo.Context) error {
+	//? ----------------------------------------------------------------------
+	//? Obtenemos el ID y lo convertimos en un entero
+	//? ----------------------------------------------------------------------
+	// Obtenemos el id desde el aprametro del endpoint
+	idParam := c.Param("id")
+	// Convertimos el id en un entero y nos cersioramos que nos hallan pasado un numero como id
+	idCliente, err := strconv.Atoi(idParam)
+	// Verficamos que el usuario nos halla pasado un numero como parametro
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El id del cliente tiene que ser un numero entero"})
+	}
+
+	//? ----------------------------------------------------------------------
+	//? Obtenemos el registro del cliente desde el repositorio
+	//? ----------------------------------------------------------------------
+	// Llamamos al repositorio para obtener el cliente por ID
+	cliente, err := controller.Repo.ObtenerClienteID(idCliente)
+	// Verificamos que el usuario exista
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro no encontrado", Error: err.Error()})
+	}
+
+	//? ----------------------------------------------------------------------
+	//? Eliminamos el registro del cliente en la base de datos
+	//? ----------------------------------------------------------------------
+	if err := controller.Repo.EliminarCliente(cliente); err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al eliminar el cliente", Error: err.Error()})
+	}
+	return c.JSON(http.StatusOK, response.Response{Message: "Cliente eliminado"})
 }
