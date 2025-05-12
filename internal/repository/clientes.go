@@ -12,6 +12,7 @@ type ClienteRepository interface {
 	ActualizarCliente(cliente *models.Cliente) error
 	ObtenerClienteID(ID int) (*models.Cliente, error)
 	ObtenerClientes() (*[]models.Cliente, error)
+	EliminarCliente(cliente *models.Cliente) error
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -55,4 +56,9 @@ func (repo *clienteRepository) ObtenerClientes() (*[]models.Cliente, error) {
 		return nil, err
 	}
 	return &clientes, nil
+}
+
+// Este metodo nos permite eliminar un cliente de la base de datos
+func (repo *clienteRepository) EliminarCliente(cliente *models.Cliente) error {
+	return repo.DB.Delete(&cliente).Error
 }
