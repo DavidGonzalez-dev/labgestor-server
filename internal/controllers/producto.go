@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"github.com/labstack/echo/v4"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
 	"regexp"
+	"github.com/labstack/echo/v4"
 )
 
 type ProductoController interface {
