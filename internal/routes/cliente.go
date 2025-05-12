@@ -17,8 +17,9 @@ func NewClienteHandler(e *echo.Echo, controller controllers.ClienteController) {
 	handler := clienteHandler{Controller: controller}
 
 	// Definir EndPoints (Puntos de entrada a la API)
-	e.POST("/clientes/registrar", handler.Controller.CrearCliente) // Registro de cliente
+	e.POST("/clientes/registrar", handler.Controller.CrearCliente)      // Registro de cliente
 	e.PUT("/clientes/actualizar", handler.Controller.ActualizarCliente) // Actualizar Cliente
-	e.GET("/clientes/:id", handler.Controller.ObtenerCliente) // Obtener informacion de un cliente en especifico
-	e.GET("/clientes", handler.Controller.ObtenerClientes) // Obtener informacion de todos los clientes
+	e.GET("/clientes/:id", handler.Controller.ObtenerCliente)           // Obtener informacion de un cliente en especifico
+	e.GET("/clientes", handler.Controller.ObtenerClientes)              // Obtener informacion de todos los clientes
+	e.DELETE("/clientes/:id", handler.Controller.EliminarCliente)       // Eliminar cliente
 }

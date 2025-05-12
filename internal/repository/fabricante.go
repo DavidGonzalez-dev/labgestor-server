@@ -12,6 +12,7 @@ type FabricanteRepository interface {
 	ActualizarFabricante(fabricante *models.Fabricante) error
 	ObtenerFabricanteID(ID int) (*models.Fabricante, error)
 	ObtenerFabricantes() (*[]models.Fabricante, error)
+	EliminarFabricante(fabricante *models.Fabricante) error
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -55,4 +56,6 @@ func (repo *fabricanteRepository) ObtenerFabricantes() (*[]models.Fabricante, er
 	return &fabricantes, nil
 }
 
-// TODO: Implementar metodos para Modificar fabricante
+func (repo *fabricanteRepository) EliminarFabricante(fabricante *models.Fabricante) error {
+	return repo.DB.Delete(&fabricante).Error
+}
