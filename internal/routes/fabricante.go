@@ -24,4 +24,5 @@ func NewFabricanteHandler(e *echo.Echo, controller controllers.FabricanteControl
 	e.PUT("/fabricantes/actualizar", handler.Controller.ActualizarFabricante) // Actualizar la informacion de un fabricante en especifico
 	e.GET("/fabricantes/:id", handler.Controller.ObtenerFabricante)           // Obtener informacion de un fabricante en especifico
 	e.GET("/fabricantes/", handler.Controller.ObtenerFabricantes)             // Obtener la informacion de todos los fabricantes
+	e.DELETE("/fabricantes/:id", handler.Controller.EliminarFabricante)       // Eliminar un fabricante en especifico
 }
