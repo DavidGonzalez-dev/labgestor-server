@@ -198,12 +198,12 @@ func (controller fabricanteController) EliminarFabricante(c echo.Context) error 
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro no encontrado", Error: err.Error()})
 	}
-
+	
 	// ? ----------------------------------------------------------------------
 	// ? Eliminamos el registro del fabricante desde la base de datos
 	// ? ----------------------------------------------------------------------
 	if err := controller.Repo.EliminarFabricante(fabricante); err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al eliminar el fabricante", Error: err.Error()})
+		return c.JSON(http.StatusConflict, response.Response{Message: "Error al eliminar el fabricante", Error: err.Error()})
 	}
 	return c.JSON(http.StatusOK, response.Response{Message: "Se elimino"})
 }
