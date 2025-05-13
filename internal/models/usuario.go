@@ -8,7 +8,7 @@ type rolUsuario struct {
 
 //? Declaracion del modelo de referencia de la tabla usuarios
 type Usuario struct {
-	ID         string     `gorm:"primaryKey,omitempty"` // Llave primaria
+	ID         string     `gorm:"primaryKey,omitempty" json:"documento"` // Llave primaria
 	Nombres    string     `json:"nombres,omitempty"`
 	Apellidos  string     `json:"apellidos,omitempty"`
 	Correo     string     `json:"correo,omitempty"`
