@@ -201,7 +201,7 @@ func (controller clienteController) EliminarCliente(c echo.Context) error {
 	//? Eliminamos el registro del cliente en la base de datos
 	//? ----------------------------------------------------------------------
 	if err := controller.Repo.EliminarCliente(cliente); err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al eliminar el cliente", Error: err.Error()})
+		return c.JSON(http.StatusConflict, response.Response{Message: "Error al eliminar el cliente", Error: err.Error()})
 	}
 	return c.JSON(http.StatusOK, response.Response{Message: "Cliente eliminado"})
 }
