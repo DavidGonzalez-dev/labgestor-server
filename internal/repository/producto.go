@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"labgestor-server/internal/models"
+
+	"gorm.io/gorm"
 )
 
 // Interfaz que define los metodos que se emplean en la tabla de los productos en la base datos
@@ -10,6 +11,9 @@ type ProductoRepository interface {
 	ObtenerProductoID(numeroRegistro string) (*models.RegistroEntradaProducto, error)
 	ObtenerEntradasProductos() (*[]models.RegistroEntradaProducto, error)
 	CrearProducto(producto *models.Producto, entradaProducto *models.RegistroEntradaProducto) error
+	EliminarProducto(producto *models.Producto) error
+
+	ObtenerInfoProducto(numeroRegitroProducto string) (*models.Producto, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -97,4 +101,28 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 
 	// Se retorna el valor de retorno de la transaccion
 	return err
+}
+
+// Este metodo nos permie eliminar un registro de un producto en la base de datos
+func (repo *productoRepository) EliminarProducto(producto *models.Producto) error {
+	// Se elimina el producto y se verifica que no hallan errores
+	if err := repo.DB.Delete(&producto).Error; err != nil {
+		return err
+	}
+	// Si todo salio bien se retorna nil
+	return nil
+}
+
+// -------------------------------
+// Metodos de Ayuda
+// -------------------------------
+// Esta funcion nos permite traer unicamente la informacion plana del producto, sin hacer preloads pesados. Esta funcion se crea para el uso interno de la apliacion como ayuda para el desarrollador
+func (repo *productoRepository) ObtenerInfoProducto(numeroRegitroProducto string) (*models.Producto, error) {
+
+	var producto models.Producto
+	if err := repo.DB.Where("numero_registro = ?", numeroRegitroProducto).First(&producto).Error; err != nil {
+		return nil, err
+	}
+
+	return &producto, nil
 }
