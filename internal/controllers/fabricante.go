@@ -190,7 +190,7 @@ func (controller fabricanteController) EliminarFabricante(c echo.Context) error 
 	}
 
 	// ? ----------------------------------------------------------------------
-	// ? Obtenemos el registro del fabricante desde el repositorio
+	// ? se elimina el registro del fabricante
 	// ? ----------------------------------------------------------------------
 	// Llamamos al repositorio para obtener el fabricante por ID
 	fabricante, err := controller.Repo.ObtenerFabricanteID(idFabricante)
@@ -198,7 +198,6 @@ func (controller fabricanteController) EliminarFabricante(c echo.Context) error 
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro no encontrado", Error: err.Error()})
 	}
-	
 	// ? ----------------------------------------------------------------------
 	// ? Eliminamos el registro del fabricante desde la base de datos
 	// ? ----------------------------------------------------------------------

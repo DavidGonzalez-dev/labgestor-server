@@ -14,6 +14,7 @@ type ProductoController interface {
 	ObtenerProductoID(c echo.Context) error
 	ObtenerRegistrosEntradaProductos(c echo.Context) error
 	CrearProducto(c echo.Context) error
+	EliminarProducto(c echo.Context) error
 }
 
 type productoController struct {
@@ -43,6 +44,7 @@ func (controller productoController) ObtenerProductoID(c echo.Context) error {
 	//  Se retorna el registro de la entrada del producto con todos los detalles del mismo
 	return c.JSON(http.StatusFound, response.Response{Data: registroEntradaProducto})
 }
+
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
 func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Context) error {
 	//? --------------------------------------------------------------
@@ -57,6 +59,7 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
 	return c.JSON(http.StatusFound, response.Response{Data: productos})
 }
+
 // Este handler nos permite crear un producto en la base de datos con su respectivo registro de entrada al area
 func (controller productoController) CrearProducto(c echo.Context) error {
 
@@ -168,4 +171,25 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 
 	// Si todo salio bien se retorna una respuesta exitosa que indique que el producto se ha registrado con exito
 	return c.JSON(http.StatusCreated, response.Response{Message: "El Producto ha sido registrado con exito"})
+}
+
+// Este handler nos permite eliminar un producto y todos los registros relacionados
+func (controller productoController) EliminarProducto(c echo.Context) error {
+
+	// Obtenemos el parametro del endpoint
+	numeroRegistroProducto := c.Param("id")
+	println(numeroRegistroProducto)
+
+	// Se trae el registro del producto para verificar que si exista
+	producto, err := controller.Repo.ObtenerInfoProducto(numeroRegistroProducto)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este producto no existe", Error: err.Error()})
+	}
+
+	// Se elimina el producto
+	if err := controller.Repo.EliminarProducto(producto); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al eliminar el producto", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "El producto se elimino con exito"})
 }
