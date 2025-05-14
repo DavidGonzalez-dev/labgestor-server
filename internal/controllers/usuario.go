@@ -370,6 +370,7 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 		Nombres   string `json:"nombres"`
 		Apellidos string `json:"apellidos"`
 		Correo    string `json:"correo"`
+		Estado    bool   `json:"estado"`
 		RolID     int    `json:"rolId"`
 	}
 	// Se verifica que no hallan habido errores al leer el cuerpo del request
@@ -394,7 +395,7 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	usuario.Apellidos = requestBody.Apellidos
 	usuario.Correo = requestBody.Correo
 	usuario.Firma = utils.GenerarFirmaUsuario(requestBody.Nombres, requestBody.Apellidos)
-	usuario.Estado = true
+	usuario.Estado = requestBody.Estado
 	usuario.RolID = requestBody.RolID
 
 	// Se crean las reglas de validacion
