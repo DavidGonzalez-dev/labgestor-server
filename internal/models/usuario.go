@@ -2,8 +2,8 @@ package models
 
 //? Declaracion del modelo de referencia de la tabla rol_usuarios
 type rolUsuario struct {
-	ID        int `gorm:"primaryKey" json:"-"`
-	NombreRol string
+	ID        int `gorm:"primaryKey" json:"id"`
+	NombreRol string `json:"nombreRol"`
 }
 
 //? Declaracion del modelo de referencia de la tabla usuarios
