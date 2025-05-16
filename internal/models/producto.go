@@ -13,16 +13,16 @@ type estadoProducto struct {
 
 // Declaracion del modelo de un Producto
 type Producto struct {
-	NumeroRegistro   string `gorm:"primaryKey"`
-	Nombre           string
-	FechaFabricacion string
-	FechaVencimiento string
-	Descripcion      string
-	CompuestoActivo  string
-	Presentacion     string
-	Cantidad         string
-	NumeroLote       string
-	TamanoLote       string
+	NumeroRegistro   string          `gorm:"primaryKey"`
+	Nombre           string          `json:"nombre"`
+	FechaFabricacion string          `json:"fechaFabricacion"`
+	FechaVencimiento string          `json:"fechaVencimiento"`
+	Descripcion      string          `json:"descripcion"`
+	CompuestoActivo  string          `json:"compuestoActivo"`
+	Presentacion     string          `json:"presentacion"`
+	Cantidad         string          `json:"cantidad"`
+	NumeroLote       string          `json:"numeroLote"`
+	TamanoLote       string          `json:"tamanoLote"`
 	IDCliente        int             `json:"-"`
 	Cliente          *Cliente        `gorm:"foreignKey: IDCliente" json:"cliente,omitempty"`
 	IDFabricante     int             `json:"-"`
@@ -64,13 +64,13 @@ type RegistroEntradaProducto struct {
 
 func (entrada RegistroEntradaProducto) ToMap() map[string]any {
 	return map[string]any{
-        "CodigoEntrada":          entrada.CodigoEntrada,
-        "PropositoAnalisis":      entrada.PropositoAnalisis,
-        "CondicionesAmbientales": entrada.CondicionesAmbientales,
-        "FechaRecepcion":         entrada.FechaRecepcion,
-        "FechaInicioAnalisis":    entrada.FechaInicioAnalisis,
-        "FechaFinalAnalisis":     entrada.FechaFinalAnalisis,
-        "IDUsuario":              entrada.IDUsuario,
-        "NumeroRegistroProducto": entrada.NumeroRegistroProducto,
+		"CodigoEntrada":          entrada.CodigoEntrada,
+		"PropositoAnalisis":      entrada.PropositoAnalisis,
+		"CondicionesAmbientales": entrada.CondicionesAmbientales,
+		"FechaRecepcion":         entrada.FechaRecepcion,
+		"FechaInicioAnalisis":    entrada.FechaInicioAnalisis,
+		"FechaFinalAnalisis":     entrada.FechaFinalAnalisis,
+		"IDUsuario":              entrada.IDUsuario,
+		"NumeroRegistroProducto": entrada.NumeroRegistroProducto,
 	}
 }
