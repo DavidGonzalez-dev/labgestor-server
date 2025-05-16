@@ -14,7 +14,7 @@ type Usuario struct {
 	Correo     string     `json:"correo,omitempty"`
 	Contrasena string     `json:"-"`
 	Firma      string     `json:"firma,omitempty"`
-	Estado     bool       `json:"estado,omitempty"`
+	Estado     bool       `json:"estado"`
 	RolID      int        `json:"-"`                 // Llave Secundaria
 	Rol        *rolUsuario `gorm:"foreignKey: RolID" json:"rol,omitempty"` // Referecia a tabla llave foranea
 }
