@@ -12,8 +12,10 @@ type ProductoRepository interface {
 	ObtenerEntradasProductos() (*[]models.RegistroEntradaProducto, error)
 	CrearProducto(producto *models.Producto, entradaProducto *models.RegistroEntradaProducto) error
 	EliminarProducto(producto *models.Producto) error
-
+	ActualizarProducto(producto *models.Producto) error
+	ActualizarRegistroEntradaProducto(entradaProducto *models.RegistroEntradaProducto) error
 	ObtenerInfoProducto(numeroRegitroProducto string) (*models.Producto, error)
+	ObtenerInfoRegistroEntradaProducto(CodigoEntrada int) (*models.RegistroEntradaProducto, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -113,6 +115,43 @@ func (repo *productoRepository) EliminarProducto(producto *models.Producto) erro
 	return nil
 }
 
+func (repo *productoRepository) ActualizarProducto(producto *models.Producto) error {
+	// Se actualiza el producto y se verifica que no hallan errores
+	if err := repo.DB.Model(&models.Producto{}).Where("numero_registro = ?", producto.NumeroRegistro).Updates(map[string]any{
+		"Nombre":           producto.Nombre,
+		"FechaFabricacion": producto.FechaFabricacion,
+		"FechaVencimiento": producto.FechaVencimiento,
+		"Descripcion":      producto.Descripcion,
+		"CompuestoActivo":  producto.CompuestoActivo,
+		"Presentacion":     producto.Presentacion,
+		"Cantidad":         producto.Cantidad,
+		"NumeroLote":       producto.NumeroLote,
+		"TamanoLote":       producto.TamanoLote,
+		"IDCliente":        producto.IDCliente,
+		"IDFabricante":     producto.IDFabricante,
+		"IDTipo":           producto.IDTipo,
+	}).Error; err != nil {
+		// En caso de un error se retorna
+		return err
+	}
+	return nil
+}
+
+// Este metodo nos permite actualizar el registro de entrada del producto
+func (repo *productoRepository) ActualizarRegistroEntradaProducto(entradaProducto *models.RegistroEntradaProducto) error {
+	// Se actualiza el registro de entrada del producto y se verifica que no hallan errores
+	if err := repo.DB.Model(&models.RegistroEntradaProducto{}).Where("codigo_entrada = ?", entradaProducto.CodigoEntrada).Updates(map[string]any{
+		"PropositoAnalisis":      entradaProducto.PropositoAnalisis,
+		"CondicionesAmbientales": entradaProducto.CondicionesAmbientales,
+		"FechaRecepcion":         entradaProducto.FechaRecepcion,
+		"FechaInicioAnalisis":    entradaProducto.FechaInicioAnalisis,
+		"FechaFinalAnalisis":     entradaProducto.FechaFinalAnalisis,
+	}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // -------------------------------
 // Metodos de Ayuda
 // -------------------------------
@@ -125,4 +164,12 @@ func (repo *productoRepository) ObtenerInfoProducto(numeroRegitroProducto string
 	}
 
 	return &producto, nil
+}
+
+func (repo *productoRepository) ObtenerInfoRegistroEntradaProducto(CodigoEntrada int) (*models.RegistroEntradaProducto, error) {
+	var registroEntradaProducto models.RegistroEntradaProducto
+	if err := repo.DB.Where("codigo_entrada = ?", CodigoEntrada).First(&registroEntradaProducto).Error; err != nil {
+		return nil, err
+	}
+	return &registroEntradaProducto, nil
 }
