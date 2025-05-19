@@ -25,7 +25,7 @@ type productoController struct {
 }
 
 func NewProductoController(repo repository.ProductoRepository) ProductoController {
-	return productoController{Repo: repo}
+	return &productoController{Repo: repo}
 }
 
 // -------------------------------------

@@ -28,7 +28,7 @@ type clienteController struct {
 
 // Funcion de instancia de controlador
 func NewClienteController(repo repository.ClienteRepository) ClienteController {
-	return clienteController{Repo: repo}
+	return &clienteController{Repo: repo}
 }
 
 // ? -------------------------------------
