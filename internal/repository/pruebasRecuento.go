@@ -20,6 +20,7 @@ func NewPruebaRecuentoRepository(db *gorm.DB) PruebaRecuentoRepository {
 
 // Este metodo nos permite crear un registro de una prueba de recuento en la base de datos
 func (repo *pruebaRecuentoRepository) CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error {
+
 	// Se crea el producto y se verifica que no hallan errores
 	return repo.DB.Create(&pruebaRecuento).Error
 }
