@@ -16,5 +16,6 @@ func NewPruebaRecuentoHandler(e *echo.Echo, controller controllers.PruebaRecuent
 	//? -----------------------------------------------------
 	//? Endpoints CRUD
 	//? -----------------------------------------------------
-	e.POST("/pruebasRecuento/crear", handler.CrearPruebaRecuento) // Crear una nueva prueba de recuento
+	e.POST("/pruebasRecuento/crear", handler.CrearPruebaRecuento)         // Crear una nueva prueba de recuento
+	e.GET("/pruebasRecuento/producto/:id", handler.ObtenerPruebaRecuento) // Obtener una prueba de recuento por numero de registro de producto
 }
