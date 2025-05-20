@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
+	"labgestor-server/utils"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
@@ -99,6 +101,8 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	fmt.Printf("%+v\n", requestBody)
+
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del producto
 	//? --------------------------------------------------------------------------
@@ -119,21 +123,9 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		IDTipo:           requestBody.Producto.IDTipo,
 		IDEstado:         1,
 	}
-	// Se definene las regals de validacion para los campos del producto
-	validationRules := map[string]validation.ValidationRule{
-		"NumeroRegistro":   {Regex: regexp.MustCompile(`^[A-Z]{4}-\d{4}-\d{4}$`), Message: "Error en el formato del numero de registro asegurate que el formato sea: AAAA-0000-0000"},
-		"Nombre":           {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
-		"FechaFabricacion": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de fabricacion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaVencimiento": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de vencimiento no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"Descripcion":      {Regex: regexp.MustCompile(`^.+$`), Message: "La descripcion no puede estar vacia"},
-		"CompuestoActivo":  {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El compuesto activo no puede contener numeros"},
-		"Presentacion":     {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "La presentacion no puede contener numeros"},
-		"Cantidad":         {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "La cantidad no puede contener caracteres especiales"},
-		"NumeroLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de lote no puede contener caracteres especiales"},
-		"TamanoLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El tamano de lote no puede contener caracteres especiales"},
-	}
+
 	// Se hace la validacion de los campos y en caso de no cumplir con alguna regla se devuelve un error con la informacion del campo que no cumple las reglas de validacion
-	if err := validation.Validate(producto.ToMap(), validationRules); err != nil {
+	if err := validation.Validate(producto.ToMap(), validation.ProductoRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
@@ -150,17 +142,8 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		IDUsuario:              requestBody.DetallesEntrada.IDUsuario,
 		NumeroRegistroProducto: requestBody.Producto.NumeroRegistro,
 	}
-	// Se definene las reglas de validacion para los campos de registro de entrada de productos
-	validationRulesEntrada := map[string]validation.ValidationRule{
-		"PropositoAnalisis":      {Regex: regexp.MustCompile(`^.+$`), Message: "El proposito de analisis no puede estar vacio"},
-		"CondicionesAmbientales": {Regex: regexp.MustCompile(`^.+$`), Message: "Las condiciones ambientales no pueden estar vacias"},
-		"FechaRecepcion":         {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de recepcion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaInicioAnalisis":    {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de incio de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaFinalAnalisis":     {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de final de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"IDUsuario":              {Regex: regexp.MustCompile(`^[0-9]+$`), Message: "El id de usuario solo puede contener numeros"},
-	}
 	// Se hace la validacion de los campos y en caso de no cumplir con alguna regla se devuelve un error con la informacion del campo que no cumple las reglas de validacion
-	if err := validation.Validate(entradaProducto.ToMap(), validationRulesEntrada); err != nil {
+	if err := validation.Validate(entradaProducto.ToMap(), validation.RegistroEntradaRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
@@ -196,6 +179,7 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 		IDFabricante     int    `json:"idFabricante"`
 		IDTipo           int    `json:"idTipo"`
 	}
+	
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
@@ -224,22 +208,11 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	producto.IDCliente = requestBody.IDCliente
 	producto.IDFabricante = requestBody.IDFabricante
 	producto.IDTipo = requestBody.IDTipo
-	//Se crean las reglas de validacion para los campos del producto
-	validationRules := map[string]validation.ValidationRule{
-		"NumeroRegistro":   {Regex: regexp.MustCompile(`^[A-Z]{4}-\d{4}-\d{4}$`), Message: "Error en el formato del numero de registro asegurate que el formato sea: AAAA-0000-0000"},
-		"Nombre":           {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El nombre no puede contener numeros"},
-		"FechaFabricacion": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de fabricacion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaVencimiento": {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de vencimiento no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"Descripcion":      {Regex: regexp.MustCompile(`^.+$`), Message: "La descripcion no puede estar vacia"},
-		"CompuestoActivo":  {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El compuesto activo no puede contener numeros"},
-		"Presentacion":     {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "La presentacion no puede contener numeros"},
-		"Cantidad":         {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "La cantidad no puede contener caracteres especiales"},
-		"NumeroLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de lote no puede contener caracteres especiales"},
-		"TamanoLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El tamano de lote no puede contener caracteres especiales"},
-	}
+	
 
-	if err := validation.Validate(producto.ToMap(), validationRules); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+
+	if err := validation.Validate(producto.ToMap(), validation.ProductoRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 	//? --------------------------------------------------------------------------
 	//? Actualizacion del producto en la base de datos
@@ -257,9 +230,10 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	//? --------------------------------------------------------------------------
 	//? Bind de la informacion del request
 	//? --------------------------------------------------------------------------
+	
 	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
-		CodigoEntrada          int    `json:"codigoEntrada"`
+		NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 		PropositoAnalisis      string `json:"propositoAnalisis"`
 		CondicionesAmbientales string `json:"condicionesAmbientales"`
 		FechaRecepcion         string `json:"fechaRecepcion"`
@@ -274,28 +248,27 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	//? Lectura y validacion de los atributos del registro de entrada del producto
 	//? --------------------------------------------------------------------------
 
-	registroEntradaProducto, err := controller.Repo.ObtenerInfoRegistroEntradaProducto(requestBody.CodigoEntrada)
+	registroEntradaProducto, err := controller.Repo.ObtenerInfoRegistroEntradaProducto(requestBody.NumeroRegistroProducto)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro de entrada no encontrado", Error: err.Error()})
 	}
 
+	// Se hace la actualizacion de los valores del registro de la entrada del producto
 	registroEntradaProducto.PropositoAnalisis = requestBody.PropositoAnalisis
 	registroEntradaProducto.CondicionesAmbientales = requestBody.CondicionesAmbientales
 	registroEntradaProducto.FechaRecepcion = requestBody.FechaRecepcion
 	registroEntradaProducto.FechaInicioAnalisis = requestBody.FechaInicioAnalisis
 	registroEntradaProducto.FechaFinalAnalisis = requestBody.FechaFinalAnalisis
 
-	validationRules := map[string]validation.ValidationRule{
-		"PropositoAnalisis":      {Regex: regexp.MustCompile(`^.+$`), Message: "El proposito de analisis no puede estar vacio"},
-		"CondicionesAmbientales": {Regex: regexp.MustCompile(`^.+$`), Message: "Las condiciones ambientales no pueden estar vacias"},
-		"FechaRecepcion":         {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de recepcion no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaInicioAnalisis":    {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de incio de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-		"FechaFinalAnalisis":     {Regex: regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$`), Message: "La fecha de final de analisis no es valida asegurese de que sea en el formato yyyy-mm-dd"},
-	}
+	// Se hace la validacion de los campos
+	validationRules := validation.RegistroEntradaRules
+	delete(validationRules, "IDUsuario") // Se elimina la regla de validacion para el campo IDUsuario
+
 	// Se hace la validacion de los campos y en caso de no cumplir con alguna regla se devuelve un error con la informacion del campo que no cumple las reglas de validacion
 	if err := validation.Validate(registroEntradaProducto.ToMap(), validationRules); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
+
 	//? --------------------------------------------------------------------------
 	//? Actualizacion del registro de entrada del producto en la base de datos
 	//? --------------------------------------------------------------------------

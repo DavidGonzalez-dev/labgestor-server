@@ -15,7 +15,7 @@ type ProductoRepository interface {
 	ActualizarProducto(producto *models.Producto) error
 	ActualizarRegistroEntradaProducto(entradaProducto *models.RegistroEntradaProducto) error
 	ObtenerInfoProducto(numeroRegitroProducto string) (*models.Producto, error)
-	ObtenerInfoRegistroEntradaProducto(CodigoEntrada int) (*models.RegistroEntradaProducto, error)
+	ObtenerInfoRegistroEntradaProducto(numeroRegistroProducto string) (*models.RegistroEntradaProducto, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -88,13 +88,59 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 	// Se hace uso de una transaccion para asegurarse de que ambos registros queden en la base de datos y no solo uno.
 	err := repo.DB.Transaction(func(tx *gorm.DB) error {
 
-		// Se crea el producto y se verifica que no hallan errores
-		if err := tx.Create(producto).Error; err != nil {
+		// Maneja campos de fecha vacíos
+		productoData := map[string]interface{}{
+			"numero_registro":   producto.NumeroRegistro,
+			"nombre":            producto.Nombre,
+			"descripcion":       producto.Descripcion,
+			"compuesto_activo":  producto.CompuestoActivo,
+			"presentacion":      producto.Presentacion,
+			"cantidad":          producto.Cantidad,
+			"numero_lote":       producto.NumeroLote,
+			"tamano_lote":       producto.TamanoLote,
+			"id_cliente":        producto.IDCliente,
+			"id_fabricante":     producto.IDFabricante,
+			"id_tipo":           producto.IDTipo,
+			"id_estado":         producto.IDEstado,
+		}
+		
+		// Si las fechas no están vacías, agrégalas al mapa
+		if producto.FechaFabricacion != "" {
+			productoData["fecha_fabricacion"] = producto.FechaFabricacion
+		}
+		
+		if producto.FechaVencimiento != "" {
+			productoData["fecha_vencimiento"] = producto.FechaVencimiento
+		}
+		
+		// Se crea el producto usando el mapa de datos y se verifica que no haya errores
+		if err := tx.Model(&models.Producto{}).Create(productoData).Error; err != nil {
 			return err
 		}
 
-		// Se crea el registro de entrada del producto y se verifica que no hallan errores
-		if err := tx.Create(entradaProducto).Error; err != nil {
+		// Maneja campos de fecha vacíos para el registro de entrada
+		entradaData := map[string]interface{}{
+			"proposito_analisis":      entradaProducto.PropositoAnalisis,
+			"condiciones_ambientales": entradaProducto.CondicionesAmbientales,
+			"numero_registro_producto": entradaProducto.NumeroRegistroProducto,
+			"id_usuario":              entradaProducto.IDUsuario,
+		}
+		
+		// Si las fechas no están vacías, agrégalas al mapa
+		if entradaProducto.FechaRecepcion != "" {
+			entradaData["fecha_recepcion"] = entradaProducto.FechaRecepcion
+		}
+		
+		if entradaProducto.FechaInicioAnalisis != "" {
+			entradaData["fecha_inicio_analisis"] = entradaProducto.FechaInicioAnalisis
+		}
+		
+		if entradaProducto.FechaFinalAnalisis != "" {
+			entradaData["fecha_final_analisis"] = entradaProducto.FechaFinalAnalisis
+		}
+		
+		// Se crea el registro de entrada del producto usando el mapa de datos y se verifica que no haya errores
+		if err := tx.Model(&models.RegistroEntradaProducto{}).Create(entradaData).Error; err != nil {
 			return err
 		}
 		// Si todo salio bien se retorna nil
@@ -166,9 +212,10 @@ func (repo *productoRepository) ObtenerInfoProducto(numeroRegitroProducto string
 	return &producto, nil
 }
 
-func (repo *productoRepository) ObtenerInfoRegistroEntradaProducto(CodigoEntrada int) (*models.RegistroEntradaProducto, error) {
+//
+func (repo *productoRepository) ObtenerInfoRegistroEntradaProducto(numeroRegistroProducto string) (*models.RegistroEntradaProducto, error) {
 	var registroEntradaProducto models.RegistroEntradaProducto
-	if err := repo.DB.Where("codigo_entrada = ?", CodigoEntrada).First(&registroEntradaProducto).Error; err != nil {
+	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).First(&registroEntradaProducto).Error; err != nil {
 		return nil, err
 	}
 	return &registroEntradaProducto, nil
