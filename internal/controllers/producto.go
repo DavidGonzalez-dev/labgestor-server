@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
-	"labgestor-server/utils"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
-	"regexp"
 
 	"github.com/labstack/echo/v4"
 )
@@ -179,7 +177,7 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 		IDFabricante     int    `json:"idFabricante"`
 		IDTipo           int    `json:"idTipo"`
 	}
-	
+
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
