@@ -400,8 +400,8 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 
 	// Se crean las reglas de validacion
 	validationRules := map[string]validation.ValidationRule{
-		"Nombres":   {Regex: regexp.MustCompile(`^[a-zA-Z]+$`), Message: "El campo 'Nombres' solo puede contener letras y espacios(No puede estar vacio)"},
-		"Apellidos": {Regex: regexp.MustCompile(`^[a-zA-Z]+$`), Message: "El campo 'Apellidos' solo puede contener letras y espacios(No puede estar vacio)"},
+		"Nombres":   {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El campo 'Nombres' solo puede contener letras y espacios (No puede estar vacio)"},
+		"Apellidos": {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El campo 'Apellidos' solo puede contener letras y espacios (No puede estar vacio)"},
 		"Correo":    {Regex: regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), Message: "El campo 'Correo' no es valido"},
 	}
 	// Se verifica que los campos cumplan con las reglas de validacion
