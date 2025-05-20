@@ -8,6 +8,7 @@ import (
 
 type PruebaRecuentoRepository interface {
 	CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
+	ObtenerPruebaRecuento(numeroRegistroProducto string) (*models.PruebaRecuento, error)
 }
 
 type pruebaRecuentoRepository struct {
@@ -22,4 +23,12 @@ func NewPruebaRecuentoRepository(db *gorm.DB) PruebaRecuentoRepository {
 func (repo *pruebaRecuentoRepository) CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error {
 	// Se crea el producto y se verifica que no hallan errores
 	return repo.DB.Create(&pruebaRecuento).Error
+}
+
+func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuento(numeroRegistroProducto string) (*models.PruebaRecuento, error) {
+	var pruebaRecuento models.PruebaRecuento
+	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).First(&pruebaRecuento).Error; err != nil {
+		return nil, err
+	}
+	return &pruebaRecuento, nil
 }

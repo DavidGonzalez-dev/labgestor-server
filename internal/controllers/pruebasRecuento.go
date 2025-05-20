@@ -13,6 +13,7 @@ import (
 // Interfaz que define los metodos del controlador
 type PruebaRecuentoController interface {
 	CrearPruebaRecuento(c echo.Context) error
+	ObtenerPruebaRecuento(c echo.Context) error
 }
 
 type pruebaRecuentoController struct {
@@ -74,4 +75,14 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
 	}
 	return c.JSON(http.StatusCreated, response.Response{Message: "Prueba de recuento creada correctamente", Data: pruebasRecuento})
+}
+
+func (controller pruebaRecuentoController) ObtenerPruebaRecuento(c echo.Context) error {
+	numeroRegistroProducto := c.Param("id")
+
+	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuento(numeroRegistroProducto)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró una prueba de recuento para el producto", Error: err.Error()})
+	}
+	return c.JSON(http.StatusOK, response.Response{Data: pruebaRecuento})
 }
