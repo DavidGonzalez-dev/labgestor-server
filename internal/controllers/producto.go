@@ -99,7 +99,10 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	fmt.Printf("%+v\n", requestBody)
+	// Se verifica que el producto no exista
+	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
+		return c.JSON(http.StatusConflict, response.Response{Message: "Errro al crear el producto", Error: fmt.Sprintf("Ya existe un producto con el numero de registro: %s", producto.NumeroRegistro)})
+	}
 
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del producto
