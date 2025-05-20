@@ -9,6 +9,7 @@ import (
 type PruebaRecuentoRepository interface {
 	CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
 	ObtenerPruebaRecuento(numeroRegistroProducto string) (*models.PruebaRecuento, error)
+	ActualizarPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
 }
 
 type pruebaRecuentoRepository struct {
@@ -31,4 +32,9 @@ func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuento(numeroRegistroProduc
 		return nil, err
 	}
 	return &pruebaRecuento, nil
+}
+
+func (repo *pruebaRecuentoRepository) ActualizarPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error {
+	// Se actualiza el producto y se verifica que no hallan errores
+	return repo.DB.Save(&pruebaRecuento).Error
 }
