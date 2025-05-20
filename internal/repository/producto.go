@@ -89,7 +89,7 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 	err := repo.DB.Transaction(func(tx *gorm.DB) error {
 
 		// Maneja campos de fecha vacíos
-		productoData := map[string]interface{}{
+		productoData := map[string]any{
 			"numero_registro":   producto.NumeroRegistro,
 			"nombre":            producto.Nombre,
 			"descripcion":       producto.Descripcion,
@@ -119,7 +119,7 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 		}
 
 		// Maneja campos de fecha vacíos para el registro de entrada
-		entradaData := map[string]interface{}{
+		entradaData := map[string]any{
 			"proposito_analisis":      entradaProducto.PropositoAnalisis,
 			"condiciones_ambientales": entradaProducto.CondicionesAmbientales,
 			"numero_registro_producto": entradaProducto.NumeroRegistroProducto,
@@ -185,14 +185,27 @@ func (repo *productoRepository) ActualizarProducto(producto *models.Producto) er
 
 // Este metodo nos permite actualizar el registro de entrada del producto
 func (repo *productoRepository) ActualizarRegistroEntradaProducto(entradaProducto *models.RegistroEntradaProducto) error {
-	// Se actualiza el registro de entrada del producto y se verifica que no hallan errores
-	if err := repo.DB.Model(&models.RegistroEntradaProducto{}).Where("codigo_entrada = ?", entradaProducto.CodigoEntrada).Updates(map[string]any{
-		"PropositoAnalisis":      entradaProducto.PropositoAnalisis,
-		"CondicionesAmbientales": entradaProducto.CondicionesAmbientales,
-		"FechaRecepcion":         entradaProducto.FechaRecepcion,
-		"FechaInicioAnalisis":    entradaProducto.FechaInicioAnalisis,
-		"FechaFinalAnalisis":     entradaProducto.FechaFinalAnalisis,
-	}).Error; err != nil {
+	// Preparar un mapa con los campos que siempre se actualizan
+	updateData := map[string]any{
+		"proposito_analisis":      entradaProducto.PropositoAnalisis,
+		"condiciones_ambientales": entradaProducto.CondicionesAmbientales,
+	}
+	
+	// Solo incluir fechas cuando no estén vacías
+	if entradaProducto.FechaRecepcion != "" {
+		updateData["fecha_recepcion"] = entradaProducto.FechaRecepcion
+	}
+	
+	if entradaProducto.FechaInicioAnalisis != "" {
+		updateData["fecha_inicio_analisis"] = entradaProducto.FechaInicioAnalisis
+	}
+	
+	if entradaProducto.FechaFinalAnalisis != "" {
+		updateData["fecha_final_analisis"] = entradaProducto.FechaFinalAnalisis
+	}
+	
+	// Se actualiza el registro de entrada del producto con los campos no vacíos
+	if err := repo.DB.Model(&models.RegistroEntradaProducto{}).Where("codigo_entrada = ?", entradaProducto.CodigoEntrada).Updates(updateData).Error; err != nil {
 		return err
 	}
 	return nil
