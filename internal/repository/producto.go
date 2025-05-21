@@ -66,8 +66,9 @@ func (repo *productoRepository) ObtenerEntradasProductos() (*[]models.RegistroEn
 	var registrosEntradaProducto []models.RegistroEntradaProducto
 	// Se hace un preload de la tablas anidadas para obtener infromacion adicional
 	if err := repo.DB.
-		Preload("Usuario", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "nombres", "apellidos") // Se obtiene el id, los nombres y los apellidos del usuario responsable
+		Preload("Producto.TipoProducto").
+		Preload("Usuario", func (db *gorm.DB) *gorm.DB {
+			return db.Select("id", "nombres", "apellidos")
 		}).
 		Find(&registrosEntradaProducto).Error; err != nil { // Se guardan los resultados en el slice declarado
 

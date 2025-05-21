@@ -17,7 +17,7 @@ func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController)
 	//? Endpoints CRUD
 	//? -----------------------------------------------------
 	e.GET("/productos/:id", handler.ObtenerProductoID)                                       // Obtener informacion de un producto en especifico
-	e.GET("/registroEntradaProductos/", handler.ObtenerRegistrosEntradaProductos)            // Obtener la informacion de todos los productos
+	e.GET("/registroEntradaProductos", handler.ObtenerRegistrosEntradaProductos)             // Obtener la informacion de todos los productos
 	e.POST("/productos/crear", handler.CrearProducto)                                        // Crear un nuevo producto
 	e.DELETE("/productos/:id", handler.EliminarProducto)                                     // Eliminar un producto en especifico
 	e.PUT("/productos/actualizar", handler.ActualizarProducto)                               // Actualizar un producto en especifico

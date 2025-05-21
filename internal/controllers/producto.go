@@ -60,7 +60,7 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 	}
 
 	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
-	return c.JSON(http.StatusFound, response.Response{Data: productos})
+	return c.JSON(http.StatusOK, response.Response{Data: productos})
 }
 
 // Este handler nos permite crear un producto en la base de datos con su respectivo registro de entrada al area
