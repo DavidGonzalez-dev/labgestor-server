@@ -2,13 +2,13 @@ package models
 
 // Declare Foreign key tables related to product
 type tipoProducto struct {
-	ID         int `gorm:"primaryKey" json:"-"`
-	NombreTipo string
+	ID         int    `gorm:"primaryKey" json:"-"`
+	NombreTipo string `json:"nombreTipo"`
 }
 
 type estadoProducto struct {
-	ID           int `gorm:"primaryKey" json:"-"`
-	NombreEstado string
+	ID           int    `gorm:"primaryKey" json:"-"`
+	NombreEstado string `json:"nombreEstado"`
 }
 
 // Declaracion del modelo de un Producto
@@ -50,12 +50,12 @@ func (producto Producto) ToMap() map[string]any {
 
 // Declaracion del modelo de entrada de un producto
 type RegistroEntradaProducto struct {
-	CodigoEntrada          int `gorm:"primaryKey"`
-	PropositoAnalisis      string
-	CondicionesAmbientales string
-	FechaRecepcion         string
-	FechaInicioAnalisis    string
-	FechaFinalAnalisis     string
+	CodigoEntrada          int       `gorm:"primaryKey"`
+	PropositoAnalisis      string    `json:"propositoAnalisis"`
+	CondicionesAmbientales string    `json:"condicionesAmbientales"`
+	FechaRecepcion         string    `json:"fechaRecepcion"`
+	FechaInicioAnalisis    string    `json:"fechaInicioAnalisis"`
+	FechaFinalAnalisis     string    `json:"fechaFinalAnalisis"`
 	NumeroRegistroProducto string    `json:"numeroRegistroProducto"`
 	Producto               *Producto `gorm:"foreignKey:NumeroRegistroProducto" json:"producto,omitempty"`
 	IDUsuario              string    `json:"-"`
