@@ -8,8 +8,10 @@ import (
 
 type PruebaRecuentoRepository interface {
 	CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
-	ObtenerPruebaRecuento(numeroRegistroProducto string) (*models.PruebaRecuento, error)
+	ObtenerPruebaRecuentoID(id string) (*models.PruebaRecuento, error)
 	ActualizarPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
+	ObtenerPruebasPorProducto(numeroRegistroProducto string) ([]models.PruebaRecuento, error)
+	EliminarPruebaRecuento(id string) error
 }
 
 type pruebaRecuentoRepository struct {
@@ -26,9 +28,9 @@ func (repo *pruebaRecuentoRepository) CrearPruebaRecuento(pruebaRecuento *models
 	return repo.DB.Create(&pruebaRecuento).Error
 }
 
-func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuento(numeroRegistroProducto string) (*models.PruebaRecuento, error) {
+func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuentoID(id string) (*models.PruebaRecuento, error) {
 	var pruebaRecuento models.PruebaRecuento
-	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).First(&pruebaRecuento).Error; err != nil {
+	if err := repo.DB.First(&pruebaRecuento, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &pruebaRecuento, nil
@@ -37,4 +39,20 @@ func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuento(numeroRegistroProduc
 func (repo *pruebaRecuentoRepository) ActualizarPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error {
 	// Se actualiza el producto y se verifica que no hallan errores
 	return repo.DB.Save(&pruebaRecuento).Error
+}
+
+func (repo *pruebaRecuentoRepository) ObtenerPruebasPorProducto(numeroRegistroProducto string) ([]models.PruebaRecuento, error) {
+	var pruebas []models.PruebaRecuento
+	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&pruebas).Error; err != nil {
+		return nil, err
+	}
+	return pruebas, nil
+}
+
+func (repo *pruebaRecuentoRepository) EliminarPruebaRecuento(id string) error {
+	var pruebaRecuento models.PruebaRecuento
+	if err := repo.DB.First(&pruebaRecuento, "id = ?", id).Error; err != nil {
+		return err
+	}
+	return repo.DB.Delete(&pruebaRecuento).Error
 }

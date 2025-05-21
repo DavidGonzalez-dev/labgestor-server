@@ -13,8 +13,10 @@ import (
 // Interfaz que define los metodos del controlador
 type PruebaRecuentoController interface {
 	CrearPruebaRecuento(c echo.Context) error
-	ObtenerPruebaRecuento(c echo.Context) error
+	ObtenerPruebaRecuentoID(c echo.Context) error
 	ActualizarPruebaRecuento(c echo.Context) error
+	ObtenerPruebasPorProducto(c echo.Context) error
+	EliminarPruebaRecuento(c echo.Context) error
 }
 
 type pruebaRecuentoController struct {
@@ -75,21 +77,27 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 	if err := controller.repo.CrearPruebaRecuento(&pruebasRecuento); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, response.Response{Message: "Prueba de recuento creada correctamente", Data: pruebasRecuento})
+	return c.JSON(http.StatusCreated, response.Response{Data: pruebasRecuento})
 }
 
-func (controller pruebaRecuentoController) ObtenerPruebaRecuento(c echo.Context) error {
-	numeroRegistroProducto := c.Param("id")
+func (controller pruebaRecuentoController) ObtenerPruebaRecuentoID(c echo.Context) error {
+	idPrueba := c.Param("id") // Este es el ID único de la prueba
 
-	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuento(numeroRegistroProducto)
+	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuentoID(idPrueba)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró una prueba de recuento para el producto", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{
+			Message: "No se encontró la prueba de recuento",
+			Error:   err.Error(),
+		})
 	}
-	return c.JSON(http.StatusOK, response.Response{Data: pruebaRecuento})
+
+	return c.JSON(http.StatusOK, response.Response{
+		Message: "Prueba de recuento obtenida correctamente",
+		Data:    pruebaRecuento,
+	})
 }
 
 func (controller pruebaRecuentoController) ActualizarPruebaRecuento(c echo.Context) error {
-	numeroRegistroProducto := c.Param("id")
 	//? ------------------------------------------------
 	//? Se lee el cuerpo del request
 	//? ------------------------------------------------
@@ -108,21 +116,20 @@ func (controller pruebaRecuentoController) ActualizarPruebaRecuento(c echo.Conte
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
-	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuento(numeroRegistroProducto)
-	if err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró una prueba de recuento para el producto", Error: err.Error()})
+
+	pruebaRecuento := models.PruebaRecuento{
+		ID:                     requestBody.ID,
+		MetodoUsado:            requestBody.MetodoUsado,
+		Concepto:               requestBody.Concepto,
+		Especificacion:         requestBody.Especificacion,
+		VolumenDiluyente:       requestBody.VolumenDiluyente,
+		TiempoDisolucion:       requestBody.TiempoDisolucion,
+		CantidadMuestra:        requestBody.CantidadMuestra,
+		Tratamiento:            requestBody.Tratamiento,
+		NombreRecuento:         requestBody.NombreRecuento,
+		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
 	}
 
-	pruebaRecuento.ID = requestBody.ID
-	pruebaRecuento.MetodoUsado = requestBody.MetodoUsado
-	pruebaRecuento.Concepto = requestBody.Concepto
-	pruebaRecuento.Especificacion = requestBody.Especificacion
-	pruebaRecuento.VolumenDiluyente = requestBody.VolumenDiluyente
-	pruebaRecuento.TiempoDisolucion = requestBody.TiempoDisolucion
-	pruebaRecuento.CantidadMuestra = requestBody.CantidadMuestra
-	pruebaRecuento.Tratamiento = requestBody.Tratamiento
-	pruebaRecuento.NombreRecuento = requestBody.NombreRecuento
-	pruebaRecuento.NumeroRegistroProducto = requestBody.NumeroRegistroProducto
 	//? ------------------------------------------------
 	//? Se hace la validacion de los campos
 	//? ------------------------------------------------
@@ -132,8 +139,30 @@ func (controller pruebaRecuentoController) ActualizarPruebaRecuento(c echo.Conte
 	//? ------------------------------------------------
 	//? Se actualiza el producto
 	//? ------------------------------------------------
-	if err := controller.repo.ActualizarPruebaRecuento(pruebaRecuento); err != nil {
+	if err := controller.repo.ActualizarPruebaRecuento(&pruebaRecuento); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al actualizar la prueba de recuento", Error: err.Error()})
 	}
-	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento actualizada correctamente", Data: pruebaRecuento})
+	return c.JSON(http.StatusOK, response.Response{Data: pruebaRecuento})
+}
+
+func (controller pruebaRecuentoController) ObtenerPruebasPorProducto(c echo.Context) error {
+	numeroRegistro := c.Param("numeroRegistro") // Este es el ID único de la prueba
+
+	pruebaRecuento, err := controller.repo.ObtenerPruebasPorProducto(numeroRegistro)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró la prueba de recuento", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento obtenida correctamente", Data: pruebaRecuento})
+}
+
+func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context) error {
+	idPrueba := c.Param("id") // Este es el ID único de la prueba
+
+	err := controller.repo.EliminarPruebaRecuento(idPrueba)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró la prueba de recuento", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento eliminada correctamente"})
 }
