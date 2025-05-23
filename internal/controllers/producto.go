@@ -26,7 +26,7 @@ type productoController struct {
 }
 
 func NewProductoController(repo repository.ProductoRepository) ProductoController {
-	return productoController{Repo: repo}
+	return &productoController{Repo: repo}
 }
 
 // -------------------------------------
@@ -118,6 +118,7 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
+
 
 	// Se verifica que el producto no exista
 	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
@@ -273,7 +274,6 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	if numeroRegistroProducto == "" {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: "El id del registro de entrada del producto no puede estar vacio"})
 	}
-
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del registro de entrada del producto
 	//? --------------------------------------------------------------------------

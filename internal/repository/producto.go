@@ -14,7 +14,6 @@ type ProductoRepository interface {
 	CrearProducto(producto *models.Producto, entradaProducto *models.RegistroEntradaProducto) error
 	EliminarProducto(producto *models.Producto) error
 	ActualizarProducto(producto *models.Producto) error
-
 	ActualizarRegistroEntradaProducto(entradaProducto *models.RegistroEntradaProducto) error
 	ObtenerInfoProducto(numeroRegitroProducto string) (*models.Producto, error)
 	ObtenerInfoRegistroEntradaProducto(numeroRegistroProducto string) (*models.RegistroEntradaProducto, error)
@@ -122,7 +121,6 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 			"id_tipo":          producto.IDTipo,
 			"id_estado":        producto.IDEstado,
 		}
-
 		// Si las fechas no están vacías, agrégalas al mapa
 		if producto.FechaFabricacion != "" {
 			productoData["fecha_fabricacion"] = producto.FechaFabricacion
@@ -144,7 +142,6 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 			"numero_registro_producto": entradaProducto.NumeroRegistroProducto,
 			"id_usuario":               entradaProducto.IDUsuario,
 		}
-
 		// Si las fechas no están vacías, agrégalas al mapa
 		if entradaProducto.FechaRecepcion != "" {
 			entradaData["fecha_recepcion"] = entradaProducto.FechaRecepcion
@@ -157,7 +154,6 @@ func (repo *productoRepository) CrearProducto(producto *models.Producto, entrada
 		if entradaProducto.FechaFinalAnalisis != "" {
 			entradaData["fecha_final_analisis"] = entradaProducto.FechaFinalAnalisis
 		}
-
 		// Se crea el registro de entrada del producto usando el mapa de datos y se verifica que no haya errores
 		if err := tx.Model(&models.RegistroEntradaProducto{}).Create(entradaData).Error; err != nil {
 			return err
