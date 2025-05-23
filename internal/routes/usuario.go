@@ -12,9 +12,9 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	//? -----------------------------------
 	//? Rutas Publicas Autenticacion
 	//? -----------------------------------
-	e.POST("/login", controller.Login)                              // Iniciar Sesion de Usuario
-	e.PATCH("/contrasena/actualizar", controller.CambiarContrasena) // Actualizar la contraseña
-	e.GET("/validar-token", controller.ValidarToken)                // Validar el token
+	e.POST("/login", controller.Login)                       // Iniciar Sesion de Usuario
+	e.PATCH("/contrasena/:id", controller.CambiarContrasena) // Actualizar la contraseña
+	e.GET("/validar-token", controller.ValidarToken)         // Validar el token
 
 	//? -----------------------------------
 	//? Rutas Privadas Autenticacion
@@ -24,8 +24,8 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	//? -----------------------------------
 	//? Rutas CRUD
 	//? -----------------------------------
-	e.POST("/usuarios", controller.RegistrarUsuario)                       // Registrar Usuario en el sistema
-	e.PUT("/usuarios/:id", controller.ActualizarUsuario)                      // Actualizar la info de un usuario
+	e.POST("/usuarios", controller.RegistrarUsuario)                                 // Registrar Usuario en el sistema
+	e.PUT("/usuarios/:id", controller.ActualizarUsuario)                             // Actualizar la info de un usuario
 	e.GET("/usuarios/:id", controller.ObtenerPerfil)                                 // Obtener la info de un usuario
 	e.GET("/usuarios", controller.ObtenerUsuarios, middleware.RequireAuth(repo, "")) // Obtener la lista de usuarios
 	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario)                        // Dehabilitar el Ingreso de un Usuario
