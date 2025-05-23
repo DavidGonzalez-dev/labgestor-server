@@ -8,10 +8,10 @@ import (
 
 type PruebaRecuentoRepository interface {
 	CrearPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
-	ObtenerPruebaRecuentoID(id string) (*models.PruebaRecuento, error)
+	ObtenerPruebaRecuentoID(id int) (*models.PruebaRecuento, error)
 	ActualizarPruebaRecuento(pruebaRecuento *models.PruebaRecuento) error
 	ObtenerPruebasPorProducto(numeroRegistroProducto string) ([]models.PruebaRecuento, error)
-	EliminarPruebaRecuento(id string) error
+	EliminarPruebaRecuento(id int) error
 }
 
 type pruebaRecuentoRepository struct {
@@ -28,7 +28,7 @@ func (repo *pruebaRecuentoRepository) CrearPruebaRecuento(pruebaRecuento *models
 	return repo.DB.Create(&pruebaRecuento).Error
 }
 
-func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuentoID(id string) (*models.PruebaRecuento, error) {
+func (repo *pruebaRecuentoRepository) ObtenerPruebaRecuentoID(id int) (*models.PruebaRecuento, error) {
 	var pruebaRecuento models.PruebaRecuento
 	if err := repo.DB.First(&pruebaRecuento, "id = ?", id).Error; err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (repo *pruebaRecuentoRepository) ObtenerPruebasPorProducto(numeroRegistroPr
 	return pruebas, nil
 }
 
-func (repo *pruebaRecuentoRepository) EliminarPruebaRecuento(id string) error {
+func (repo *pruebaRecuentoRepository) EliminarPruebaRecuento(id int) error {
 	var pruebaRecuento models.PruebaRecuento
 	if err := repo.DB.First(&pruebaRecuento, "id = ?", id).Error; err != nil {
 		return err
