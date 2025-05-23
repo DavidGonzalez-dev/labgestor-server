@@ -28,7 +28,7 @@ type fabricanteController struct {
 
 // Funcion de instancia de controlador
 func NewFabricanteController(repo repository.FabricanteRepository) FabricanteController {
-	return fabricanteController{Repo: repo}
+	return &fabricanteController{Repo: repo}
 }
 
 // ? -------------------------------------
