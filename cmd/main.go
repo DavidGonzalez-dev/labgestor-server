@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	"labgestor-server/utils/initialization"
+	utils "labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -23,9 +23,9 @@ func main() {
 
 	// Configuracion para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:4321"},
-		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowOrigins:     []string{"http://localhost:4321"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
 
@@ -40,18 +40,21 @@ func main() {
 	clienteRepo := repository.NewClienterepository(db)
 	fabricanteRepo := repository.NewFabricanterepository(db)
 	productoRepo := repository.NewProductoRepository(db)
+	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 	productoController := controllers.NewProductoController(productoRepo)
+	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
 	routes.NewFabricanteHandler(e, fabricanteController)
 	routes.NewProductoHandler(e, productoController)
+	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
