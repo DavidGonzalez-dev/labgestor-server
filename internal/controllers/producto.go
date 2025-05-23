@@ -14,6 +14,7 @@ import (
 type ProductoController interface {
 	ObtenerProductoID(c echo.Context) error
 	ObtenerRegistrosEntradaProductos(c echo.Context) error
+	ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error
 	CrearProducto(c echo.Context) error
 	EliminarProducto(c echo.Context) error
 	ActualizarProducto(c echo.Context) error
@@ -56,11 +57,30 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 	// Se obtiene el producto haciendo uso de la capa del repositorio y en dado caso de presentarse un error no se retorna informacion sino el error
 	productos, err := controller.Repo.ObtenerEntradasProductos()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los usuarios", Error: err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los productos", Error: err.Error()})
 	}
 
 	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
-	return c.JSON(http.StatusFound, response.Response{Data: productos})
+	return c.JSON(http.StatusOK, response.Response{Data: productos})
+}
+
+// Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
+func (controller productoController) ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error {
+	
+	// Se obtiene el id del usuario
+	id := c.Param("id")
+	
+	//? --------------------------------------------------------------
+	//? Se Obtienen todos los registros de entrada de los productos
+	//? --------------------------------------------------------------
+	// Se obtiene el producto haciendo uso de la capa del repositorio y en dado caso de presentarse un error no se retorna informacion sino el error
+	productos, err := controller.Repo.ObtenerEntradasProductosPorUsuario(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener los productos del usuario", Error: err.Error()})
+	}
+
+	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
+	return c.JSON(http.StatusOK, response.Response{Data: productos})
 }
 
 // Este handler nos permite crear un producto en la base de datos con su respectivo registro de entrada al area
