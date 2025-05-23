@@ -10,7 +10,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Interfaz que define los metodos del controlador
 type PruebaRecuentoController interface {
 	CrearPruebaRecuento(c echo.Context) error
 	ObtenerPruebaRecuentoID(c echo.Context) error
