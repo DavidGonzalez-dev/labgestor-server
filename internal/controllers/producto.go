@@ -14,6 +14,7 @@ import (
 type ProductoController interface {
 	ObtenerProductoID(c echo.Context) error
 	ObtenerRegistrosEntradaProductos(c echo.Context) error
+	ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error
 	CrearProducto(c echo.Context) error
 	EliminarProducto(c echo.Context) error
 	ActualizarProducto(c echo.Context) error
@@ -56,11 +57,30 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 	// Se obtiene el producto haciendo uso de la capa del repositorio y en dado caso de presentarse un error no se retorna informacion sino el error
 	productos, err := controller.Repo.ObtenerEntradasProductos()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los usuarios", Error: err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener todos los productos", Error: err.Error()})
 	}
 
 	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
-	return c.JSON(http.StatusFound, response.Response{Data: productos})
+	return c.JSON(http.StatusOK, response.Response{Data: productos})
+}
+
+// Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
+func (controller productoController) ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error {
+	
+	// Se obtiene el id del usuario
+	id := c.Param("id")
+	
+	//? --------------------------------------------------------------
+	//? Se Obtienen todos los registros de entrada de los productos
+	//? --------------------------------------------------------------
+	// Se obtiene el producto haciendo uso de la capa del repositorio y en dado caso de presentarse un error no se retorna informacion sino el error
+	productos, err := controller.Repo.ObtenerEntradasProductosPorUsuario(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener los productos del usuario", Error: err.Error()})
+	}
+
+	// En caso de haber salido todo bien se retorna la informacion de los registros de entrada de los productos
+	return c.JSON(http.StatusOK, response.Response{Data: productos})
 }
 
 // Este handler nos permite crear un producto en la base de datos con su respectivo registro de entrada al area
@@ -99,7 +119,11 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	fmt.Printf("%+v\n", requestBody)
+
+	// Se verifica que el producto no exista
+	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
+		return c.JSON(http.StatusConflict, response.Response{Message: "Errro al crear el producto", Error: fmt.Sprintf("Ya existe un producto con el numero de registro: %s", producto.NumeroRegistro)})
+	}
 
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del producto
@@ -163,7 +187,6 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	//? --------------------------------------------------------------------------
 	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
-		NumeroRegistro   string `json:"numeroRegistro"`
 		Nombre           string `json:"nombre"`
 		FechaFabricacion string `json:"fechaFabricacion"`
 		FechaVencimiento string `json:"fechaVencimiento"`
@@ -181,12 +204,17 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
+
+	numeroRegistro := c.Param("id")
+	if numeroRegistro == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: "El id del producto no puede estar vacio"})
+	}
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del producto
 	//? --------------------------------------------------------------------------
 
 	//Obtenemos el producto de la base de datos
-	producto, err := controller.Repo.ObtenerInfoProducto(requestBody.NumeroRegistro)
+	producto, err := controller.Repo.ObtenerInfoProducto(numeroRegistro)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado", Error: err.Error()})
 	}
@@ -242,11 +270,15 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	numeroRegistroProducto := c.Param("id")
+	if numeroRegistroProducto == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: "El id del registro de entrada del producto no puede estar vacio"})
+	}
 	//? --------------------------------------------------------------------------
 	//? Lectura y validacion de los atributos del registro de entrada del producto
 	//? --------------------------------------------------------------------------
 
-	registroEntradaProducto, err := controller.Repo.ObtenerInfoRegistroEntradaProducto(requestBody.NumeroRegistroProducto)
+	registroEntradaProducto, err := controller.Repo.ObtenerInfoRegistroEntradaProducto(numeroRegistroProducto)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Registro de entrada no encontrado", Error: err.Error()})
 	}
