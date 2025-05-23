@@ -378,12 +378,18 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
+	// Se obtiene el id del usuario desde el parametro del endpoint
+	idParam := c.Param("id")
+	if idParam == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Errror al hacer el request", Error: "El id del usuario no puede estar vacio"})
+	}
+
 	// ? --------------------------------------------------------------------
 	// ? Se verifica que el usuario exista
 	// ? --------------------------------------------------------------------
 
 	// Obtenemos el usuario de la base de datos
-	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
+	usuario, err := controller.Repo.ObtenerUsuarioID(idParam)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
 	}

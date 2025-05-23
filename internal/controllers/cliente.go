@@ -85,20 +85,26 @@ func (controller clienteController) ActualizarCliente(c echo.Context) error {
 	//? Se lee el cuerpo de request
 	//? -------------------------------------------------------------------
 	var requestBody struct {
-		ID        int    `json:"id"`
 		Nombre    string `json:"nombre"`
 		Direccion string `json:"direccion"`
 	}
+
 	// Se verifica si hubo alguin error al leer el cuerpo del request.
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
+	}
+
+	// Se obtiene el id del cliente desde el parametro del endpoint
+	idParam, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El id del cliente tiene que ser un numero entero"})
 	}
 
 	//? -------------------------------------------------------------------
 	//? Buscamos y traemos el registro del cliente desde la base de datos
 	//? -------------------------------------------------------------------
 	// Traemos el registro del fabricantre haciendo uso de la capa del repositorio
-	cliente, err := controller.Repo.ObtenerClienteID(requestBody.ID)
+	cliente, err := controller.Repo.ObtenerClienteID(idParam)
 	// Verificamos que ID que se paso corresponde a un cliente
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "El usuario que se quiere actualizar no existe"})
