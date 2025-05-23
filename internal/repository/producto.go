@@ -69,7 +69,7 @@ func (repo *productoRepository) ObtenerEntradasProductos() (*[]models.RegistroEn
 	if err := repo.DB.
 		Preload("Producto.TipoProducto").
 		Preload("Usuario", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "nombres", "apellidos")
+			return db.Select("id", "firma")
 		}).
 		Find(&registrosEntradaProducto).Error; err != nil { // Se guardan los resultados en el slice declarado
 
