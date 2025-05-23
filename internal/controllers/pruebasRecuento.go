@@ -34,7 +34,6 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 	//? ------------------------------------------------
 	var requestBody struct {
 		MetodoUsado            string `json:"metodoUsado"`
-		Concepto               bool   `json:"concepto"`
 		Especificacion         string `json:"especificacion"`
 		VolumenDiluyente       string `json:"volumenDiluyente"`
 		TiempoDisolucion       string `json:"tiempoDisolucion"`
@@ -50,7 +49,6 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 
 	pruebasRecuento := models.PruebaRecuento{
 		MetodoUsado:            requestBody.MetodoUsado,
-		Concepto:               requestBody.Concepto,
 		Especificacion:         requestBody.Especificacion,
 		VolumenDiluyente:       requestBody.VolumenDiluyente,
 		TiempoDisolucion:       requestBody.TiempoDisolucion,
