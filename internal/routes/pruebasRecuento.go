@@ -21,4 +21,5 @@ func NewPruebaRecuentoHandler(e *echo.Echo, controller controllers.PruebaRecuent
 	e.PUT("/pruebasRecuento/:id", handler.ActualizarPruebaRecuento)                       // Actualizar una prueba de recuento
 	e.GET("/pruebasRecuento/producto/:numeroRegistro", handler.ObtenerPruebasPorProducto) // Obtener una prueba de recuento por id
 	e.DELETE("/pruebasRecuento/:id", handler.EliminarPruebaRecuento)                      // Eliminar una prueba de recuento
+
 }

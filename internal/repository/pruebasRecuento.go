@@ -18,6 +18,9 @@ type pruebaRecuentoRepository struct {
 	DB *gorm.DB
 }
 
+
+// Esta funcion nos permite instanciar el repositorio
+// y recibir la base de datos como parametro
 func NewPruebaRecuentoRepository(db *gorm.DB) PruebaRecuentoRepository {
 	return &pruebaRecuentoRepository{DB: db}
 }

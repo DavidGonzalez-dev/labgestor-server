@@ -65,6 +65,9 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
 	}
 
+	//? ------------------------------------------------
+	//? Se hace la validacion de los campos
+	//? ------------------------------------------------
 	if err := validation.Validate(pruebasRecuento.ToMap(), validation.PruebaRecuentoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
