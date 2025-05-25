@@ -4,6 +4,7 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
 	"strconv"
 	"time"
@@ -45,6 +46,7 @@ func (controller controlesNegativosController) CrearControlesNegativos(c echo.Co
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
+
 	controlesNegativos := models.ControlesNegativosMedio{
 		MedioCultivo:           requestBody.MedioCultivo,
 		FechayhoraIncubacion:   requestBody.FechayhoraIncubacion,
@@ -53,6 +55,12 @@ func (controller controlesNegativosController) CrearControlesNegativos(c echo.Co
 		NumeroRegistroProducto: requestBody.NumeroRegistro,
 	}
 
+	//? ------------------------------------------------
+	//? Se hace la validacion de los campos
+	//? ------------------------------------------------
+	if err := validation.Validate(controlesNegativos.ToMap(), validation.ControlesNegativosRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	}
 	if err := controller.repo.CrearControlesNegativos(&controlesNegativos); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el registro", Error: err.Error()})
 	}
@@ -110,6 +118,13 @@ func (controller controlesNegativosController) ActualizarControlesNegativos(c ec
 		FechayhoraLectura:      requestBody.FechayhoraLectura,
 		Resultado:              requestBody.Resultado,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
+	}
+
+	//? ------------------------------------------------
+	//? Se hace la validacion de los campos
+	//? ------------------------------------------------
+	if err := validation.Validate(controlesNegativos.ToMap(), validation.ControlesNegativosRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	if err := controller.repo.ActualizarControlesNegativos(&controlesNegativos); err != nil {
