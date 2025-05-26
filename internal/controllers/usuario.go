@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils"
@@ -364,9 +365,13 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	// ? Se lee el cuerpo del request
 	// ? --------------------------------------------------------------------
 
+	idParam := c.Param("id")
+	if idParam == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Errror al hacer el request", Error: "El id del usuario no puede estar vacio"})
+	}
+
 	// Se lee el cuerpo del request
 	var requestBody struct {
-		ID        string `json:"id"`
 		Nombres   string `json:"nombres"`
 		Apellidos string `json:"apellidos"`
 		Correo    string `json:"correo"`
@@ -378,12 +383,16 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
+	// Se obtiene el id del usuario desde el parametro del endpoint
+	fmt.Printf("%+v\n", requestBody) // Uncomment for debugging if needed
+	
+
 	// ? --------------------------------------------------------------------
 	// ? Se verifica que el usuario exista
 	// ? --------------------------------------------------------------------
 
 	// Obtenemos el usuario de la base de datos
-	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
+	usuario, err := controller.Repo.ObtenerUsuarioID(idParam)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "No se pudo actualizar el usuario", Error: err.Error()})
 	}

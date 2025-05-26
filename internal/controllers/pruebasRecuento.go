@@ -6,6 +6,7 @@ import (
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -37,7 +38,6 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 	//? ------------------------------------------------
 	var requestBody struct {
 		MetodoUsado            string `json:"metodoUsado"`
-		Concepto               bool   `json:"concepto"`
 		Especificacion         string `json:"especificacion"`
 		VolumenDiluyente       string `json:"volumenDiluyente"`
 		TiempoDisolucion       string `json:"tiempoDisolucion"`
@@ -51,9 +51,11 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	//? ------------------------------------------------
+	//? Se hace la validacion de los campos
+	//? ------------------------------------------------
 	pruebasRecuento := models.PruebaRecuento{
 		MetodoUsado:            requestBody.MetodoUsado,
-		Concepto:               requestBody.Concepto,
 		Especificacion:         requestBody.Especificacion,
 		VolumenDiluyente:       requestBody.VolumenDiluyente,
 		TiempoDisolucion:       requestBody.TiempoDisolucion,
@@ -76,11 +78,14 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 	if err := controller.repo.CrearPruebaRecuento(&pruebasRecuento); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, response.Response{Data: pruebasRecuento})
+	return c.JSON(http.StatusCreated, response.Response{Message: "Prueba de recuento creada correctamente"})
 }
 
 func (controller pruebaRecuentoController) ObtenerPruebaRecuentoID(c echo.Context) error {
-	idPrueba := c.Param("id") // Este es el ID único de la prueba
+	idPrueba, err := strconv.Atoi(c.Param("id")) // Este es el ID único de la prueba
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID inválido", Error: "El id tiene que ser un numero entero"})
+	}
 
 	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuentoID(idPrueba)
 	if err != nil {
@@ -100,8 +105,18 @@ func (controller pruebaRecuentoController) ActualizarPruebaRecuento(c echo.Conte
 	//? ------------------------------------------------
 	//? Se lee el cuerpo del request
 	//? ------------------------------------------------
+	idParam, err := strconv.Atoi(c.Param("id")) // Este es el ID único de la prueba
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID inválido", Error: err.Error()})
+	}
+
+	// Se verifica que la prueba exista exista
+	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuentoID(idParam)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró la prueba de recuento", Error: err.Error()})
+	}
+
 	var requestBody struct {
-		ID                     int    `json:"id"`
 		MetodoUsado            string `json:"metodoUsado"`
 		Concepto               bool   `json:"concepto"`
 		Especificacion         string `json:"especificacion"`
@@ -116,32 +131,29 @@ func (controller pruebaRecuentoController) ActualizarPruebaRecuento(c echo.Conte
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
-	pruebaRecuento := models.PruebaRecuento{
-		ID:                     requestBody.ID,
-		MetodoUsado:            requestBody.MetodoUsado,
-		Concepto:               requestBody.Concepto,
-		Especificacion:         requestBody.Especificacion,
-		VolumenDiluyente:       requestBody.VolumenDiluyente,
-		TiempoDisolucion:       requestBody.TiempoDisolucion,
-		CantidadMuestra:        requestBody.CantidadMuestra,
-		Tratamiento:            requestBody.Tratamiento,
-		NombreRecuento:         requestBody.NombreRecuento,
-		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
-	}
-
 	//? ------------------------------------------------
 	//? Se hace la validacion de los campos
 	//? ------------------------------------------------
+	pruebaRecuento.MetodoUsado = requestBody.MetodoUsado
+	pruebaRecuento.Concepto = requestBody.Concepto
+	pruebaRecuento.Especificacion = requestBody.Especificacion
+	pruebaRecuento.VolumenDiluyente = requestBody.VolumenDiluyente
+	pruebaRecuento.TiempoDisolucion = requestBody.TiempoDisolucion
+	pruebaRecuento.CantidadMuestra = requestBody.CantidadMuestra
+	pruebaRecuento.Tratamiento = requestBody.Tratamiento
+	pruebaRecuento.NombreRecuento = requestBody.NombreRecuento
+	pruebaRecuento.NumeroRegistroProducto = requestBody.NumeroRegistroProducto
+
 	if err := validation.Validate(pruebaRecuento.ToMap(), validation.PruebaRecuentoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 	//? ------------------------------------------------
 	//? Se actualiza el producto
 	//? ------------------------------------------------
-	if err := controller.repo.ActualizarPruebaRecuento(&pruebaRecuento); err != nil {
+	if err := controller.repo.ActualizarPruebaRecuento(pruebaRecuento); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al actualizar la prueba de recuento", Error: err.Error()})
 	}
-	return c.JSON(http.StatusOK, response.Response{Data: pruebaRecuento})
+	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento actualizada correctamente"})
 }
 
 func (controller pruebaRecuentoController) ObtenerPruebasPorProducto(c echo.Context) error {
@@ -156,9 +168,15 @@ func (controller pruebaRecuentoController) ObtenerPruebasPorProducto(c echo.Cont
 }
 
 func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context) error {
-	idPrueba := c.Param("id") // Este es el ID único de la prueba
 
-	err := controller.repo.EliminarPruebaRecuento(idPrueba)
+	// Se verifica si el producto existe
+	idPrueba, err := strconv.Atoi(c.Param("id")) // Este es el ID único de la prueba
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID inválido", Error: "El id tiene que ser un numero entero"})
+	}
+
+	// Se elimina la prueba de recuento
+	err = controller.repo.EliminarPruebaRecuento(idPrueba)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró la prueba de recuento", Error: err.Error()})
 	}

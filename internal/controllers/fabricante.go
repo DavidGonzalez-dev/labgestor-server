@@ -83,7 +83,6 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 	//? Se lee el cuerpo de request
 	//? -------------------------------------------------------------------
 	var requestBody struct {
-		ID        int    `json:"id"`
 		Nombre    string `json:"nombre"`
 		Direccion string `json:"direccion"`
 	}
@@ -92,11 +91,17 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo de request", Error: err.Error()})
 	}
 
+	// Se obtiene el id del fabricante desde el parametro del endpoint
+	idParam, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "El id del fabricante tiene que ser un numero entero"})
+	}
+
 	//? -------------------------------------------------------------------
 	//? Buscamos y traemos el registro del fabricante desde la base de datos
 	//? -------------------------------------------------------------------
 	// Traemos el registro del fabricantre haciendo uso de la capa del repositorio
-	fabricante, err := controller.Repo.ObtenerFabricanteID(requestBody.ID)
+	fabricante, err := controller.Repo.ObtenerFabricanteID(idParam)
 
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "El usuario que se quiere actualizar no existe"})
