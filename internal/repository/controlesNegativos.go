@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Interfaz que define los metodos que debe implementar el repositorio de controles negativos
 type ControlesNegativosRepository interface {
 	CrearControlesNegativos(controlesNegativos *models.ControlesNegativosMedio) error
 	ObtenerControlesNegativosID(id int) (*models.ControlesNegativosMedio, error)
@@ -22,6 +23,11 @@ func NewControlesNegativosRepository(db *gorm.DB) ControlesNegativosRepository {
 	return &controlesNegativosRepository{DB: db}
 }
 
+
+// ? ------------------------------------------------
+// ? METODOS CRUD
+// ? ------------------------------------------------
+
 // Este metodo nos permite crear un registro de los controles negativos en la base de datos
 func (repo *controlesNegativosRepository) CrearControlesNegativos(controlesNegativos *models.ControlesNegativosMedio) error {
 	// Se crea el producto y se verifica que no hallan errores
@@ -29,20 +35,20 @@ func (repo *controlesNegativosRepository) CrearControlesNegativos(controlesNegat
 }
 
 // Este metodo nos permite obtener un registro de los controles negativos en la base de datos
-func (repo *controlesNegativosRepository) ObtenerControlesNegativosID(NumeroRegistroProducto int) (*models.ControlesNegativosMedio, error) {
+func (repo *controlesNegativosRepository) ObtenerControlesNegativosID(id int) (*models.ControlesNegativosMedio, error) {
 	// Se crea el producto y se verifica que no hallan errores
 	var controlesNegativos models.ControlesNegativosMedio
-	if err := repo.DB.First(&controlesNegativos, NumeroRegistroProducto).Error; err != nil {
+	if err := repo.DB.First(&controlesNegativos, id).Error; err != nil {
 		return nil, err
 	}
 	return &controlesNegativos, nil
 }
 
 // Este metodo nos permite obtener los registro de los controles negativos por producto en la base de datos
-func (repo *controlesNegativosRepository) ObtenerControlesPorProducto(id string) ([]models.ControlesNegativosMedio, error) {
+func (repo *controlesNegativosRepository) ObtenerControlesPorProducto(numeroRegistroProducto string) ([]models.ControlesNegativosMedio, error) {
 
 	var controlesNegativos []models.ControlesNegativosMedio
-	if err := repo.DB.Where("numero_registro_producto = ?", id).Find(&controlesNegativos).Error; err != nil {
+	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&controlesNegativos).Error; err != nil {
 		return nil, err
 	}
 	return controlesNegativos, nil
@@ -54,6 +60,7 @@ func (repo *controlesNegativosRepository) ActualizarControlesNegativos(controles
 	return repo.DB.Save(&controlesNegativos).Error
 }
 
+// Este metodo nos permite eliminar un registro de los controles negativos en la base de datos
 func (repo *controlesNegativosRepository) EliminarControlesNegativos(id int) error {
 	// Se crea el producto y se verifica que no hallan errores
 	return repo.DB.Delete(&models.ControlesNegativosMedio{}, id).Error
