@@ -66,10 +66,10 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
 func (controller productoController) ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error {
-	
+
 	// Se obtiene el id del usuario
 	id := c.Param("id")
-	
+
 	//? --------------------------------------------------------------
 	//? Se Obtienen todos los registros de entrada de los productos
 	//? --------------------------------------------------------------
@@ -119,10 +119,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 0fee36fb23a0a4d5dd82e7dbec779d4f64aafe56
 	// Se verifica que el producto no exista
 	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
 		return c.JSON(http.StatusConflict, response.Response{Message: "Errro al crear el producto", Error: fmt.Sprintf("Ya existe un producto con el numero de registro: %s", producto.NumeroRegistro)})
@@ -237,8 +233,6 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	producto.IDCliente = requestBody.IDCliente
 	producto.IDFabricante = requestBody.IDFabricante
 	producto.IDTipo = requestBody.IDTipo
-	
-
 
 	if err := validation.Validate(producto.ToMap(), validation.ProductoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
@@ -259,7 +253,7 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	//? --------------------------------------------------------------------------
 	//? Bind de la informacion del request
 	//? --------------------------------------------------------------------------
-	
+
 	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`

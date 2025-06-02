@@ -18,7 +18,6 @@ type pruebaRecuentoRepository struct {
 	DB *gorm.DB
 }
 
-
 // Esta funcion nos permite instanciar el repositorio
 // y recibir la base de datos como parametro
 func NewPruebaRecuentoRepository(db *gorm.DB) PruebaRecuentoRepository {
@@ -58,8 +57,4 @@ func (repo *pruebaRecuentoRepository) EliminarPruebaRecuento(id int) error {
 		return err
 	}
 	return repo.DB.Delete(&pruebaRecuento).Error
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 0fee36fb23a0a4d5dd82e7dbec779d4f64aafe56
