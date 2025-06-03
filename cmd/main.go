@@ -21,14 +21,14 @@ func main() {
 	// Servidor Echo
 	e := echo.New()
 
-	// Configuracion para evitar errores CORS
+	// Configuración para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"http://localhost:4321"},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
-
+	
 	// Conexion a la base de datos
 	db, err := infrastructure.NewConexionDB()
 	if err != nil {
