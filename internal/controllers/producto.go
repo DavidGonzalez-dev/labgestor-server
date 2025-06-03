@@ -46,7 +46,7 @@ func (controller productoController) ObtenerProductoID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado", Error: err.Error()})
 	}
 	//  Se retorna el registro de la entrada del producto con todos los detalles del mismo
-	return c.JSON(http.StatusFound, response.Response{Data: registroEntradaProducto})
+	return c.JSON(http.StatusOK, response.Response{Data: registroEntradaProducto})
 }
 
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
