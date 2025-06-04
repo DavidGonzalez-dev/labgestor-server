@@ -13,7 +13,7 @@ type estadoProducto struct {
 
 // Declaracion del modelo de un Producto
 type Producto struct {
-	NumeroRegistro   string          `gorm:"primaryKey"`
+	NumeroRegistro   string          `gorm:"primaryKey" json:"numeroRegistro"`
 	Nombre           string          `json:"nombre"`
 	FechaFabricacion string          `json:"fechaFabricacion"`
 	FechaVencimiento string          `json:"fechaVencimiento"`

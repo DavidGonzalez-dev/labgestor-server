@@ -4,6 +4,7 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
 	"strconv"
 
@@ -53,6 +54,10 @@ func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganis
 		VolumenDiluyente:       requestBody.VolumenDiluyente,
 		Resultado:              requestBody.Resultado,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
+	}
+
+	if err := validation.Validate(deteccionesMicroorganismos.ToMap(), validation.DetecccionMicroorganismosRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 	if err := controller.repo.CrearDeteccionMicroorganismos(&deteccionesMicroorganismos); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear la deteccion de microorganismos", Error: err.Error()})
@@ -110,6 +115,10 @@ func (controller *deteccionMicroorganismosController) ActualizarDeteccionMicroor
 	deteccion.VolumenDiluyente = requestBody.VolumenDiluyente
 	deteccion.Resultado = requestBody.Resultado
 	deteccion.NumeroRegistroProducto = requestBody.NumeroRegistroProducto
+
+	if err := validation.Validate(deteccion.ToMap(), validation.DetecccionMicroorganismosRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	}
 
 	if err := controller.repo.ActualizarDeteccionMicroorganismos(deteccion); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar la deteccion de microorganismos", Error: err.Error()})

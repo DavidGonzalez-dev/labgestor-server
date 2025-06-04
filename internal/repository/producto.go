@@ -45,7 +45,10 @@ func (repo *productoRepository) ObtenerProductoID(numeroRegistroProducto string)
 		Preload("Producto.Cliente").                                 // Preload para que aparezca la informacion del cliente del producto
 		Preload("Producto.Fabricante").                              // Preload para que aparezca la informacion del fabricante del producto
 		Preload("Producto.TipoProducto").                            // Preload para que aparezca la informacion del tipo del producto
-		Preload("Producto.EstadoProducto").                          // Preload para que aparezca la informacion del estado del producto
+		Preload("Producto.EstadoProducto").
+		Preload("Usuario", func(db *gorm.DB) *gorm.DB{
+			return db.Select("id", "nombres", "apellidos")
+		}).                          // Preload para que aparezca la informacion del estado del producto
 		Where("numero_registro_producto=?", numeroRegistroProducto). // Filtro para seleccionar solo el registro que coincida con el numero de registro de producto pasado.
 		First(&entradaProducto).Error; err != nil {
 		// En caso de un error al momento de hacer la precarga de los datos se retorna el error y nil
@@ -68,8 +71,9 @@ func (repo *productoRepository) ObtenerEntradasProductos() (*[]models.RegistroEn
 	// Se hace un preload de la tablas anidadas para obtener infromacion adicional
 	if err := repo.DB.
 		Preload("Producto.TipoProducto").
+		Preload("Producto.EstadoProducto").
 		Preload("Usuario", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id", "nombres", "apellidos")
+			return db.Select("id", "firma")
 		}).
 		Find(&registrosEntradaProducto).Error; err != nil { // Se guardan los resultados en el slice declarado
 
@@ -87,6 +91,7 @@ func (repo *productoRepository) ObtenerEntradasProductosPorUsuario(idUsuario str
 	// Se hace un preload de la tablas anidadas para obtener infromacion adicional
 	if err := repo.DB.
 		Preload("Producto.TipoProducto").
+		Preload("Producto.EstadoProducto").
 		Where("id_usuario=?", idUsuario).
 		Find(&registrosEntradaProducto).Error; err != nil { // Se guardan los resultados en el slice declarado
 
