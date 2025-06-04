@@ -23,7 +23,6 @@ func NewControlesNegativosRepository(db *gorm.DB) ControlesNegativosRepository {
 	return &controlesNegativosRepository{DB: db}
 }
 
-
 // ? ------------------------------------------------
 // ? METODOS CRUD
 // ? ------------------------------------------------

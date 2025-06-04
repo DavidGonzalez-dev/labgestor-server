@@ -46,7 +46,7 @@ func (controller productoController) ObtenerProductoID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado", Error: err.Error()})
 	}
 	//  Se retorna el registro de la entrada del producto con todos los detalles del mismo
-	return c.JSON(http.StatusFound, response.Response{Data: registroEntradaProducto})
+	return c.JSON(http.StatusOK, response.Response{Data: registroEntradaProducto})
 }
 
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
@@ -66,10 +66,10 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
 func (controller productoController) ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error {
-	
+
 	// Se obtiene el id del usuario
 	id := c.Param("id")
-	
+
 	//? --------------------------------------------------------------
 	//? Se Obtienen todos los registros de entrada de los productos
 	//? --------------------------------------------------------------
@@ -234,8 +234,6 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	producto.IDCliente = requestBody.IDCliente
 	producto.IDFabricante = requestBody.IDFabricante
 	producto.IDTipo = requestBody.IDTipo
-	
-
 
 	if err := validation.Validate(producto.ToMap(), validation.ProductoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
@@ -256,7 +254,7 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	//? --------------------------------------------------------------------------
 	//? Bind de la informacion del request
 	//? --------------------------------------------------------------------------
-	
+
 	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`

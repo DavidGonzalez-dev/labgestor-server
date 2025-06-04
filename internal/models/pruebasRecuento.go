@@ -28,4 +28,3 @@ func (pruebaRecuento *PruebaRecuento) ToMap() map[string]any {
 		"NumeroRegistroProducto": pruebaRecuento.NumeroRegistroProducto,
 	}
 }
-

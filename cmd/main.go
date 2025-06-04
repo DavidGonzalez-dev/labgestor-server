@@ -21,10 +21,10 @@ func main() {
 	// Servidor Echo
 	e := echo.New()
 
-	// Configuracion para evitar errores CORS
+	// Configuración para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"http://localhost:4321"},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
@@ -42,6 +42,7 @@ func main() {
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	deteccionMicroorganismosRepo := repository.NewDeteccionMicroorganismosRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
@@ -50,6 +51,7 @@ func main() {
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
@@ -58,6 +60,7 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
