@@ -41,6 +41,7 @@ func main() {
 	fabricanteRepo := repository.NewFabricanterepository(db)
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
+	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
@@ -48,6 +49,7 @@ func main() {
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
+	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
@@ -55,6 +57,7 @@ func main() {
 	routes.NewFabricanteHandler(e, fabricanteController)
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
+	routes.NewControlesNegativosHandler(e, controlesNegativosController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))

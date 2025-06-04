@@ -63,6 +63,7 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		Tratamiento:            requestBody.Tratamiento,
 		NombreRecuento:         requestBody.NombreRecuento,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
+		Estado:                 "pendiente",
 	}
 
 	//? ------------------------------------------------
@@ -168,7 +169,7 @@ func (controller pruebaRecuentoController) ObtenerPruebasPorProducto(c echo.Cont
 }
 
 func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context) error {
-	
+
 	// Se verifica si el producto existe
 	idPrueba, err := strconv.Atoi(c.Param("id")) // Este es el ID único de la prueba
 	if err != nil {
@@ -180,6 +181,6 @@ func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "No se encontró la prueba de recuento", Error: err.Error()})
 	}
-	
+
 	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento eliminada correctamente"})
 }
