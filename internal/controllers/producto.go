@@ -339,7 +339,7 @@ func (controller productoController) EliminarProducto(c echo.Context) error {
 }
 
 // Este handler nos permite obtener los analisis de un producto [pruebasRecuento, DeteccionesMicroorganismos]
-func (controller productoController) ObtenerAnalisis (c echo.Context) error {
+func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 
 	// Verificamos que el producto exista
 	numeroRegistro := c.Param("id")

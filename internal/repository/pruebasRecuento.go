@@ -46,7 +46,7 @@ func (repo *pruebaRecuentoRepository) ActualizarPruebaRecuento(pruebaRecuento *m
 
 func (repo *pruebaRecuentoRepository) ObtenerPruebasPorProducto(numeroRegistroProducto string) ([]models.PruebaRecuento, error) {
 	var pruebas []models.PruebaRecuento
-	if err := repo.DB.Select("nombre_recuento", "tratamiento", "estado").Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&pruebas).Error; err != nil {
+	if err := repo.DB.Select("nombre_recuento", "tratamiento", "estado", "id").Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&pruebas).Error; err != nil {
 		return nil, err
 	}
 	return pruebas, nil
