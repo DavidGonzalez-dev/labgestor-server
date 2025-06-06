@@ -34,7 +34,6 @@ func NewProductoController(repo repository.ProductoRepository) ProductoControlle
 
 // Instanciamos la base de datos y los repositorios de los submodulos
 var db, _ = infrastructure.NewConexionDB()
-
 var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
 // -------------------------------------
 // CONTROLADORES CURD

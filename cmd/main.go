@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	utils "labgestor-server/utils/initialization"
+	"labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -30,18 +30,19 @@ func main() {
 	}))
 	
 	// Conexion a la base de datos
-	db, err := infrastructure.NewConexionDB()
+	DB, err := infrastructure.NewConexionDB()
 	if err != nil {
 		e.Logger.Fatal("Error al conectar a la base de datos", err)
 	}
 
 	//Repositorios
-	usuarioRepo := repository.NewUsuarioRepository(db)
-	clienteRepo := repository.NewClienterepository(db)
-	fabricanteRepo := repository.NewFabricanterepository(db)
-	productoRepo := repository.NewProductoRepository(db)
-	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
-	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	usuarioRepo := repository.NewUsuarioRepository(DB)
+	clienteRepo := repository.NewClienterepository(DB)
+	fabricanteRepo := repository.NewFabricanterepository(DB)
+	productoRepo := repository.NewProductoRepository(DB)
+	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(DB)
+	controlesNegativosRepo := repository.NewControlesNegativosRepository(DB)
+	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(DB)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
@@ -50,6 +51,7 @@ func main() {
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
@@ -58,6 +60,7 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))

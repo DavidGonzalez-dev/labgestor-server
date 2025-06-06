@@ -9,12 +9,6 @@ import (
 	"github.com/mailgun/mailgun-go/v4"
 )
 
-type EmailRequest struct {
-	Recepient string `json:"recepient"`
-	Subject   string `json:"subject"`
-	Message   string `json:"message"`
-}
-
 // Funcion para enviar Email
 func SendEmail(recepient, subject, body string) error {
 
@@ -35,9 +29,11 @@ func SendEmail(recepient, subject, body string) error {
 	message := mailgun.NewMessage(
 		fromEmail,
 		subject,
-		body,
+		"",
 		recepient,
 	)
+
+	message.SetHTML(body)
 
 	// Establecemos tiempo limite para el envio del mensaje
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)

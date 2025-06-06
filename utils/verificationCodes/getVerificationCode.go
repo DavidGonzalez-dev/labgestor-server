@@ -1,4 +1,4 @@
-package verificationcodes
+package verificationCodes
 
 import (
 	"math/rand"
