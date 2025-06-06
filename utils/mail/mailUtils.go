@@ -32,7 +32,7 @@ func SendEmail(recepient, subject, body string) error {
 		"",
 		recepient,
 	)
-
+	// Se setea el html en el cuerpo del correo
 	message.SetHTML(body)
 
 	// Establecemos tiempo limite para el envio del mensaje

@@ -7,6 +7,7 @@ import (
 	"labgestor-server/utils/mail/templates"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/verificationCodes"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -18,6 +19,7 @@ import (
 // Interfaz que define los metodos del controlador
 type PasswordResetTokensController interface {
 	SendEmailWithToken(c echo.Context) error
+	VerifySendToken(c echo.Context) error
 }
 
 type passwordController struct {
@@ -67,8 +69,6 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 	// Generamos el token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID":           finalToken.IdUsuario,
-		"created":          finalToken.CreatedTimestamp,
-		"expires":          finalToken.ExpirationTimestamp,
 		"verificationCode": verificationCode,
 		"used":             finalToken.Used,
 	})
@@ -92,4 +92,70 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Correo enviado con exito"})
+}
+
+// Este metodo se usa para validar que el token suministrado por el usuario sea valido con el de la base de datos y en dado caso se setea una cookie con el token de autorizacion
+func (controller *passwordController) VerifySendToken(c echo.Context) error {
+
+	// Se leen los datos enviado (codigoVerificacion, userID)
+	var requestBody struct {
+		UserId           string `json:"usuarioId"`
+		VerificationCode string `json:"codigoVerificacion"`
+	}
+	if err := c.Bind(&requestBody); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+	}
+
+	// Validamos que el usuario exista
+	if usuario, _ := controller.UsuarioRepo.ObtenerUsuarioID(requestBody.UserId); usuario == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este usuario no existe"})
+	}
+
+	// Buscamos el token mas reciente y valido para ese usuario
+	userRecentToken, err := controller.Repo.GetMostRecentTokenByUserID(requestBody.UserId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al recuperar el token", Error: err.Error()})
+	}
+	if userRecentToken == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "El usuario no tiene tokens"})
+	}
+
+	// Decodificamos el token
+	token, err := jwt.Parse(userRecentToken.Token, func(token *jwt.Token) (any, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Verficamos el token
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al verificar el token"})
+	}
+
+	// Verificamos que el codigo de verificacion concuerde
+	if claims["verificationCode"] != requestBody.VerificationCode {
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "El codigo de verificacion es incorrecto"})
+	}
+
+	// Verificamos la caducidad del token
+	if time.Now().UTC().After(userRecentToken.ExpirationTimestamp) {
+		return c.JSON(http.StatusGone, response.Response{Message: "El token ya expiro"})
+	}
+
+	// Verificamos que el token no halla sido usado
+	if userRecentToken.Used {
+		return c.JSON(http.StatusGone, response.Response{Message: "El token ya fue usado"})
+	}
+
+	// Marcamos el token como usado
+	if err := controller.Repo.MarkAsUsed(userRecentToken.ID); err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar el token"})
+	}
+
+	// Seteamos una cookie segura en el navegador para que el front pueda usar el endopoint de cambio de contraseña
+	c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, HttpOnly: true, SameSite: http.SameSiteLaxMode})
+
+	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido"})
 }

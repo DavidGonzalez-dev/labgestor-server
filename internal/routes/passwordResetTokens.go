@@ -18,4 +18,5 @@ func NewPasswordResetTokensHandler(e *echo.Echo,controller controllers.PasswordR
 	// ? Puntos de entrada a la API
 	// ? ----------------------------------------------------------------------
 	e.POST("/passwordResetMail", handler.Controller.SendEmailWithToken)
+	e.POST("/verifyToken", handler.Controller.VerifySendToken)
 }
