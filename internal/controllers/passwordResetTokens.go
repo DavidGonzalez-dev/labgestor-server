@@ -70,6 +70,8 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID":           finalToken.IdUsuario,
 		"verificationCode": verificationCode,
+		"iat":              finalToken.CreatedTimestamp.Unix(),
+		"exp":              finalToken.ExpirationTimestamp.Unix(),
 		"used":             finalToken.Used,
 	})
 
@@ -125,7 +127,8 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error parsing token in VerifySendToken controller:", err)
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Token inválido", Error: err.Error()})
 	}
 
 	// Verficamos el token
@@ -139,11 +142,6 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, response.Response{Message: "El codigo de verificacion es incorrecto"})
 	}
 
-	// Verificamos la caducidad del token
-	if time.Now().UTC().After(userRecentToken.ExpirationTimestamp) {
-		return c.JSON(http.StatusGone, response.Response{Message: "El token ya expiro"})
-	}
-
 	// Verificamos que el token no halla sido usado
 	if userRecentToken.Used {
 		return c.JSON(http.StatusGone, response.Response{Message: "El token ya fue usado"})
@@ -155,7 +153,7 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 	}
 
 	// Seteamos una cookie segura en el navegador para que el front pueda usar el endopoint de cambio de contraseña
-	c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, HttpOnly: true, SameSite: http.SameSiteLaxMode})
+	c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, Expires: userRecentToken.ExpirationTimestamp, HttpOnly: true, SameSite: http.SameSiteLaxMode})
 
 	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido"})
 }

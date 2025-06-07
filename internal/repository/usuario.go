@@ -60,6 +60,7 @@ func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) error 
 		"nombres":   usuario.Nombres,
 		"apellidos": usuario.Apellidos,
 		"correo":    usuario.Correo,
+		"contrasena": usuario.Contrasena,
 		"firma":     usuario.Firma,
 		"estado":    usuario.Estado,
 		"rol_id":    usuario.RolID,
