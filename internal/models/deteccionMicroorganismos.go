@@ -2,15 +2,15 @@ package models
 
 type DeteccionesMicroorganismos struct {
 	ID                     int    `gorm:"primaryKey autoincrement" json:"id"`
-	NombreMicroorganismo   string `json:"nombre_microorganismo"`
-	Especificacion         string `json:"especificacion"`
-	Concepto               bool   `json:"concepto"`
-	Tratamiento            string `json:"tratamiento"`
-	MetodoUsado            string `json:"metodo_usado"`
-	CantidadMuestra        string `json:"cantidad_muestra"`
-	VolumenDiluyente       string `json:"volumen_diluyente"`
-	Resultado              string `json:"resultado"`
-	NumeroRegistroProducto string `json:"numero_registro_producto"`
+	NombreMicroorganismo   string `json:"nombre_microorganismo,omitempty"`
+	Especificacion         string `json:"especificacion,omitempty"`
+	Concepto               bool   `json:"concepto,omitempty"`
+	Tratamiento            string `json:"tratamiento,omitempty"`
+	MetodoUsado            string `json:"metodo_usado,omitempty"`
+	CantidadMuestra        string `json:"cantidad_muestra,omitempty"`
+	VolumenDiluyente       string `json:"volumen_diluyente,omitempty"`
+	Resultado              string `json:"resultado,omitempty"`
+	NumeroRegistroProducto string `json:"numero_registro_producto,omitempty"`
 }
 
 func (deteccionMicroorganismos DeteccionesMicroorganismos) ToMap() map[string]any {

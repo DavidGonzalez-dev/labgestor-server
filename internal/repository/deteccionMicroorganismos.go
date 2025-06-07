@@ -45,7 +45,7 @@ func (repo *deteccionMicroorganismosRepository) ActualizarDeteccionMicroorganism
 
 func (repo *deteccionMicroorganismosRepository) ObtenerDeteccionMicroorganismosPorProducto(numeroRegistroProducto string) ([]models.DeteccionesMicroorganismos, error) {
 	var detecciones []models.DeteccionesMicroorganismos
-	if err := repo.DB.Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&detecciones).Error; err != nil {
+	if err := repo.DB.Select("id", "nombre_microorganismo", "tratamiento", "estado").Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&detecciones).Error; err != nil {
 		return nil, err
 	}
 	return detecciones, nil

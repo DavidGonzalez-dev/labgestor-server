@@ -1,16 +1,17 @@
 package models
 
 type PruebaRecuento struct {
-	ID                     int       `gorm:"primaryKey" json:"id"`
-	MetodoUsado            string    `json:"metodoUsado"`
-	Concepto               bool      `json:"concepto"`
-	Especificacion         string    `json:"especificacion"`
-	VolumenDiluyente       string    `json:"volumenDiluyente"`
-	TiempoDisolucion       string    `json:"tiempoDisolucion"`
-	CantidadMuestra        string    `json:"cantidadMuestra"`
-	Tratamiento            string    `json:"tratamiento"`
-	NombreRecuento         string    `json:"nombreRecuento"`
-	NumeroRegistroProducto string    `json:"numeroRegistroProducto"`
+	ID                     int       `gorm:"primaryKey" json:"id,omitempty"`
+	MetodoUsado            string    `json:"metodoUsado,omitempty"`
+	Concepto               bool      `json:"concepto,omitempty"`
+	Especificacion         string    `json:"especificacion,omitempty"`
+	VolumenDiluyente       string    `json:"volumenDiluyente,omitempty"`
+	TiempoDisolucion       string    `json:"tiempoDisolucion,omitempty"`
+	CantidadMuestra        string    `json:"cantidadMuestra,omitempty"`
+	Tratamiento            string    `json:"tratamiento,omitempty"`
+	NombreRecuento         string    `json:"nombreRecuento,omitempty"`
+	NumeroRegistroProducto string    `json:"numeroRegistroProducto,omitempty"`
+	Estado                 string    `json:"estado,omitempty"`
 	Producto               *Producto `gorm:"foreignKey:NumeroRegistroProducto" json:"-"`
 }
 

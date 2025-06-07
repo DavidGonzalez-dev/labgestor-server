@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
@@ -19,6 +20,7 @@ type ProductoController interface {
 	EliminarProducto(c echo.Context) error
 	ActualizarProducto(c echo.Context) error
 	ActualizarRegistroEntradaProducto(c echo.Context) error
+	ObtenerAnalisis(c echo.Context) error
 }
 
 type productoController struct {
@@ -28,6 +30,12 @@ type productoController struct {
 func NewProductoController(repo repository.ProductoRepository) ProductoController {
 	return &productoController{Repo: repo}
 }
+
+// Instanciamos la base de datos y los repositorios de los submodulos
+var db, _ = infrastructure.NewConexionDB()
+
+var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
+var deteccionMicroorganismosRepository = repository.NewDeteccionMicroorganismosRepository(db)
 
 // -------------------------------------
 // CONTROLADORES CURD
@@ -119,7 +127,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-
 	// Se verifica que el producto no exista
 	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
 		return c.JSON(http.StatusConflict, response.Response{Message: "Errro al crear el producto", Error: fmt.Sprintf("Ya existe un producto con el numero de registro: %s", producto.NumeroRegistro)})
@@ -181,6 +188,7 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	return c.JSON(http.StatusCreated, response.Response{Message: "El Producto ha sido registrado con exito"})
 }
 
+// Este handler nos permite actualizar la informacion de un producto
 func (controller productoController) ActualizarProducto(c echo.Context) error {
 	//? --------------------------------------------------------------------------
 	//? Bind de la informacion del request
@@ -326,4 +334,32 @@ func (controller productoController) EliminarProducto(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "El producto se elimino con exito"})
+}
+
+// Este handler nos permite obtener los analisis de un producto [pruebasRecuento, DeteccionesMicroorganismos]
+func (controller productoController) ObtenerAnalisis(c echo.Context) error {
+
+	// Verificamos que el producto exista
+	numeroRegistro := c.Param("id")
+	if producto, _ := controller.Repo.ObtenerInfoProducto(numeroRegistro); producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado"})
+	}
+
+	//Obtenemos los analisis
+	pruebasRecuento, err := pruebaRecuentoRepository.ObtenerPruebasPorProducto(numeroRegistro)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las pruebas de recuento", Error: err.Error()})
+	}
+
+	deteccionMicroorganismos, err := deteccionMicroorganismosRepository.ObtenerDeteccionMicroorganismosPorProducto(numeroRegistro)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las detecciones de microorganismos", Error: err.Error()})
+	}
+
+	// Devolvemos la informacion
+	return c.JSON(http.StatusOK, response.Response{Message: "Se obtuvieron los analisis con exito", Data: map[string]any{
+		"pruebasRecuento":          pruebasRecuento,
+		"deteccionMicroorganismos": deteccionMicroorganismos,
+	}})
+
 }

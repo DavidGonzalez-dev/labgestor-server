@@ -63,6 +63,7 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		Tratamiento:            requestBody.Tratamiento,
 		NombreRecuento:         requestBody.NombreRecuento,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
+		Estado:                 "pendiente",
 	}
 
 	//? ------------------------------------------------
