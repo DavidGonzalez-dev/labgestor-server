@@ -171,7 +171,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	})
 
 	// Se codifica el token y se firma usando el SECRET
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al generar el token", Error: err.Error()})
 	}
@@ -216,7 +216,7 @@ func (controller *usuarioController) ValidarToken(c echo.Context) error {
 	tokenString := tokenCookie.Value
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return []byte(os.Getenv("SECRET")), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	// Se verifica que el token sea valido
 	if err != nil {
@@ -244,7 +244,8 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// ? ---------------------------------------------------------
 	// ? Leemos el cuerpo del request
-	// ? ---------------------------------------------------------
+	// ? ---------------------------------------------------------	
+  
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
 		ID         string `json:"id"`
@@ -262,7 +263,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	// Obtenemos el usuario y verificamos que exista
 	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al actualizar la contrasena", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este usuario no existe"})
 	}
 
 	// ? ---------------------------------------------------------

@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	utils "labgestor-server/utils/initialization"
+	"labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -50,7 +50,8 @@ func main() {
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
-
+	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
+  
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
@@ -58,6 +59,8 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
+
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
