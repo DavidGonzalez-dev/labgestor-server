@@ -42,6 +42,7 @@ func main() {
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)

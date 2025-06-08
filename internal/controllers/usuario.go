@@ -251,6 +251,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 		ID         string `json:"id"`
 		Contrasena string `json:"contrasena"`
 	}
+
 	// Buscamos errores al momento de leer el cuerpo del request
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
@@ -269,6 +270,13 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	// ? ---------------------------------------------------------
 	// ? Se actualiza la contraseña en la base de datos
 	// ? ---------------------------------------------------------
+
+	// Verificamos que el usuario que este cambiando la contraseña sea el mismo que genero el token
+	tokenUserId := c.Get("passwordTokenUserId").(string)
+	if tokenUserId != requestBody.ID {
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "No tienes permitido cambiar la contraseña de este usuario"})
+	}
+
 	// Hasheamos la contraseña
 	passwordLevel, _ := strconv.Atoi(os.Getenv("PSWHASHLEVEL"))
 	hash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Contrasena), passwordLevel)
@@ -279,6 +287,14 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	//Actualizamos la informacion del usuario
 	usuario.Contrasena = string(hash)
 	controller.Repo.ActualizarUsuario(usuario)
+
+	// Eliminamos la cookie de restablecimiento de contraseña
+	tokenCookie, err := c.Cookie("resetPasswordToken")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al eliminar la cookie", Error: err.Error()})
+	}
+	tokenCookie.Expires = time.Now()
+	c.SetCookie(tokenCookie)
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Se actualizo la contrasena con exito"})
 }
