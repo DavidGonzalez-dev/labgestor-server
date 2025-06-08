@@ -177,7 +177,6 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	}
 
 	// ? ---------------------------------------------------------
-
 	// ? Se guarda el token en una cookie segura en el navegador
 	// ? ---------------------------------------------------------
 
@@ -246,6 +245,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	// ? ---------------------------------------------------------
 	// ? Leemos el cuerpo del request
 	// ? ---------------------------------------------------------	
+  
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
 		ID         string `json:"id"`
