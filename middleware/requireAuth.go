@@ -31,7 +31,7 @@ func RequireAuth(repo repository.UsuarioRepository, rolPermitido string) echo.Mi
 			tokenString := tokenCookie.Value
 			// Decode Token
 			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-				return []byte(os.Getenv("SECRET")), nil
+				return []byte(os.Getenv("JWT_SECRET")), nil
 			}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 
 			// Se verifica que no hallan habido errores al decodificar el token
