@@ -11,9 +11,9 @@ var ProductoRules = map[string]ValidationRule{
 	"Descripcion":      {Regex: regexp.MustCompile(`^.+$`), Message: "La descripcion no puede estar vacia", Requested: true},
 	"CompuestoActivo":  {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "El compuesto activo no puede contener numeros", Requested: true},
 	"Presentacion":     {Regex: regexp.MustCompile(`^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$`), Message: "La presentacion no puede contener numeros", Requested: true},
-	"Cantidad":         {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "La cantidad no puede contener caracteres especiales", Requested: true},
-	"NumeroLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El numero de lote no puede contener caracteres especiales", Requested: true},
-	"TamanoLote":       {Regex: regexp.MustCompile(`^[a-zA-Z0-9]+$`), Message: "El tamano de lote no puede contener caracteres especiales"},
+	"Cantidad":         {Regex: regexp.MustCompile(`^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$`), Message: "La cantidad no puede contener caracteres especiales", Requested: true},
+	"NumeroLote":       {Regex: regexp.MustCompile(`^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$`), Message: "El numero de lote no puede contener caracteres especiales", Requested: true},
+	"TamanoLote":       {Regex: regexp.MustCompile(`^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*$`), Message: "El tamano de lote no puede contener caracteres especiales"},
 }
 
 // Se definene las reglas de validacion para los campos de registro de entrada de productos
