@@ -37,7 +37,6 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 
 	// Primero se lee el cuerpo del request
 	var requestBody struct {
-		UsuarioId string `json:"usuarioId"`
 		Email     string `json:"correo"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
@@ -45,15 +44,10 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 	}
 
 	// Segundo se valida que el usuario exista y que el correo este registrado
-	usuario, err := controller.UsuarioRepo.ObtenerUsuarioID(requestBody.UsuarioId)
+	usuario, err := controller.UsuarioRepo.ObtenerUsuarioCorreo(requestBody.Email)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error de parte del servidor al obtener el usuario", Error: err.Error()})
-	} else if usuario == nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "El usuario no existe"})
-	}
-	if requestBody.Email != usuario.Correo {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El correo subministrado no corresponde a ningun usuario"})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Hubo un error al enviar el correo", Error: err.Error()})
 	}
 
 	// Se genera el codigo de verificacion y el token
