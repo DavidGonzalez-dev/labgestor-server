@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"labgestor-server/internal/models"
 
 	"gorm.io/gorm"
@@ -12,6 +13,7 @@ type UsuarioRepository interface {
 	CrearUsuario(usuario *models.Usuario) error
 	ActualizarUsuario(usuario *models.Usuario) error
 	ObtenerUsuarios() (*[]models.Usuario, error)
+	ObtenerUsuarioCorreo(correo string) (*models.Usuario, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -81,4 +83,20 @@ func (repo *usuarioRepository) ObtenerUsuarios() (*[]models.Usuario, error) {
 	}
 	return &usuarios, nil
 
+}
+
+// Este metodo nos permite obtener un usario dependiendo de su correo
+func (repo *usuarioRepository) ObtenerUsuarioCorreo(correo string) (*models.Usuario, error) {
+	
+	var usuario models.Usuario
+
+	if err := repo.DB.Where("correo=?", correo).First(&usuario).Error; err != nil{
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("este correo no esta registrado en nuestro sistema")
+		}
+		return nil, err
+	} 
+
+	return &usuario, nil
 }
