@@ -95,7 +95,7 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 
 	// Se leen los datos enviado (codigoVerificacion, userID)
 	var requestBody struct {
-		UserMail           string `json:"correoUsuario"`
+		UserMail         string `json:"correoUsuario"`
 		VerificationCode string `json:"codigoVerificacion"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
