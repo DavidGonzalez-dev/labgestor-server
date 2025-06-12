@@ -50,6 +50,12 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Hubo un error al enviar el correo", Error: err.Error()})
 	}
 
+	// Verificamos si el usuario tiene tres tokens
+	userTokens, _ := controller.Repo.GetMostRecentUserTokensByUserID(usuario.ID)
+	if len(userTokens) == 3 {
+		return c.JSON(http.StatusTooManyRequests, response.Response{Message: "Limite de peticiones alcanzado", Error: "Limite de tokens alcanzado, espere 1 hora."})
+	}
+
 	// Se genera el codigo de verificacion y el token
 	verificationCode := verificationCodes.GenerarCodigoVerificacion()
 

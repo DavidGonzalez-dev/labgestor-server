@@ -13,6 +13,7 @@ type PasswordResetTokenRepository interface {
 	MarkAsUsed(tokenID int) error
 	DeleteByUserID(userID string) error
 	GetMostRecentTokenByUserID(userID string) (*models.PasswordResetToken ,error)
+	GetMostRecentUserTokensByUserID(userId string) ([]models.PasswordResetToken, error)
 }
 
 type passwordResetTokenRepo struct {
@@ -53,7 +54,7 @@ func (repo *passwordResetTokenRepo) DeleteByUserID(userID string) error {
 	return repo.DB.Exec("DELETE FROM password_reset_tokens WHERE id_usuario=?", userID).Error
 }
 
-// Funcion para obtener los tokens de un usuario
+// Funcion para obtener el tokens de un usuario
 func (repo *passwordResetTokenRepo) GetMostRecentTokenByUserID(userID string) (*models.PasswordResetToken ,error) {
 	var token models.PasswordResetToken
 
@@ -67,4 +68,20 @@ func (repo *passwordResetTokenRepo) GetMostRecentTokenByUserID(userID string) (*
 	}
 
 	return &token, nil
+}
+
+// Funcion para obtener los tokens mas recientes no caducados de un usuario
+func (repo *passwordResetTokenRepo) GetMostRecentUserTokensByUserID(userId string) ([]models.PasswordResetToken, error) {
+	var userTokens []models.PasswordResetToken
+
+	if err := repo.DB.
+	Where("id_usuario=? AND expiration_timestamp > NOW()", userId).
+	Order("created_timestamp").
+	Find(&userTokens).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+	}
+
+	return userTokens, nil
 }

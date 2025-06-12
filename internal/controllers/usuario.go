@@ -248,7 +248,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
   
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
-		ID         string `json:"id"`
+		Email         string `json:"correoUsuario"`
 		Contrasena string `json:"contrasena"`
 	}
 
@@ -262,7 +262,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	// ? ---------------------------------------------------------
 
 	// Obtenemos el usuario y verificamos que exista
-	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
+	usuario, err := controller.Repo.ObtenerUsuarioCorreo(requestBody.Email)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Este usuario no existe"})
 	}
@@ -273,7 +273,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// Verificamos que el usuario que este cambiando la contraseña sea el mismo que genero el token
 	tokenUserId := c.Get("passwordTokenUserId").(string)
-	if tokenUserId != requestBody.ID {
+	if tokenUserId != usuario.ID {
 		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "No tienes permitido cambiar la contraseña de este usuario"})
 	}
 
@@ -281,7 +281,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	passwordLevel, _ := strconv.Atoi(os.Getenv("PSWHASHLEVEL"))
 	hash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Contrasena), passwordLevel)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al encriptar la contraseña", Error: err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al encriptar la contraseña", Error: err.Error()})
 	}
 
 	//Actualizamos la informacion del usuario
