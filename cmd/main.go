@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	"labgestor-server/utils/initialization"
+	utils "labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -28,7 +28,7 @@ func main() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
-	
+
 	// Conexion a la base de datos
 	db, err := infrastructure.NewConexionDB()
 	if err != nil {
@@ -42,6 +42,7 @@ func main() {
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	deteccionMicroorganismosRepo := repository.NewDeteccionMicroorganismosRepository(db)
 	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(db)
 
 	// Controladores
@@ -51,8 +52,10 @@ func main() {
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo)
+
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
-  
+
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
@@ -60,8 +63,8 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
 	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
-
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
