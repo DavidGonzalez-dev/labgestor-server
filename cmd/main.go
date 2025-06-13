@@ -15,8 +15,10 @@ import (
 
 func main() {
 
-	// Cargar Variables de entorno
-	utils.LoadEnvVariables()
+	// Cargar Variables de entorno en un entorno local
+	if os.Getenv("RENDER") == "" {
+		utils.LoadEnvVariables()
+	}
 
 	// Servidor Echo
 	e := echo.New()
