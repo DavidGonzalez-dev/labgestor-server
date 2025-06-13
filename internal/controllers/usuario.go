@@ -171,7 +171,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	})
 
 	// Se codifica el token y se firma usando el SECRET
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al generar el token", Error: err.Error()})
 	}
@@ -216,7 +216,7 @@ func (controller *usuarioController) ValidarToken(c echo.Context) error {
 	tokenString := tokenCookie.Value
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return []byte(os.Getenv("SECRET")), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 	// Se verifica que el token sea valido
 	if err != nil {
@@ -244,12 +244,14 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// ? ---------------------------------------------------------
 	// ? Leemos el cuerpo del request
-	// ? ---------------------------------------------------------
+	// ? ---------------------------------------------------------	
+  
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
-		ID         string `json:"id"`
+		Email         string `json:"correoUsuario"`
 		Contrasena string `json:"contrasena"`
 	}
+
 	// Buscamos errores al momento de leer el cuerpo del request
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
@@ -260,24 +262,39 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 	// ? ---------------------------------------------------------
 
 	// Obtenemos el usuario y verificamos que exista
-	usuario, err := controller.Repo.ObtenerUsuarioID(requestBody.ID)
+	usuario, err := controller.Repo.ObtenerUsuarioCorreo(requestBody.Email)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al actualizar la contrasena", Error: err.Error()})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este usuario no existe"})
 	}
 
 	// ? ---------------------------------------------------------
 	// ? Se actualiza la contraseña en la base de datos
 	// ? ---------------------------------------------------------
+
+	// Verificamos que el usuario que este cambiando la contraseña sea el mismo que genero el token
+	tokenUserId := c.Get("passwordTokenUserId").(string)
+	if tokenUserId != usuario.ID {
+		return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "No tienes permitido cambiar la contraseña de este usuario"})
+	}
+
 	// Hasheamos la contraseña
 	passwordLevel, _ := strconv.Atoi(os.Getenv("PSWHASHLEVEL"))
 	hash, err := bcrypt.GenerateFromPassword([]byte(requestBody.Contrasena), passwordLevel)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al encriptar la contraseña", Error: err.Error()})
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al encriptar la contraseña", Error: err.Error()})
 	}
 
 	//Actualizamos la informacion del usuario
 	usuario.Contrasena = string(hash)
 	controller.Repo.ActualizarUsuario(usuario)
+
+	// Eliminamos la cookie de restablecimiento de contraseña
+	tokenCookie, err := c.Cookie("resetPasswordToken")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al eliminar la cookie", Error: err.Error()})
+	}
+	tokenCookie.Expires = time.Now()
+	c.SetCookie(tokenCookie)
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Se actualizo la contrasena con exito"})
 }

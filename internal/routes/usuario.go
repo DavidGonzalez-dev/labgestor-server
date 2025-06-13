@@ -13,7 +13,7 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	//? Rutas Publicas Autenticacion
 	//? -----------------------------------
 	e.POST("/login", controller.Login)                       // Iniciar Sesion de Usuario
-	e.PATCH("/contrasena/:id", controller.CambiarContrasena) // Actualizar la contraseña
+	e.PATCH("/passwordReset", controller.CambiarContrasena, middleware.RequireResetPasswordToken()) // Actualizar la contraseña
 	e.GET("/validar-token", controller.ValidarToken)         // Validar el token
 
 	//? -----------------------------------
