@@ -49,7 +49,7 @@ func main() {
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 	productoController := controllers.NewProductoController(productoRepo)
-	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
+	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
   
