@@ -182,7 +182,7 @@ func (controller *usuarioController) Login(c echo.Context) error {
 
 	// Enviar de vuelta la token
 	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
-	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol}})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol, "nombre": usuario.Nombres}})
 }
 
 // Este handler se usa para cerrar la sesion del usuario e inhabilitar el token JWT generado
