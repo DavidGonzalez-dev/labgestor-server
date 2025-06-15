@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
-	"labgestor-server/infrastructure"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -31,10 +31,11 @@ func NewProductoController(repo repository.ProductoRepository) ProductoControlle
 	return &productoController{Repo: repo}
 }
 
-
 // Instanciamos la base de datos y los repositorios de los submodulos
 var db, _ = infrastructure.NewConexionDB()
 var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
+var deteccionMicroorganismosRepository = repository.NewDeteccionMicroorganismosRepository(db)
+
 // -------------------------------------
 // CONTROLADORES CURD
 // -------------------------------------
@@ -72,10 +73,10 @@ func (controller productoController) ObtenerRegistrosEntradaProductos(c echo.Con
 
 // Este handler nos devuelve un array con los registros de entrada de los productos sin detalles.
 func (controller productoController) ObtenerRegistrosEntradaProductosPorUsuario(c echo.Context) error {
-	
+
 	// Se obtiene el id del usuario
 	id := c.Param("id")
-	
+
 	//? --------------------------------------------------------------
 	//? Se Obtienen todos los registros de entrada de los productos
 	//? --------------------------------------------------------------
@@ -124,7 +125,6 @@ func (controller productoController) CrearProducto(c echo.Context) error {
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
-
 
 	// Se verifica que el producto no exista
 	if producto, _ := controller.Repo.ObtenerInfoProducto(requestBody.Producto.NumeroRegistro); producto != nil {
@@ -241,8 +241,6 @@ func (controller productoController) ActualizarProducto(c echo.Context) error {
 	producto.IDCliente = requestBody.IDCliente
 	producto.IDFabricante = requestBody.IDFabricante
 	producto.IDTipo = requestBody.IDTipo
-	
-
 
 	if err := validation.Validate(producto.ToMap(), validation.ProductoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
@@ -263,7 +261,7 @@ func (controller productoController) ActualizarRegistroEntradaProducto(c echo.Co
 	//? --------------------------------------------------------------------------
 	//? Bind de la informacion del request
 	//? --------------------------------------------------------------------------
-	
+
 	// Se lee el cuerpo del request y en caso de haber algun error se devuelve un estado de peticion erronea
 	var requestBody struct {
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`
@@ -340,22 +338,27 @@ func (controller productoController) EliminarProducto(c echo.Context) error {
 // Este handler nos permite obtener los analisis de un producto [pruebasRecuento, DeteccionesMicroorganismos]
 func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 
-
 	// Verificamos que el producto exista
 	numeroRegistro := c.Param("id")
 	if producto, _ := controller.Repo.ObtenerInfoProducto(numeroRegistro); producto == nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Producto no encontrado"})
 	}
 
-
 	//Obtenemos los analisis
-	pruebasRecuento, err := pruebaRecuentoRepository.ObtenerPruebasPorProducto(numeroRegistro)  
+	pruebasRecuento, err := pruebaRecuentoRepository.ObtenerPruebasPorProducto(numeroRegistro)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las pruebas de recuento", Error: err.Error()})
 	}
 
+	deteccionMicroorganismos, err := deteccionMicroorganismosRepository.ObtenerDeteccionMicroorganismosPorProducto(numeroRegistro)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las detecciones de microorganismos", Error: err.Error()})
+	}
+
 	// Devolvemos la informacion
 	return c.JSON(http.StatusOK, response.Response{Message: "Se obtuvieron los analisis con exito", Data: map[string]any{
-		"pruebasRecuento": pruebasRecuento,
+		"pruebasRecuento":          pruebasRecuento,
+		"deteccionMicroorganismos": deteccionMicroorganismos,
 	}})
+
 }
