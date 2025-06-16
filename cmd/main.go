@@ -28,7 +28,7 @@ func main() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
-	
+
 	// Conexion a la base de datos
 	db, err := infrastructure.NewConexionDB()
 	if err != nil {
@@ -42,6 +42,7 @@ func main() {
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	deteccionMicroorganismosRepo := repository.NewDeteccionMicroorganismosRepository(db)
 	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(db)
 
 	// Controladores
@@ -49,8 +50,9 @@ func main() {
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 	productoController := controllers.NewProductoController(productoRepo)
-	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
+	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
   
 	//Handlers para rutas
@@ -60,8 +62,8 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
 	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
-
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
