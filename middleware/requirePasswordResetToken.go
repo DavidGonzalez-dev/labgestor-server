@@ -47,18 +47,17 @@ func RequireResetPasswordToken() echo.MiddlewareFunc {
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "Token expirado"})
 			}
 
-			// Verificamos que el token no halla sido usado=
+			// Verificamos que el token no halla sido usado
 			if claims["used"] == true {
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "Este token ya ha sido usado"})
 			}
-
 
 			// Guardamos el id de usario en el contexto
 			userId, ok := claims["userID"].(string)
 			if !ok {
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Accion no valida", Error: "Token Invalido"})
 			}
-			
+
 			c.Set("passwordTokenUserId", userId)
 
 			return next(c)

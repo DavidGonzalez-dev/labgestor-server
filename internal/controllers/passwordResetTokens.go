@@ -37,23 +37,23 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 
 	// Primero se lee el cuerpo del request
 	var requestBody struct {
-		UsuarioId string `json:"usuarioId"`
-		Email     string `json:"correo"`
+		Email string `json:"correo"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Hubo un error al leer el cuerpo del request", Error: err.Error()})
 	}
 
 	// Segundo se valida que el usuario exista y que el correo este registrado
-	usuario, err := controller.UsuarioRepo.ObtenerUsuarioID(requestBody.UsuarioId)
+	usuario, err := controller.UsuarioRepo.ObtenerUsuarioCorreo(requestBody.Email)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error de parte del servidor al obtener el usuario", Error: err.Error()})
-	} else if usuario == nil {
-		return c.JSON(http.StatusNotFound, response.Response{Message: "El usuario no existe"})
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Hubo un error al enviar el correo", Error: err.Error()})
 	}
-	if requestBody.Email != usuario.Correo {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "El correo subministrado no corresponde a ningun usuario"})
+
+	// Verificamos si el usuario tiene tres tokens
+	userTokens, _ := controller.Repo.GetMostRecentUserTokensByUserID(usuario.ID)
+	if len(userTokens) == 3 {
+		return c.JSON(http.StatusTooManyRequests, response.Response{Message: "Limite de peticiones alcanzado", Error: "Limite de tokens alcanzado, espere 1 hora."})
 	}
 
 	// Se genera el codigo de verificacion y el token
@@ -93,7 +93,7 @@ func (controller *passwordController) SendEmailWithToken(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al enviar el email", Error: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, response.Response{Message: "Correo enviado con exito"})
+	return c.JSON(http.StatusOK, response.Response{Message: "Correo enviado con exito", Data: map[string]any{"correoUsuario": usuario.Correo}})
 }
 
 // Este metodo se usa para validar que el token suministrado por el usuario sea valido con el de la base de datos y en dado caso se setea una cookie con el token de autorizacion
@@ -101,7 +101,7 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 
 	// Se leen los datos enviado (codigoVerificacion, userID)
 	var requestBody struct {
-		UserId           string `json:"usuarioId"`
+		UserMail         string `json:"correoUsuario"`
 		VerificationCode string `json:"codigoVerificacion"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
@@ -109,12 +109,13 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 	}
 
 	// Validamos que el usuario exista
-	if usuario, _ := controller.UsuarioRepo.ObtenerUsuarioID(requestBody.UserId); usuario == nil {
+	usuario, err := controller.UsuarioRepo.ObtenerUsuarioCorreo(requestBody.UserMail)
+	if err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Este usuario no existe"})
 	}
 
 	// Buscamos el token mas reciente y valido para ese usuario
-	userRecentToken, err := controller.Repo.GetMostRecentTokenByUserID(requestBody.UserId)
+	userRecentToken, err := controller.Repo.GetMostRecentTokenByUserID(usuario.ID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al recuperar el token", Error: err.Error()})
 	}
@@ -145,6 +146,11 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 	// Verificamos que el token no halla sido usado
 	if userRecentToken.Used {
 		return c.JSON(http.StatusGone, response.Response{Message: "El token ya fue usado"})
+	}
+
+	// Verificamos que el token no halla expirado
+	if time.Now().UTC().After(userRecentToken.ExpirationTimestamp.UTC()) {
+		return c.JSON(http.StatusGone, response.Response{Message: "Este token ya expiro tienes que generar uno nuevo para poder proceder"})
 	}
 
 	// Marcamos el token como usado
