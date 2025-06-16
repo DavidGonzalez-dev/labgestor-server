@@ -213,7 +213,6 @@ func (repo *productoRepository) ActualizarRegistroEntradaProducto(entradaProduct
 		"proposito_analisis":      entradaProducto.PropositoAnalisis,
 		"condiciones_ambientales": entradaProducto.CondicionesAmbientales,
 	}
-
 	// Solo incluir fechas cuando no estén vacías
 	if entradaProducto.FechaRecepcion != "" {
 		updateData["fecha_recepcion"] = entradaProducto.FechaRecepcion
