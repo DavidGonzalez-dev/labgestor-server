@@ -52,7 +52,7 @@ func main() {
 	productoController := controllers.NewProductoController(productoRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
-	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo)
+	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
   
 	//Handlers para rutas
