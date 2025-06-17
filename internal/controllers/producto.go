@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
@@ -31,6 +32,7 @@ type productoController struct {
 func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRepo repository.PruebaRecuentoRepository, deteccionMicroorganismosRepo repository.DeteccionMicroorganismosRepository) ProductoController {
 	return &productoController{Repo: repo, PruebaRecuentoRepo: pruebaRecuentoRepo, DeteccionMicroorganismosRepo: deteccionMicroorganismosRepo}
 }
+
 
 // -------------------------------------
 // CONTROLADORES CURD

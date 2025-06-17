@@ -41,6 +41,7 @@ func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganis
 		VolumenDiluyente       string `json:"volumenDiluyente"`
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 	}
+  
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
@@ -55,6 +56,7 @@ func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganis
 		VolumenDiluyente:       requestBody.VolumenDiluyente,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
 	}
+  
 	if err := validation.Validate(deteccionesMicroorganismos.ToMap(), validation.DetecccionMicroorganismosRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
@@ -92,6 +94,7 @@ func (controller *deteccionMicroorganismosController) ActualizarDeteccionMicroor
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID invalido", Error: err.Error()})
 	}
+
 
 	// Obtenemos el registro desde la base de datos
 	deteccion, err := controller.repo.ObtenerDeteccionMicroorganismosID(id)
@@ -136,6 +139,7 @@ func (controller *deteccionMicroorganismosController) ActualizarDeteccionMicroor
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Deteccion de microorganismos actualizada exitosamente"})
 }
+
 
 // Este handler nos permite obtener los registros de detecciones de microorganismos de nu producto
 func (controller *deteccionMicroorganismosController) ObtenerDeteccionMicroorganismosPorProducto(c echo.Context) error {

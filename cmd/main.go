@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	"labgestor-server/utils/initialization"
+	utils "labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -54,7 +54,7 @@ func main() {
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
 	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
-  
+
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
