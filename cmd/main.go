@@ -49,7 +49,7 @@ func main() {
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
-	productoController := controllers.NewProductoController(productoRepo)
+	productoController := controllers.NewProductoController(productoRepo, pruebaRecuentoRepo, deteccionMicroorganismosRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
 	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
 	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
