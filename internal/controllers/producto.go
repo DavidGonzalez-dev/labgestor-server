@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
