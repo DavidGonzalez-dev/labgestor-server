@@ -51,7 +51,7 @@ func main() {
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
 	productoController := controllers.NewProductoController(productoRepo, pruebaRecuentoRepo, deteccionMicroorganismosRepo)
 	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
-	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo, productoRepo)
 	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
 

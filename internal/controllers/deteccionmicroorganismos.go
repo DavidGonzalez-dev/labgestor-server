@@ -20,17 +20,17 @@ type DeteccionMicroorganismosController interface {
 }
 
 type deteccionMicroorganismosController struct {
-	repo repository.DeteccionMicroorganismosRepository
-	ProductRepository repository.ProductoRepository
+	repo               repository.DeteccionMicroorganismosRepository
+	ProductoRepository repository.ProductoRepository
 }
 
 func NewDeteccionMicroorganismosController(repo repository.DeteccionMicroorganismosRepository, productRepo repository.ProductoRepository) DeteccionMicroorganismosController {
-	return &deteccionMicroorganismosController{repo: repo, ProductRepository: productRepo}
+	return &deteccionMicroorganismosController{repo: repo, ProductoRepository: productRepo}
 }
 
 // Este hadnler nos permite crear un registro d deteccion de microorganismo en la base de datos
 func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganismos(c echo.Context) error {
-	
+
 	// Se lee el cuerpo del request
 	var requestBody struct {
 		NombreMicroorganismo   string `json:"nombreMicroorganismo"`
@@ -41,7 +41,7 @@ func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganis
 		VolumenDiluyente       string `json:"volumenDiluyente"`
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 	}
-  
+
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
@@ -55,24 +55,41 @@ func (controller *deteccionMicroorganismosController) CrearDeteccionMicroorganis
 		CantidadMuestra:        requestBody.CantidadMuestra,
 		VolumenDiluyente:       requestBody.VolumenDiluyente,
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
+		Estado:                 "pendiente",
 	}
-  
+
 	if err := validation.Validate(deteccionesMicroorganismos.ToMap(), validation.DetecccionMicroorganismosRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
-	// Se crea el registro en la base de datos
-	if err := controller.repo.CrearDeteccionMicroorganismos(&deteccionesMicroorganismos); err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear la deteccion de microorganismos", Error: err.Error()})
+	// Se verifica que el producto exista
+	producto, _ := controller.ProductoRepository.ObtenerInfoProducto(requestBody.NumeroRegistroProducto)
+	if producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al crear la prueba re recuento", Error: "El producto al que le estas asignando la prueba de recuento no existe"})
 	}
 
-	return c.JSON(http.StatusCreated, response.Response{Message: "Deteccion de microorganismos creada exitosamente"})
+	// Se crea la prueba de recuento si el producto aun tiene un estado diferente a "terminado"(3)
+	if producto.IDEstado != 3 {
+
+		// Se crea la prueba de recuento
+		if err := controller.repo.CrearDeteccionMicroorganismos(&deteccionesMicroorganismos); err != nil {
+			return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la deteccion de microorganismo", Error: err.Error()})
+		}
+
+		if err := controller.ProductoRepository.ActualizarEstadoProducto(2, requestBody.NumeroRegistroProducto); err != nil {
+			return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear la deteccion de microorganismo", Error: err.Error()})
+		}
+
+		return c.JSON(http.StatusCreated, response.Response{Message: "Deteccion de microorganismo creada correctamente"})
+	}
+
+	return c.JSON(http.StatusCreated, response.Response{Message: "Deteccion de microorganismo creada exitosamente"})
 }
 
 // Este handler nos permite obtener un registro de deteccion de microorganismo basado en un id
 func (controller *deteccionMicroorganismosController) ObtenerDeteccionMicroorganismosID(c echo.Context) error {
-	
-	// Se obtiene el id 
+
+	// Se obtiene el id
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID invalido", Error: err.Error()})
@@ -88,13 +105,12 @@ func (controller *deteccionMicroorganismosController) ObtenerDeteccionMicroorgan
 
 // Este handler nos permite actualizar un registro de deteccion de microorganismo
 func (controller *deteccionMicroorganismosController) ActualizarDeteccionMicroorganismos(c echo.Context) error {
-	
+
 	// Obtenemos el id del registro que se desea actualizar
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID invalido", Error: err.Error()})
 	}
-
 
 	// Obtenemos el registro desde la base de datos
 	deteccion, err := controller.repo.ObtenerDeteccionMicroorganismosID(id)
@@ -140,18 +156,17 @@ func (controller *deteccionMicroorganismosController) ActualizarDeteccionMicroor
 	return c.JSON(http.StatusOK, response.Response{Message: "Deteccion de microorganismos actualizada exitosamente"})
 }
 
-
 // Este handler nos permite obtener los registros de detecciones de microorganismos de nu producto
 func (controller *deteccionMicroorganismosController) ObtenerDeteccionMicroorganismosPorProducto(c echo.Context) error {
 	// Se obtiene el id del producto
 	numeroRegistroProducto := c.Param("id")
 
 	// Se verifica que el producto exista
-	if _, err := controller.ProductRepository.ObtenerInfoProducto(numeroRegistroProducto); err != nil{
+	if _, err := controller.ProductoRepository.ObtenerInfoProducto(numeroRegistroProducto); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al obtener los datos", Error: err.Error()})
 	}
-	
-	// Se obtienen los registros 
+
+	// Se obtienen los registros
 	detecciones, err := controller.repo.ObtenerDeteccionMicroorganismosPorProducto(numeroRegistroProducto)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener los registros", Error: err.Error()})
@@ -165,7 +180,7 @@ func (controller *deteccionMicroorganismosController) ObtenerDeteccionMicroorgan
 
 // Este handle nos permite eliminar un registro de deteccion de microorganismo
 func (controller *deteccionMicroorganismosController) EliminarDeteccionMicroorganismos(c echo.Context) error {
-	
+
 	// Obtenemos el id
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -176,6 +191,6 @@ func (controller *deteccionMicroorganismosController) EliminarDeteccionMicroorga
 	if err := controller.repo.EliminarDeteccionMicroorganismos(id); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Deteccion de microorganismos no encontrada", Error: err.Error()})
 	}
-	
+
 	return c.JSON(http.StatusOK, response.Response{Message: "Deteccion de microorganismos eliminada exitosamente"})
 }
