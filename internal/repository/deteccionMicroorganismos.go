@@ -1,10 +1,7 @@
 package repository
 
 import (
-<<<<<<< HEAD
 	"errors"
-=======
->>>>>>> 74d06f274fce1dc6d8349036cda6921cc3a8c6b6
 	"labgestor-server/internal/models"
 
 	"gorm.io/gorm"

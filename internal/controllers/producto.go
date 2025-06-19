@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
@@ -33,13 +32,6 @@ func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRep
 	return &productoController{Repo: repo, PruebaRecuentoRepo: pruebaRecuentoRepo, DeteccionMicroorganismosRepo: deteccionMicroorganismosRepo}
 }
 
-<<<<<<< HEAD
-=======
-// Instanciamos la base de datos y los repositorios de los submodulos
-var db, _ = infrastructure.NewConexionDB()
-var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
-var deteccionMicroorganismosRepository = repository.NewDeteccionMicroorganismosRepository(db)
->>>>>>> 74d06f274fce1dc6d8349036cda6921cc3a8c6b6
 
 // -------------------------------------
 // CONTROLADORES CURD
