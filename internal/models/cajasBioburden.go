@@ -2,15 +2,15 @@ package models
 
 type CajasBioburden struct {
 	ID                   int             `gorm:"primaryKey autoincrement" json:"id"`
-	Tipo                 string          `json:"tipo"`
+	Tipo                 string          `json:"tipo,omitempty"`
 	Resultado            string          `json:"resultado"`
-	MetodoSiembra        string          `json:"metodoSiembra"`
-	MedidaAritmetica     string          `json:"metodoAritmetica"`
-	FechayhoraIncubacion string          `json:"fechayhoraIncubacion"`
-	FechayhoraLectura    string          `json:"fechayhoraLectura"`
-	FactorDisolucion     string          `json:"factorDisolucion"`
-	IdPruebaRecuento     int             `json:"idPruebaRecuento"`
-	PruebaRecuento       *PruebaRecuento `gorm:"foreignKey:IdPruebaRecuento" json:"pruebaRecuento"`
+	MetodoSiembra        string          `json:"metodoSiembra,omitempty"`
+	MedidaAritmetica     string          `json:"medidaAritmetica,omitempty"`
+	FechayhoraIncubacion string          `json:"fechayhoraIncubacion,omitempty"`
+	FechayhoraLectura    string          `json:"fechayhoraLectura,omitempty"`
+	FactorDisolucion     string          `json:"factorDisolucion,omitempty"`
+	IdPruebaRecuento     int             `json:"idPruebaRecuento,omitempty"`
+	PruebaRecuento       *PruebaRecuento `gorm:"foreignKey:IdPruebaRecuento" json:"pruebaRecuento,omitempty"`
 }
 
 func (cajasBioburden CajasBioburden) ToMap() map[string]any {
