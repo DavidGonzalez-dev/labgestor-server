@@ -90,7 +90,7 @@ func (controller controlesNegativosController) CrearControlesNegativos(c echo.Co
 		return c.JSON(http.StatusCreated, response.Response{Message: "Control negativo creada correctamente"})
 	}
 
-	return c.JSON(http.StatusOK, response.Response{Message: "Registro creado correctamente"})
+	return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear el control negativo", Error: "El producto ya ha sido terminado, no se pueden crear controles negativos para este producto"})
 }
 
 // Este controlador nos permite obtener un registro de los controles negativos en la base de datos
@@ -116,6 +116,11 @@ func (controller controlesNegativosController) ObtenerControlesPorProducto(c ech
 
 	// Se obtiene el id del producto
 	id := c.Param("id")
+
+	// Se verifica que exista el producto
+	if producto, _ := controller.ProductoRepo.ObtenerProductoID(id); producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este producto no existe"})
+	}
 
 	// Se obtiene el producto y se verifica que no hallan errores
 	controlesNegativos, err := controller.repo.ObtenerControlesPorProducto(id)
