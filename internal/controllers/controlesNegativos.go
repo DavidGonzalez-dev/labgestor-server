@@ -158,6 +158,11 @@ func (controller controlesNegativosController) ActualizarControlesNegativos(c ec
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
+	controlesNegativos.MedioCultivo = requestBody.MedioCultivo
+	controlesNegativos.FechayhoraIncubacion = requestBody.FechayhoraIncubacion
+	controlesNegativos.FechayhoraLectura = requestBody.FechayhoraLectura
+	controlesNegativos.Resultado = requestBody.Resultado
+
 	//? ------------------------------------------------
 	//? Se hace la validacion de los campos
 	//? ------------------------------------------------
