@@ -1,11 +1,13 @@
 package models
 
+import "time"
+
 type MonitoreosDeteccionesMicroorganismo struct {
 	ID                        int                         `gorm:"primaryKey autoincrement" json:"id"` // Llave primaria
 	VolumenMuestra            string                      `json:"volumenMuestra"`
 	NombreDiluyente           string                      `json:"nombreDiluyente"`
-	FechayhoraInicio          string                      `json:"fechayhoraInicio"`
-	FechayhoraFinal           string                      `json:"fechayhoraFinal"`
+	FechayhoraInicio          time.Time                      `json:"fechayhoraInicio"`
+	FechayhoraFinal           time.Time                      `json:"fechayhoraFinal"`
 	IdEtapaDeteccion          int                         `json:"idEtapaDeteccion"`
 	IdDeteccionMicroorganismo int                         `json:"idDeteccionMicroorganismo"`
 	DeteccionMicroorganismo   *DeteccionesMicroorganismos `gorm:"foreignKey:IdDeteccionMicroorganismo" json:"deteccionMicroorganismo"`

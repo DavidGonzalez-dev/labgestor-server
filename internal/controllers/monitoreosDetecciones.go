@@ -6,6 +6,7 @@ import (
 	"labgestor-server/utils/response"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,8 +31,8 @@ func (controller *monitoreosDeteccionesController) CrearMonitoreosDetecciones(c 
 	var requestBody struct {
 		VolumenMuestra            string `json:"volumenMuestra"`
 		NombreDiluyente           string `json:"nombreDiluyente"`
-		FechayhoraInicio          string `json:"fechayhoraInicio"`
-		FechayhoraFinal           string `json:"fechayhoraFinal"`
+		FechayhoraInicio          time.Time `json:"fechayhoraInicio"`
+		FechayhoraFinal           time.Time `json:"fechayhoraFinal"`
 		IdEtapaDeteccion          int    `json:"idEtapaDeteccion"`
 		IdDeteccionMicroorganismo int    `json:"idDeteccionMicroorganismo"`
 	}
@@ -82,8 +83,8 @@ func (controller *monitoreosDeteccionesController) ActualizarMonitoreosDeteccion
 	var requestBody struct {
 		VolumenMuestra            string `json:"volumenMuestra"`
 		NombreDiluyente           string `json:"nombreDiluyente"`
-		FechayhoraInicio          string `json:"fechayhoraInicio"`
-		FechayhoraFinal           string `json:"fechayhoraFinal"`
+		FechayhoraInicio          time.Time `json:"fechayhoraInicio"`
+		FechayhoraFinal           time.Time `json:"fechayhoraFinal"`
 		IdEtapaDeteccion          int    `json:"idEtapaDeteccion"`
 		IdDeteccionMicroorganismo int    `json:"idDeteccionMicroorganismo"`
 	}
@@ -97,6 +98,7 @@ func (controller *monitoreosDeteccionesController) ActualizarMonitoreosDeteccion
 	monitoreosDeteccion.FechayhoraFinal = requestBody.FechayhoraFinal
 	monitoreosDeteccion.IdEtapaDeteccion = requestBody.IdEtapaDeteccion
 	monitoreosDeteccion.IdDeteccionMicroorganismo = requestBody.IdDeteccionMicroorganismo
+	
 	if err := controller.Repo.ActualizarMonitoreosDetecciones(&monitoreosDeteccion); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar la detección de monitoreo", Error: err.Error()})
 	}
