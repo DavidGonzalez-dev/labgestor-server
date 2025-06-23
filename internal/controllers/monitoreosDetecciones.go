@@ -4,6 +4,7 @@ import (
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
+	"labgestor-server/utils/validation"
 	"net/http"
 	"strconv"
 	"time"
@@ -29,12 +30,12 @@ func NewMonitoreosDeteccionesRepository(repo repository.MonitoreosDeteccionRepos
 // CrearMonitoreosDetecciones maneja la creación de una nueva detección de monitoreo
 func (controller *monitoreosDeteccionesController) CrearMonitoreosDetecciones(c echo.Context) error {
 	var requestBody struct {
-		VolumenMuestra            string `json:"volumenMuestra"`
-		NombreDiluyente           string `json:"nombreDiluyente"`
+		VolumenMuestra            string    `json:"volumenMuestra"`
+		NombreDiluyente           string    `json:"nombreDiluyente"`
 		FechayhoraInicio          time.Time `json:"fechayhoraInicio"`
 		FechayhoraFinal           time.Time `json:"fechayhoraFinal"`
-		IdEtapaDeteccion          int    `json:"idEtapaDeteccion"`
-		IdDeteccionMicroorganismo int    `json:"idDeteccionMicroorganismo"`
+		IdEtapaDeteccion          int       `json:"idEtapaDeteccion"`
+		IdDeteccionMicroorganismo int       `json:"idDeteccionMicroorganismo"`
 	}
 
 	if err := c.Bind(&requestBody); err != nil {
@@ -48,6 +49,10 @@ func (controller *monitoreosDeteccionesController) CrearMonitoreosDetecciones(c 
 		FechayhoraFinal:           requestBody.FechayhoraFinal,
 		IdEtapaDeteccion:          requestBody.IdEtapaDeteccion,
 		IdDeteccionMicroorganismo: requestBody.IdDeteccionMicroorganismo,
+	}
+
+	if err := validation.Validate(monitoreosDeteccion.ToMap(), validation.MonitoreosDeteccionesRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error de validación", Error: err.Error()})
 	}
 
 	if err := controller.Repo.CrearMonitoreosDetecciones(monitoreosDeteccion); err != nil {
@@ -81,12 +86,12 @@ func (controller *monitoreosDeteccionesController) ActualizarMonitoreosDeteccion
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Caja de bioburden no encontrada"})
 	}
 	var requestBody struct {
-		VolumenMuestra            string `json:"volumenMuestra"`
-		NombreDiluyente           string `json:"nombreDiluyente"`
+		VolumenMuestra            string    `json:"volumenMuestra"`
+		NombreDiluyente           string    `json:"nombreDiluyente"`
 		FechayhoraInicio          time.Time `json:"fechayhoraInicio"`
 		FechayhoraFinal           time.Time `json:"fechayhoraFinal"`
-		IdEtapaDeteccion          int    `json:"idEtapaDeteccion"`
-		IdDeteccionMicroorganismo int    `json:"idDeteccionMicroorganismo"`
+		IdEtapaDeteccion          int       `json:"idEtapaDeteccion"`
+		IdDeteccionMicroorganismo int       `json:"idDeteccionMicroorganismo"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al procesar la solicitud", Error: err.Error()})
@@ -98,7 +103,11 @@ func (controller *monitoreosDeteccionesController) ActualizarMonitoreosDeteccion
 	monitoreosDeteccion.FechayhoraFinal = requestBody.FechayhoraFinal
 	monitoreosDeteccion.IdEtapaDeteccion = requestBody.IdEtapaDeteccion
 	monitoreosDeteccion.IdDeteccionMicroorganismo = requestBody.IdDeteccionMicroorganismo
-	
+
+	if err := validation.Validate(monitoreosDeteccion.ToMap(), validation.MonitoreosDeteccionesRules); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error de validación", Error: err.Error()})
+	}
+
 	if err := controller.Repo.ActualizarMonitoreosDetecciones(&monitoreosDeteccion); err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar la detección de monitoreo", Error: err.Error()})
 	}
