@@ -28,16 +28,15 @@ func (repo *monitoreosDeteccionRepository) CrearMonitoreosDetecciones(monitoreos
 
 func (repo *monitoreosDeteccionRepository) ObtenerMonitoreosDeteccionesID(id int) (models.MonitoreosDeteccionesMicroorganismo, error) {
 	var monitoreosDeteccion models.MonitoreosDeteccionesMicroorganismo
-	if err := repo.DB.First(&monitoreosDeteccion, id).Error; err != nil {
+	if err := repo.DB.Preload("EtapaDetecciones").First(&monitoreosDeteccion, id).Error; err != nil {
 		return models.MonitoreosDeteccionesMicroorganismo{}, err
 	}
 	return monitoreosDeteccion, nil
-
 }
 
 func (repo *monitoreosDeteccionRepository) ObtenerMonitoreosDeteccionesPorDeteccion(idDeteccionMicroorganismos int) (*[]models.MonitoreosDeteccionesMicroorganismo, error) {
 	var monitoreosMicroorganismo *[]models.MonitoreosDeteccionesMicroorganismo
-	if err := repo.DB.Where("id_deteccion_microorganismo = ?", idDeteccionMicroorganismos).Find(&monitoreosMicroorganismo).Error; err != nil {
+	if err := repo.DB.Preload("EtapaDetecciones").Where("id_deteccion_microorganismo = ?", idDeteccionMicroorganismos).Find(&monitoreosMicroorganismo).Error; err != nil {
 		return nil, err
 	}
 	return monitoreosMicroorganismo, nil

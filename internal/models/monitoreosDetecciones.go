@@ -2,15 +2,22 @@ package models
 
 import "time"
 
+type EtapaDetecciones struct {
+	ID               int    `json:"id"`
+	NombreEtapa      string `json:"nombreEtapa"`
+	TiempoEtapa      string `json:"tiempoEtapa"`
+	TemperaturaEtapa string `json:"temperaturaEtapa"`
+}
+
 type MonitoreosDeteccionesMicroorganismo struct {
-	ID                        int                         `gorm:"primaryKey autoincrement" json:"id"` // Llave primaria
-	VolumenMuestra            string                      `json:"volumenMuestra"`
-	NombreDiluyente           string                      `json:"nombreDiluyente"`
-	FechayhoraInicio          time.Time                      `json:"fechayhoraInicio"`
-	FechayhoraFinal           time.Time                      `json:"fechayhoraFinal"`
-	IdEtapaDeteccion          int                         `json:"idEtapaDeteccion"`
-	IdDeteccionMicroorganismo int                         `json:"idDeteccionMicroorganismo"`
-	DeteccionMicroorganismo   *DeteccionesMicroorganismos `gorm:"foreignKey:IdDeteccionMicroorganismo" json:"deteccionMicroorganismo"`
+	ID                        int             `gorm:"primaryKey autoincrement" json:"id"`
+	VolumenMuestra            string          `json:"volumenMuestra"`
+	NombreDiluyente           string          `json:"nombreDiluyente"`
+	FechayhoraInicio          time.Time       `json:"fechayhoraInicio"`
+	FechayhoraFinal           time.Time       `json:"fechayhoraFinal"`
+	IdDeteccionMicroorganismo int             `json:"idDeteccionMicroorganismo"`
+	IdEtapaDeteccion          int             `json:"idEtapaDeteccion"`
+	EtapaDetecciones            *EtapaDetecciones `gorm:"foreignKey: IdEtapaDeteccion" json:"etapaDeteccion"`
 }
 
 func (monitoreosDetecciones MonitoreosDeteccionesMicroorganismo) ToMap() map[string]any {
