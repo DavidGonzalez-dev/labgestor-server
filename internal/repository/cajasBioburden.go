@@ -40,7 +40,7 @@ func (repo *cajasBioburdenRepository) ObtenerCajasBioburdenID(id int) (*models.C
 func (repo *cajasBioburdenRepository) ObtenerCajasPorPruebaRecuento(idPruebaRecuento int) ([]models.CajasBioburden, error) {
 	var cajas []models.CajasBioburden
 	// Se busca el registro de caja de bioburden por ID de prueba de recuento
-	if err := repo.DB.Where("id_prueba_recuento = ?", idPruebaRecuento).Find(&cajas).Error; err != nil {
+	if err := repo.DB.Select("id, tipo, metodo_siembra, resultado, medida_aritmetica").Where("id_prueba_recuento = ?", idPruebaRecuento).Find(&cajas).Error; err != nil {
 		return nil, err
 	}
 	return cajas, nil
@@ -55,5 +55,5 @@ func (repo *cajasBioburdenRepository) EliminarCajaBioburden(id int) error {
 	if err := repo.DB.First(&cajaBioburden, "id = ?", id).Error; err != nil {
 		return err
 	}
-	return repo.DB.Delete(*&cajaBioburden).Error
+	return repo.DB.Delete(&cajaBioburden).Error
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"labgestor-server/infrastructure"
 	"labgestor-server/internal/models"
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
@@ -24,17 +23,14 @@ type ProductoController interface {
 }
 
 type productoController struct {
-	Repo repository.ProductoRepository
+	Repo                         repository.ProductoRepository
+	PruebaRecuentoRepo           repository.PruebaRecuentoRepository
+	DeteccionMicroorganismosRepo repository.DeteccionMicroorganismosRepository
 }
 
-func NewProductoController(repo repository.ProductoRepository) ProductoController {
-	return &productoController{Repo: repo}
+func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRepo repository.PruebaRecuentoRepository, deteccionMicroorganismosRepo repository.DeteccionMicroorganismosRepository) ProductoController {
+	return &productoController{Repo: repo, PruebaRecuentoRepo: pruebaRecuentoRepo, DeteccionMicroorganismosRepo: deteccionMicroorganismosRepo}
 }
-
-// Instanciamos la base de datos y los repositorios de los submodulos
-var db, _ = infrastructure.NewConexionDB()
-var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
-var deteccionMicroorganismosRepository = repository.NewDeteccionMicroorganismosRepository(db)
 
 // -------------------------------------
 // CONTROLADORES CURD
@@ -345,12 +341,12 @@ func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 	}
 
 	//Obtenemos los analisis
-	pruebasRecuento, err := pruebaRecuentoRepository.ObtenerPruebasPorProducto(numeroRegistro)
+	pruebasRecuento, err := controller.PruebaRecuentoRepo.ObtenerPruebasPorProducto(numeroRegistro)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las pruebas de recuento", Error: err.Error()})
 	}
 
-	deteccionMicroorganismos, err := deteccionMicroorganismosRepository.ObtenerDeteccionMicroorganismosPorProducto(numeroRegistro)
+	deteccionMicroorganismos, err := controller.DeteccionMicroorganismosRepo.ObtenerDeteccionMicroorganismosPorProducto(numeroRegistro)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener las detecciones de microorganismos", Error: err.Error()})
 	}

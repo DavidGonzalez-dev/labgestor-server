@@ -22,12 +22,13 @@ type ControlesNegativosController interface {
 }
 
 type controlesNegativosController struct {
-	repo repository.ControlesNegativosRepository
+	repo         repository.ControlesNegativosRepository
+	ProductoRepo repository.ProductoRepository
 }
 
 // Funcion para instanciar un controlador
-func NewControlesNegativosController(repo repository.ControlesNegativosRepository) ControlesNegativosController {
-	return &controlesNegativosController{repo: repo}
+func NewControlesNegativosController(repo repository.ControlesNegativosRepository, productoRepo repository.ProductoRepository) ControlesNegativosController {
+	return &controlesNegativosController{repo: repo, ProductoRepo: productoRepo}
 }
 
 // ? ------------------------------------------------
@@ -68,12 +69,28 @@ func (controller controlesNegativosController) CrearControlesNegativos(c echo.Co
 	if err := validation.Validate(controlesNegativos.ToMap(), validation.ControlesNegativosRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
-
-	// Se crea el registro y se verifica que no hallan errores
-	if err := controller.repo.CrearControlesNegativos(&controlesNegativos); err != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear el registro", Error: err.Error()})
+	// Se verifica que el producto exista
+	producto, _ := controller.ProductoRepo.ObtenerInfoProducto(requestBody.NumeroRegistroProducto)
+	if producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al crear la prueba re recuento", Error: "El producto al que le estas asignando la prueba de recuento no existe"})
 	}
-	return c.JSON(http.StatusOK, response.Response{Message: "Registro creado correctamente"})
+
+	// Se crea la prueba de recuento si el producto aun tiene un estado diferente a "terminado"(3)
+	if producto.IDEstado != 3 {
+
+		// Se crea la prueba de recuento
+		if err := controller.repo.CrearControlesNegativos(&controlesNegativos); err != nil {
+			return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la control negativo", Error: err.Error()})
+		}
+
+		if err := controller.ProductoRepo.ActualizarEstadoProducto(2, requestBody.NumeroRegistroProducto); err != nil {
+			return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear la control negativo", Error: err.Error()})
+		}
+
+		return c.JSON(http.StatusCreated, response.Response{Message: "Control negativo creada correctamente"})
+	}
+
+	return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear el control negativo", Error: "El producto ya ha sido terminado, no se pueden crear controles negativos para este producto"})
 }
 
 // Este controlador nos permite obtener un registro de los controles negativos en la base de datos
@@ -99,6 +116,11 @@ func (controller controlesNegativosController) ObtenerControlesPorProducto(c ech
 
 	// Se obtiene el id del producto
 	id := c.Param("id")
+
+	// Se verifica que exista el producto
+	if producto, _ := controller.ProductoRepo.ObtenerProductoID(id); producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Este producto no existe"})
+	}
 
 	// Se obtiene el producto y se verifica que no hallan errores
 	controlesNegativos, err := controller.repo.ObtenerControlesPorProducto(id)
@@ -135,6 +157,11 @@ func (controller controlesNegativosController) ActualizarControlesNegativos(c ec
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
+
+	controlesNegativos.MedioCultivo = requestBody.MedioCultivo
+	controlesNegativos.FechayhoraIncubacion = requestBody.FechayhoraIncubacion
+	controlesNegativos.FechayhoraLectura = requestBody.FechayhoraLectura
+	controlesNegativos.Resultado = requestBody.Resultado
 
 	//? ------------------------------------------------
 	//? Se hace la validacion de los campos

@@ -239,7 +239,7 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
-		Email         string `json:"correoUsuario"`
+		Email      string `json:"correoUsuario"`
 		Contrasena string `json:"contrasena"`
 	}
 
@@ -354,9 +354,10 @@ func (controller *usuarioController) ObtenerUsuarios(c echo.Context) error {
 	// ? Obtenemos los registros de los usuarios en base a la cada de repositorio
 	// ? ------------------------------------------------------------------------
 
-	// Llamamos al repositorio para obtener todos los usuarios
-	usuarios, err := controller.Repo.ObtenerUsuarios()
-	// Verificamos que no halla ningun error
+	// Llamamos al repositorio para obtener todos los usuarios exepto el usuario que esta haciendo la peticion
+	idUsuario := c.Get("userID").(string)
+
+	usuarios, err := controller.Repo.ObtenerUsuarios(idUsuario)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo obtener los usuarios", Error: err.Error()})
 	}

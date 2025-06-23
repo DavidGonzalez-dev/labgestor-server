@@ -31,9 +31,8 @@ func NewCajasBioburdenController(repo repository.CajasBioburdenRepository) Cajas
 func (controller *cajasBioburdenController) CrearCajaBioburden(c echo.Context) error {
 	var requestBody struct {
 		Tipo                 string `json:"tipo"`
-		Resultado            string `json:"resultado"`
 		MetodoSiembra        string `json:"metodoSiembra"`
-		MetodoAritmetica     string `json:"metodoAritmetica"`
+		MedidaAritmetica     string `json:"medidaAritmetica"`
 		FechayhoraIncubacion string `json:"fechayhoraIncubacion"`
 		FechayhoraLectura    string `json:"fechayhoraLectura"`
 		FactorDisolucion     string `json:"factorDisolucion"`
@@ -46,9 +45,8 @@ func (controller *cajasBioburdenController) CrearCajaBioburden(c echo.Context) e
 
 	cajaBioburden := models.CajasBioburden{
 		Tipo:                 requestBody.Tipo,
-		Resultado:            requestBody.Resultado,
 		MetodoSiembra:        requestBody.MetodoSiembra,
-		MedidaAritmetica:     requestBody.MetodoAritmetica,
+		MedidaAritmetica:     requestBody.MedidaAritmetica,
 		FechayhoraIncubacion: requestBody.FechayhoraIncubacion,
 		FechayhoraLectura:    requestBody.FechayhoraLectura,
 		FactorDisolucion:     requestBody.FactorDisolucion,
@@ -60,7 +58,7 @@ func (controller *cajasBioburdenController) CrearCajaBioburden(c echo.Context) e
 	}
 
 	if err := controller.Repo.CrearCajaBioburden(&cajaBioburden); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la caja de bioburden"})
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la caja de bioburden", Error: err.Error()})
 	}
 
 	return c.JSON(http.StatusCreated, response.Response{Message: "Caja de bioburden creada exitosamente"})
@@ -112,7 +110,7 @@ func (controller *cajasBioburdenController) ActualizarCajaBioburden(c echo.Conte
 		Tipo                 string `json:"tipo"`
 		Resultado            string `json:"resultado"`
 		MetodoSiembra        string `json:"metodoSiembra"`
-		MetodoAritmetica     string `json:"metodoAritmetica"`
+		MedidaAritmetica     string `json:"medidaAritmetica"`
 		FechayhoraIncubacion string `json:"fechayhoraIncubacion"`
 		FechayhoraLectura    string `json:"fechayhoraLectura"`
 		FactorDisolucion     string `json:"factorDisolucion"`
@@ -126,7 +124,7 @@ func (controller *cajasBioburdenController) ActualizarCajaBioburden(c echo.Conte
 	cajaBioburden.Tipo = requestBody.Tipo
 	cajaBioburden.Resultado = requestBody.Resultado
 	cajaBioburden.MetodoSiembra = requestBody.MetodoSiembra
-	cajaBioburden.MedidaAritmetica = requestBody.MetodoAritmetica
+	cajaBioburden.MedidaAritmetica = requestBody.MedidaAritmetica
 	cajaBioburden.FechayhoraIncubacion = requestBody.FechayhoraIncubacion
 	cajaBioburden.FechayhoraLectura = requestBody.FechayhoraLectura
 	cajaBioburden.FactorDisolucion = requestBody.FactorDisolucion
