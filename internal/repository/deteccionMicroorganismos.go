@@ -14,6 +14,7 @@ type DeteccionMicroorganismosRepository interface {
 	ActualizarDeteccionMicroorganismos(deteccion *models.DeteccionesMicroorganismos) error
 	ObtenerDeteccionMicroorganismosPorProducto(numeroRegistroProducto string) ([]models.DeteccionesMicroorganismos, error)
 	EliminarDeteccionMicroorganismos(id int) error
+	ActualizarEstadoDeteccionById(id int, estado string) error
 }
 
 type deteccionMicroorganismosRepository struct {
@@ -73,4 +74,13 @@ func (repo *deteccionMicroorganismosRepository) EliminarDeteccionMicroorganismos
 		return err
 	}
 	return repo.DB.Delete(&deteccionMicroorganismos).Error
+}
+
+// Este metodo nos permite cambiar el estado de un registro de deteccion de microorganismo
+func (repo *deteccionMicroorganismosRepository) ActualizarEstadoDeteccionById(id int, estado string) error {
+
+	if err := repo.DB.Model(&models.DeteccionesMicroorganismos{}).Where("id=?", id).Update("estado", estado).Error; err != nil {
+		return err
+	}
+	return nil
 }

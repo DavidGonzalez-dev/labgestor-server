@@ -20,5 +20,6 @@ func NewDeteccionMicroorganismosHandler(e *echo.Echo, controller controllers.Det
 	e.GET("/deteccionMicroorganismos/:id", handler.ObtenerDeteccionMicroorganismosID)                   // Obtener un registro de deteccion de microorganismos por ID
 	e.PUT("/deteccionMicroorganismos/:id", handler.ActualizarDeteccionMicroorganismos)                  // Actualizar un registro de deteccion de microorganismos por ID
 	e.GET("/deteccionMicroorganismos/producto/:id", handler.ObtenerDeteccionMicroorganismosPorProducto) // Obtener todos los registros de deteccion de microorganismos por numero de registro de producto
+	e.PATCH("/terminarDeteccionMicroorganismos/:id", handler.TerminarDeteccionMicroorganismos)
 	e.DELETE("/deteccionMicroorganismos/:id", handler.EliminarDeteccionMicroorganismos)                 // Eliminar un registro de deteccion de microorganismos por ID
 }

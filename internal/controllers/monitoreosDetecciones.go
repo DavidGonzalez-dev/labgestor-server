@@ -72,7 +72,7 @@ func (controller *monitoreosDeteccionesController) ObtenerMonitoreosDeteccionesP
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al obtener las detecciones de monitoreo", Error: err.Error()})
 	}
-	return c.JSON(http.StatusOK, response.Response{Message: "Detecciones de monitoreo obtenidas exitosamente", Data: detecciones})
+	return c.JSON(http.StatusOK, response.Response{Message: "Detecciones de monitoreo obtenidas exitosamente", Data: detecciones,})
 }
 
 func (controller *monitoreosDeteccionesController) ActualizarMonitoreosDetecciones(c echo.Context) error {

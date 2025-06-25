@@ -17,6 +17,7 @@ type DeteccionMicroorganismosController interface {
 	ActualizarDeteccionMicroorganismos(c echo.Context) error
 	ObtenerDeteccionMicroorganismosPorProducto(c echo.Context) error
 	EliminarDeteccionMicroorganismos(c echo.Context) error
+	TerminarDeteccionMicroorganismos(c echo.Context) error
 }
 
 type deteccionMicroorganismosController struct {
@@ -192,4 +193,41 @@ func (controller *deteccionMicroorganismosController) EliminarDeteccionMicroorga
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Deteccion de microorganismos eliminada exitosamente"})
+}
+
+// Este hadnler nos permite dar por terminado una deteccion de microorganismo especifico
+func (controller *deteccionMicroorganismosController) TerminarDeteccionMicroorganismos(c echo.Context) error {
+
+	// Obtenemos el id de la deteccion
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID invalido", Error: "El id debe ser un numero entero"})
+	}
+
+	// Leemos el cuerpo del request
+	var requestBody struct {
+		Resultado string `json:"resultado"`
+	}
+	if err:=c.Bind(&requestBody); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+	}
+	
+	// Verificamos que la deteccion si exista
+	deteccion, err := controller.repo.ObtenerDeteccionMicroorganismosID(id)
+	if err != nil{
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Deteccion no encontrada"})
+	}
+
+	// Actualizamos el resultado de la deteccion
+	deteccion.Resultado = requestBody.Resultado
+	if err := controller.repo.ActualizarDeteccionMicroorganismos(deteccion); err != nil{
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar el registro", Error: err.Error()})
+	}
+
+	// Cambiamos el estado de la deteccion
+	if err := controller.repo.ActualizarEstadoDeteccionById(deteccion.ID, "terminado"); err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al actualizar el registro", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Deteccion actualizada con exito"})
 }
