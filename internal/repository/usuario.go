@@ -12,7 +12,7 @@ type UsuarioRepository interface {
 	ObtenerUsuarioID(id string) (*models.Usuario, error)
 	CrearUsuario(usuario *models.Usuario) error
 	ActualizarUsuario(usuario *models.Usuario) error
-	ObtenerUsuarios(idUsuario string) (*[]models.Usuario, error)
+	ObtenerUsuarios() (*[]models.Usuario, error)
 	ObtenerUsuarioCorreo(correo string) (*models.Usuario, error)
 }
 
@@ -75,10 +75,10 @@ func (repo *usuarioRepository) ActualizarUsuario(usuario *models.Usuario) error 
 }
 
 // Este metodo permite obtener un slice con la informacion de todos los usuarios
-func (repo *usuarioRepository) ObtenerUsuarios(idUsuario string) (*[]models.Usuario, error) {
+func (repo *usuarioRepository) ObtenerUsuarios() (*[]models.Usuario, error) {
 	// Se declara un slice para guaradar la informacion de los usuarios
 	var usuarios []models.Usuario
-	if err := repo.DB.Preload("Rol").Where("id != ?", idUsuario).Find(&usuarios).Error; err != nil {
+	if err := repo.DB.Preload("Rol").Find(&usuarios).Error; err != nil {
 		return nil, err
 	}
 	return &usuarios, nil

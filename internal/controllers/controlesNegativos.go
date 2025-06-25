@@ -122,6 +122,7 @@ func (controller controlesNegativosController) ObtenerControlesPorProducto(c ech
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Este producto no existe"})
 	}
 
+
 	// Se obtiene el producto y se verifica que no hallan errores
 	controlesNegativos, err := controller.repo.ObtenerControlesPorProducto(id)
 	if err != nil {
@@ -162,6 +163,7 @@ func (controller controlesNegativosController) ActualizarControlesNegativos(c ec
 	controlesNegativos.FechayhoraIncubacion = requestBody.FechayhoraIncubacion
 	controlesNegativos.FechayhoraLectura = requestBody.FechayhoraLectura
 	controlesNegativos.Resultado = requestBody.Resultado
+
 
 	//? ------------------------------------------------
 	//? Se hace la validacion de los campos

@@ -5,7 +5,7 @@ import (
 	"labgestor-server/internal/controllers"
 	"labgestor-server/internal/repository"
 	"labgestor-server/internal/routes"
-	utils "labgestor-server/utils/initialization"
+	"labgestor-server/utils/initialization"
 	"net/http"
 	"os"
 
@@ -15,15 +15,17 @@ import (
 
 func main() {
 
-	// Cargar Variables de entorno
-	utils.LoadEnvVariables()
+	// Cargar Variables de entorno en un entorno local
+	if os.Getenv("RENDER") == "" {
+		utils.LoadEnvVariables()
+	}
 
 	// Servidor Echo
 	e := echo.New()
 
 	// Configuración para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:4321", "https://labgestor.com"},
+		AllowOrigins:     []string{"http://localhost:4321", "https://labgestor.com", "https://www.labgestor.com"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
