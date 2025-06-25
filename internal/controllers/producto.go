@@ -32,7 +32,6 @@ func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRep
 	return &productoController{Repo: repo, PruebaRecuentoRepo: pruebaRecuentoRepo, DeteccionMicroorganismosRepo: deteccionMicroorganismosRepo}
 }
 
-
 // -------------------------------------
 // CONTROLADORES CURD
 // -------------------------------------

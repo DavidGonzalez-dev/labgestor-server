@@ -187,7 +187,6 @@ func (controller *deteccionMicroorganismosController) EliminarDeteccionMicroorga
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "ID invalido", Error: err.Error()})
 	}
 
-	// Eliminamos el registro
 	if err := controller.repo.EliminarDeteccionMicroorganismos(id); err != nil {
 		return c.JSON(http.StatusNotFound, response.Response{Message: "Deteccion de microorganismos no encontrada", Error: err.Error()})
 	}

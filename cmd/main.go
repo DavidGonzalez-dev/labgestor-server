@@ -45,6 +45,7 @@ func main() {
 	deteccionMicroorganismosRepo := repository.NewDeteccionMicroorganismosRepository(db)
 	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(db)
 	cajasBioburdenRepo := repository.NewCajasBioburdenRepository(db)
+	monitoreosDeteccionRepo := repository.NewMonitoreosDeteccionesRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
@@ -56,6 +57,7 @@ func main() {
 	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
 	cajasBioburdenController := controllers.NewCajasBioburdenController(cajasBioburdenRepo)
+	monitoreosDeteccionController := controllers.NewMonitoreosDeteccionesRepository(monitoreosDeteccionRepo)
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
@@ -67,6 +69,7 @@ func main() {
 	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
 	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
 	routes.NewCajasBioburdenHandler(e, cajasBioburdenController)
+	routes.NewMonitoreosDeteccionesHandler(e, monitoreosDeteccionController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))

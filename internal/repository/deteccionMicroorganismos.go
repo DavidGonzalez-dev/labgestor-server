@@ -26,11 +26,11 @@ func NewDeteccionMicroorganismosRepository(db *gorm.DB) DeteccionMicroorganismos
 
 // Este metodo nos permite crear un registro de deteccion de microorganismos en la base de datos
 func (repo *deteccionMicroorganismosRepository) CrearDeteccionMicroorganismos(deteccion *models.DeteccionesMicroorganismos) error {
-	
-	if err := repo.DB.Create(&deteccion).Error ;err != nil {
+
+	if err := repo.DB.Create(&deteccion).Error; err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -48,21 +48,21 @@ func (repo *deteccionMicroorganismosRepository) ObtenerDeteccionMicroorganismosI
 	return &deteccionMicroorganismos, nil
 }
 
-// Este metodo nos permite actualizar el registro de una deteccion de microorganismo 
+// Este metodo nos permite actualizar el registro de una deteccion de microorganismo
 func (repo *deteccionMicroorganismosRepository) ActualizarDeteccionMicroorganismos(deteccion *models.DeteccionesMicroorganismos) error {
 	return repo.DB.Save(&deteccion).Error
 }
 
 // Este metodo nos permite obtener informacion superficial acerca de todas las detecciones de microorganismos de un producto
 func (repo *deteccionMicroorganismosRepository) ObtenerDeteccionMicroorganismosPorProducto(numeroRegistroProducto string) ([]models.DeteccionesMicroorganismos, error) {
-	
+
 	var detecciones []models.DeteccionesMicroorganismos
 
 	result := repo.DB.Select("id", "nombre_microorganismo", "tratamiento", "estado").Where("numero_registro_producto = ?", numeroRegistroProducto).Find(&detecciones)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	
+
 	return detecciones, nil
 }
 

@@ -3,7 +3,7 @@ package validation
 import "regexp"
 
 var PruebaRecuentoRules = map[string]ValidationRule{
-	"MetodoUsado": {Regex: regexp.MustCompile(`^[\p{L}0-9\s-]+$`), Message: "El método usado solo puede contener letras, espacios y guiones.", Requested: true},
+	"MetodoUsado":            {Regex: regexp.MustCompile(`^[\p{L}0-9\s-]+$`), Message: "El método usado solo puede contener letras, espacios y guiones.", Requested: true},
 	"Especificacion":         {Regex: regexp.MustCompile(`^[\p{L}0-9\s<>=\/.,°%:-]+$`), Message: "La especificación contiene caracteres no válidos.", Requested: true},
 	"VolumenDiluyente":       {Regex: regexp.MustCompile(`^[0-9]+[a-zA-Z]+$`), Message: "Debe contener un número seguido de 'ml', por ejemplo: 5 ml o 10mL.", Requested: true},
 	"TiempoDisolucion":       {Regex: regexp.MustCompile(`^[0-9]+[a-zA-Z]+$`), Message: "Formato de tiempo no válido. Ejemplo: '5 minutos', '60min'.", Requested: true},
