@@ -22,6 +22,7 @@ func RequireAuth(repo repository.UsuarioRepository, rolPermitido string) echo.Mi
 			tokenCookie, err := c.Cookie("authToken")
 			// Caso: La cookie no existe y se devuelve un error de autenticacion
 			if err != nil {
+				fmt.Println(err)
 				return c.JSON(http.StatusUnauthorized, response.Response{Message: "Ingreso no autorizado", Error: "Token no encontrado"})
 			}
 
