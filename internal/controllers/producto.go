@@ -20,6 +20,7 @@ type ProductoController interface {
 	ActualizarProducto(c echo.Context) error
 	ActualizarRegistroEntradaProducto(c echo.Context) error
 	ObtenerAnalisis(c echo.Context) error
+	ActualizarEstadoProducto(c echo.Context) error
 }
 
 type productoController struct {
@@ -357,4 +358,31 @@ func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 		"deteccionMicroorganismos": deteccionMicroorganismos,
 	}})
 
+}
+
+// Este handler nos permite actualizar el estado de un producto
+func (controller productoController) ActualizarEstadoProducto(c echo.Context) error {
+	// Obtenemos el id del producto
+	numeroRegistro:= c.Param("numeroRegistro")
+	
+	// Verificamos que el producto exista
+	producto, err := controller.Repo.ObtenerInfoProducto(numeroRegistro)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No se econtro el producto"})
+	}
+
+	// Leemos el cuerpo del request
+	var requestBody struct {
+		IdEstado int `json:"idEstado"`
+	}
+	if err := c.Bind(&requestBody); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+	}
+
+	// Actualizamos el estado del producto
+	if err := controller.Repo.ActualizarEstadoProducto(requestBody.IdEstado, producto.NumeroRegistro); err != nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al actualizar la informacion del producto", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "El producto fue actualizado correctamente"})
 }
