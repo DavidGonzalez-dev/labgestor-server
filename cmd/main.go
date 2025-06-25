@@ -63,15 +63,15 @@ func main() {
 
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
-	routes.NewClienteHandler(e, clienteController)
-	routes.NewFabricanteHandler(e, fabricanteController)
-	routes.NewProductoHandler(e, productoController)
-	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
-	routes.NewControlesNegativosHandler(e, controlesNegativosController)
-	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
+	routes.NewClienteHandler(e, clienteController, usuarioRepo)
+	routes.NewFabricanteHandler(e, fabricanteController, usuarioRepo)
+	routes.NewProductoHandler(e, productoController, usuarioRepo)
+	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController, usuarioRepo)
+	routes.NewControlesNegativosHandler(e, controlesNegativosController, usuarioRepo)
+	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController, usuarioRepo)
 	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
-	routes.NewCajasBioburdenHandler(e, cajasBioburdenController)
-	routes.NewMonitoreosDeteccionesHandler(e, monitoreosDeteccionController)
+	routes.NewCajasBioburdenHandler(e, cajasBioburdenController, usuarioRepo)
+	routes.NewMonitoreosDeteccionesHandler(e, monitoreosDeteccionController, usuarioRepo)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
