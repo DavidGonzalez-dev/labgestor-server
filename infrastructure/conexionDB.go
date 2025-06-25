@@ -12,16 +12,15 @@ import (
 )
 
 func NewConexionDB() (*gorm.DB, error) {
-
-	dbHost := os.Getenv("DB_HOST")
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_DATABASE")
-	dbPort := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require", dbHost, dbUser, dbPassword, dbName, dbPort)
+	dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", host, port, user, password, dbName)
 
-	conexion, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	conexion, err := gorm.Open(postgres.Open(dns), &gorm.Config{
 		Logger: logger.New(
 			log.New(os.Stdout, "\r\n[GORM] ", log.LstdFlags),
 			logger.Config{

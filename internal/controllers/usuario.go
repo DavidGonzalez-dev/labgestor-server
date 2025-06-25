@@ -9,7 +9,6 @@ import (
 	"labgestor-server/utils/validation"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -88,16 +87,8 @@ func (controller *usuarioController) RegistrarUsuario(c echo.Context) error {
 		RolID:     requestBody.RolID,
 	}
 
-	// Se definen las reglas de validacion
-	validationRules := map[string]validation.ValidationRule{
-		"ID":        {Regex: regexp.MustCompile(`^\d+$`), Message: "El id de usuario solo puede contener numeros"},
-		"Nombres":   {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "Los nombres solo pueden contener letras y espacios"},
-		"Apellidos": {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "Los apellidos solo pueden contener letras y espacios"},
-		"Correo":    {Regex: regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), Message: "Ingrese una direccion de correo valida ej: ejemplo@gmail.com"},
-	}
-
 	// Se valida que los campos dados si cumplan con las reglas de validacion definidas
-	if err := validation.Validate(usuario.ToMap(), validationRules); err != nil {
+	if err := validation.Validate(usuario.ToMap(), validation.UsuarioRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
@@ -181,8 +172,8 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	// ? ---------------------------------------------------------
 
 	// Enviar de vuelta la token
-	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: ".labgestor.com"})
-	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol}})
+	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"})
+	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol, "nombre": usuario.Nombres}})
 }
 
 // Este handler se usa para cerrar la sesion del usuario e inhabilitar el token JWT generado
@@ -192,7 +183,7 @@ func (controller *usuarioController) Logout(c echo.Context) error {
 	// ? Eliminamos la cookie
 	// ? ---------------------------------------------------------
 	// Actualizamos la fecha de expiracion de la cookie para que expire ahora.
-	c.SetCookie(&http.Cookie{Name: "authToken", Value: "", Expires: time.Now(), HttpOnly: true, Secure: false})
+	c.SetCookie(&http.Cookie{Name: "authToken", Value: "", Expires: time.Now(), HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"})
 	return c.JSON(http.StatusOK, response.Response{Message: "Se ha cerrado la sesion con exito"})
 }
 
@@ -244,11 +235,11 @@ func (controller *usuarioController) CambiarContrasena(c echo.Context) error {
 
 	// ? ---------------------------------------------------------
 	// ? Leemos el cuerpo del request
-	// ? ---------------------------------------------------------	
-  
+	// ? ---------------------------------------------------------
+
 	// Obtenemos el cuerpo del request
 	var requestBody struct {
-		Email         string `json:"correoUsuario"`
+		Email      string `json:"correoUsuario"`
 		Contrasena string `json:"contrasena"`
 	}
 
@@ -363,9 +354,10 @@ func (controller *usuarioController) ObtenerUsuarios(c echo.Context) error {
 	// ? Obtenemos los registros de los usuarios en base a la cada de repositorio
 	// ? ------------------------------------------------------------------------
 
-	// Llamamos al repositorio para obtener todos los usuarios
-	usuarios, err := controller.Repo.ObtenerUsuarios()
-	// Verificamos que no halla ningun error
+	// Llamamos al repositorio para obtener todos los usuarios exepto el usuario que esta haciendo la peticion
+	idUsuario := c.Get("userID").(string)
+
+	usuarios, err := controller.Repo.ObtenerUsuarios(idUsuario)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "No se pudo obtener los usuarios", Error: err.Error()})
 	}
@@ -402,7 +394,6 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 
 	// Se obtiene el id del usuario desde el parametro del endpoint
 	fmt.Printf("%+v\n", requestBody) // Uncomment for debugging if needed
-	
 
 	// ? --------------------------------------------------------------------
 	// ? Se verifica que el usuario exista
@@ -424,14 +415,8 @@ func (controller *usuarioController) ActualizarUsuario(c echo.Context) error {
 	usuario.Estado = requestBody.Estado
 	usuario.RolID = requestBody.RolID
 
-	// Se crean las reglas de validacion
-	validationRules := map[string]validation.ValidationRule{
-		"Nombres":   {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El campo 'Nombres' solo puede contener letras y espacios (No puede estar vacio)"},
-		"Apellidos": {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El campo 'Apellidos' solo puede contener letras y espacios (No puede estar vacio)"},
-		"Correo":    {Regex: regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`), Message: "El campo 'Correo' no es valido"},
-	}
 	// Se verifica que los campos cumplan con las reglas de validacion
-	if err := validation.Validate(usuario.ToMap(), validationRules); err != nil {
+	if err := validation.Validate(usuario.ToMap(), validation.UsuarioRules); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 

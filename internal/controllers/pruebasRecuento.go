@@ -17,15 +17,17 @@ type PruebaRecuentoController interface {
 	ActualizarPruebaRecuento(c echo.Context) error
 	ObtenerPruebasPorProducto(c echo.Context) error
 	EliminarPruebaRecuento(c echo.Context) error
+	ActualizarEstadoPrueba(c echo.Context) error
 }
 
 type pruebaRecuentoController struct {
-	repo repository.PruebaRecuentoRepository
+	repo               repository.PruebaRecuentoRepository
+	ProductoRepository repository.ProductoRepository
 }
 
 // Funcion para instanciar un controlador
-func NewPruebaRecuentoController(repo repository.PruebaRecuentoRepository) PruebaRecuentoController {
-	return &pruebaRecuentoController{repo: repo}
+func NewPruebaRecuentoController(repo repository.PruebaRecuentoRepository, productoRepository repository.ProductoRepository) PruebaRecuentoController {
+	return &pruebaRecuentoController{repo: repo, ProductoRepository: productoRepository}
 }
 
 // ? ------------------------------------------------
@@ -33,9 +35,7 @@ func NewPruebaRecuentoController(repo repository.PruebaRecuentoRepository) Prueb
 // ? ------------------------------------------------
 func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) error {
 
-	//? ------------------------------------------------
-	//? Se lee el cuerpo del request
-	//? ------------------------------------------------
+	// Se lee el cuerpo del request
 	var requestBody struct {
 		MetodoUsado            string `json:"metodoUsado"`
 		Especificacion         string `json:"especificacion"`
@@ -46,14 +46,11 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		NombreRecuento         string `json:"nombreRecuento"`
 		NumeroRegistroProducto string `json:"numeroRegistroProducto"`
 	}
-	// Se verifica que el cuerpo del request no este vacio
 	if err := c.Bind(&requestBody); err != nil {
 		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
 	}
 
-	//? ------------------------------------------------
-	//? Se hace la validacion de los campos
-	//? ------------------------------------------------
+	// Se hace la valdacion de campos
 	pruebasRecuento := models.PruebaRecuento{
 		MetodoUsado:            requestBody.MetodoUsado,
 		Especificacion:         requestBody.Especificacion,
@@ -65,21 +62,33 @@ func (controller pruebaRecuentoController) CrearPruebaRecuento(c echo.Context) e
 		NumeroRegistroProducto: requestBody.NumeroRegistroProducto,
 		Estado:                 "pendiente",
 	}
-
-	//? ------------------------------------------------
-	//? Se hace la validacion de los campos
-	//? ------------------------------------------------
 	if err := validation.Validate(pruebasRecuento.ToMap(), validation.PruebaRecuentoRules); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
-	//? ------------------------------------------------
-	//? Se crea el producto
-	//? ------------------------------------------------
-	if err := controller.repo.CrearPruebaRecuento(&pruebasRecuento); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
+	// Se verifica que el producto exista
+	producto, _ := controller.ProductoRepository.ObtenerInfoProducto(requestBody.NumeroRegistroProducto)
+	if producto == nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "Error al crear la prueba re recuento", Error: "El producto al que le estas asignando la prueba de recuento no existe"})
 	}
-	return c.JSON(http.StatusCreated, response.Response{Message: "Prueba de recuento creada correctamente"})
+
+	// Se crea la prueba de recuento si el producto aun tiene un estado diferente a "terminado"(3)
+	if producto.IDEstado != 3 {
+
+		// Se crea la prueba de recuento
+		if err := controller.repo.CrearPruebaRecuento(&pruebasRecuento); err != nil {
+			return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
+		}
+
+		if err := controller.ProductoRepository.ActualizarEstadoProducto(2, requestBody.NumeroRegistroProducto); err != nil {
+			return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al crear la prueba de recuento", Error: err.Error()})
+		}
+
+		return c.JSON(http.StatusCreated, response.Response{Message: "Prueba de recuento creada correctamente"})
+	}
+
+	return c.JSON(http.StatusBadRequest, response.Response{Message: "No es posible crear esta prueba de recuento", Error: "Este producto tiene un estado de terminado, si quieres registrar mas analisis a este producto debes cambair su estado"})
+
 }
 
 func (controller pruebaRecuentoController) ObtenerPruebaRecuentoID(c echo.Context) error {
@@ -183,4 +192,35 @@ func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento eliminada correctamente"})
+}
+
+func (controller pruebaRecuentoController) ActualizarEstadoPrueba(c echo.Context) error {
+
+	// Obtenemos el id del recuento
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "ID invalido"})
+	}
+
+	// Verificamos que este exista
+	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuentoID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No existe una prueba de recuento con este id"})
+	}
+
+	// Leemos el cuerpo del request
+	var requestBody struct {
+		Estado string `json:"estado"`
+	}
+	if err := c.Bind(&requestBody); err!= nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+	}
+
+	// Actualizamos el recuento
+	pruebaRecuento.Estado = requestBody.Estado
+	if err := controller.repo.ActualizarPruebaRecuento(pruebaRecuento); err!= nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar la prueba de recuento", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento actualizada correctamente"})
 }

@@ -25,12 +25,12 @@ func main() {
 
 	// Configuración para evitar errores CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:4321", "https://www.labgestor.com"},
+		AllowOrigins:     []string{"http://localhost:4321", "https://labgestor.com", "https://www.labgestor.com"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch, http.MethodOptions},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
 	}))
-	
+
 	// Conexion a la base de datos
 	db, err := infrastructure.NewConexionDB()
 	if err != nil {
@@ -44,17 +44,23 @@ func main() {
 	productoRepo := repository.NewProductoRepository(db)
 	pruebaRecuentoRepo := repository.NewPruebaRecuentoRepository(db)
 	controlesNegativosRepo := repository.NewControlesNegativosRepository(db)
+	deteccionMicroorganismosRepo := repository.NewDeteccionMicroorganismosRepository(db)
 	passwordResetTokenRepo := repository.NewPasswordResetTokenRepo(db)
+	cajasBioburdenRepo := repository.NewCajasBioburdenRepository(db)
+	monitoreosDeteccionRepo := repository.NewMonitoreosDeteccionesRepository(db)
 
 	// Controladores
 	usuarioController := controllers.NewUsuarioController(usuarioRepo)
 	clienteController := controllers.NewClienteController(clienteRepo)
 	fabricanteController := controllers.NewFabricanteController(fabricanteRepo)
-	productoController := controllers.NewProductoController(productoRepo)
-	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo)
-	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo)
+	productoController := controllers.NewProductoController(productoRepo, pruebaRecuentoRepo, deteccionMicroorganismosRepo)
+	pruebaRecuentoController := controllers.NewPruebaRecuentoController(pruebaRecuentoRepo, productoRepo)
+	controlesNegativosController := controllers.NewControlesNegativosController(controlesNegativosRepo, productoRepo)
+	deteccionMicroorganismosController := controllers.NewDeteccionMicroorganismosController(deteccionMicroorganismosRepo, productoRepo)
 	passwordResetTokenController := controllers.NewPasswordResetTokensController(passwordResetTokenRepo, usuarioRepo)
-  
+	cajasBioburdenController := controllers.NewCajasBioburdenController(cajasBioburdenRepo)
+	monitoreosDeteccionController := controllers.NewMonitoreosDeteccionesRepository(monitoreosDeteccionRepo)
+
 	//Handlers para rutas
 	routes.NewUsuarioHanlder(e, usuarioController, usuarioRepo)
 	routes.NewClienteHandler(e, clienteController)
@@ -62,8 +68,10 @@ func main() {
 	routes.NewProductoHandler(e, productoController)
 	routes.NewPruebaRecuentoHandler(e, pruebaRecuentoController)
 	routes.NewControlesNegativosHandler(e, controlesNegativosController)
+	routes.NewDeteccionMicroorganismosHandler(e, deteccionMicroorganismosController)
 	routes.NewPasswordResetTokensHandler(e, passwordResetTokenController)
-
+	routes.NewCajasBioburdenHandler(e, cajasBioburdenController)
+	routes.NewMonitoreosDeteccionesHandler(e, monitoreosDeteccionController)
 
 	//Iniciar servidor
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))

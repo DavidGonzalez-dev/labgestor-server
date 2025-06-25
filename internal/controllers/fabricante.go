@@ -6,7 +6,6 @@ import (
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -57,13 +56,10 @@ func (controller fabricanteController) CrearFabricante(c echo.Context) error {
 		Direccion: requestBody.Direccion,
 	}
 	// Se definen las reglas de validacion para el modelo del fabricante
-	validationRules := map[string]validation.ValidationRule{
-		"Nombre":    {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El nombre no puede contener numeros"},
-		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida ejm:AV 45 n° 12, Calle 105 n° 8"},
-	}
+
 	// Se hace la validacion con base a las reglas establecidas y en caso de no cumplir alguna regla se decuelve un error informando acerca del error
-	if err := validation.Validate(fabricante.ToMap(), validationRules); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	if err := validation.Validate(fabricante.ToMap(), validation.ClientesFabricantesRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	//? -------------------------------------------------------------------
@@ -114,15 +110,9 @@ func (controller fabricanteController) ActualizarFabricante(c echo.Context) erro
 	fabricante.Nombre = requestBody.Nombre
 	fabricante.Direccion = requestBody.Direccion
 
-	// Definimos las reglas de validacion
-	validationRules := map[string]validation.ValidationRule{
-		"Nombre":    {Regex: regexp.MustCompile(`^[a-zA-Z\s]+$`), Message: "El nombre no puede contener numeros"},
-		"Direccion": {Regex: regexp.MustCompile(`^(?i)(cra|cr|calle|cl|av|avenida|transversal|tv|diag|dg|manzana|mz|circular|circ)[a-z]*\.?\s*\d+[a-zA-Z]?\s*(#|n°|no\.?)\s*\d+[a-zA-Z]?(?:[-]\d+)?$`), Message: "Ingrese una direccion valida ejm:AV 45 n° 12, Calle 105 n° 8"},
-	}
-
 	// Validamos los campos del fabricante y devolvemos en error en caso de no haber cumplido con alguna regla
-	if err := validation.Validate(fabricante.ToMap(), validationRules); err != nil {
-		return c.JSON(http.StatusBadRequest, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
+	if err := validation.Validate(fabricante.ToMap(), validation.ClientesFabricantesRules); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, response.Response{Message: "Informacion con formato erroneo", Error: err.Error()})
 	}
 
 	//? -------------------------------------------------------------------
