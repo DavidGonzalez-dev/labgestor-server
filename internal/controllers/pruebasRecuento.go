@@ -17,6 +17,7 @@ type PruebaRecuentoController interface {
 	ActualizarPruebaRecuento(c echo.Context) error
 	ObtenerPruebasPorProducto(c echo.Context) error
 	EliminarPruebaRecuento(c echo.Context) error
+	ActualizarEstadoPrueba(c echo.Context) error
 }
 
 type pruebaRecuentoController struct {
@@ -191,4 +192,35 @@ func (controller pruebaRecuentoController) EliminarPruebaRecuento(c echo.Context
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento eliminada correctamente"})
+}
+
+func (controller pruebaRecuentoController) ActualizarEstadoPrueba(c echo.Context) error {
+
+	// Obtenemos el id del recuento
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "ID invalido"})
+	}
+
+	// Verificamos que este exista
+	pruebaRecuento, err := controller.repo.ObtenerPruebaRecuentoID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, response.Response{Message: "No existe una prueba de recuento con este id"})
+	}
+
+	// Leemos el cuerpo del request
+	var requestBody struct {
+		Estado string `json:"estado"`
+	}
+	if err := c.Bind(&requestBody); err!= nil {
+		return c.JSON(http.StatusBadRequest, response.Response{Message: "Error al leer el cuerpo del request", Error: err.Error()})
+	}
+
+	// Actualizamos el recuento
+	pruebaRecuento.Estado = requestBody.Estado
+	if err := controller.repo.ActualizarPruebaRecuento(pruebaRecuento); err!= nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Error al actualizar la prueba de recuento", Error: err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, response.Response{Message: "Prueba de recuento actualizada correctamente"})
 }
