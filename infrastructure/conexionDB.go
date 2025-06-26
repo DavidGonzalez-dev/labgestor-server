@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	"fmt"
+	// "fmt"
 	"log"
 	"os"
 	"time"
@@ -12,13 +12,14 @@ import (
 )
 
 func NewConexionDB() (*gorm.DB, error) {
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_DATABASE")
+	// host := os.Getenv("DB_HOST")
+	// port := os.Getenv("DB_PORT")
+	// user := os.Getenv("DB_USER")
+	// password := os.Getenv("DB_PASSWORD")
+	// dbName := os.Getenv("DB_DATABASE")
 
-	dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", host, port, user, password, dbName)
+	// dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=require", host, port, user, password, dbName)
+	dns := "host=localhost user=postgres password=Davidfelipe2017 dbname=labgestor sslmode=disable"
 
 	conexion, err := gorm.Open(postgres.Open(dns), &gorm.Config{
 		Logger: logger.New(

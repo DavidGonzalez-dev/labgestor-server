@@ -6,7 +6,6 @@ import (
 	"labgestor-server/internal/repository"
 	"labgestor-server/utils/response"
 	"labgestor-server/utils/validation"
-	"labgestor-server/infrastructure"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -37,8 +36,6 @@ func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRep
 
 
 // Instanciamos la base de datos y los repositorios de los submodulos
-var db, _ = infrastructure.NewConexionDB()
-var pruebaRecuentoRepository = repository.NewPruebaRecuentoRepository(db)
 // -------------------------------------
 // CONTROLADORES CURD
 // -------------------------------------
