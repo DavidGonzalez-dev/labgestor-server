@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	// "fmt"
+	"fmt"
 	"log"
 	"os"
 	"time"
