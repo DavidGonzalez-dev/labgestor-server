@@ -296,9 +296,9 @@ func (repo *productoRepository) ObtenerTipoProductosSemana() ([]map[string]any, 
 	var results []map[string]any
 
 	repo.DB.Table("productos AS p").
-		Select("tp.nombre_tipo, COUNT(*) AS cantidad_productos").
-		Joins("JOIN tipo_productos tp ON p.id_tipo = tp.id").
-		Group("tp.nombre_tipo").
+		Select("ep.nombre_estado, COUNT(*) AS cantidad_productos").
+		Joins("JOIN estado_productos ep ON p.id_estado = ep.id").
+		Group("ep.nombre_estado").
 		Scan(&results)
 
 	return results, nil
