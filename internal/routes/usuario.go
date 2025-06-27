@@ -24,9 +24,9 @@ func NewUsuarioHanlder(e *echo.Echo, controller controllers.UsuarioController, r
 	//? -----------------------------------
 	//? Rutas CRUD
 	//? -----------------------------------
-	e.POST("/usuarios", controller.RegistrarUsuario)                                 // Registrar Usuario en el sistema
-	e.PUT("/usuarios/:id", controller.ActualizarUsuario)                             // Actualizar la info de un usuario
-	e.GET("/usuarios/:id", controller.ObtenerPerfil)                                 // Obtener la info de un usuario
-	e.GET("/usuarios", controller.ObtenerUsuarios, middleware.RequireAuth(repo, "")) // Obtener la lista de usuarios
-	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario)                        // Dehabilitar el Ingreso de un Usuario
+	e.POST("/usuarios", controller.RegistrarUsuario,  middleware.RequireAuth(repo, "admin"))                                 // Registrar Usuario en el sistema
+	e.PUT("/usuarios/:id", controller.ActualizarUsuario, middleware.RequireAuth(repo, ""))                             // Actualizar la info de un usuario
+	e.GET("/usuarios/:id", controller.ObtenerPerfil, middleware.RequireAuth(repo, ""))                                 // Obtener la info de un usuario
+	e.GET("/usuarios", controller.ObtenerUsuarios, middleware.RequireAuth(repo, "admin")) // Obtener la lista de usuarios
+	e.DELETE("/usuarios/:id", controller.DeshabilitarUsuario, middleware.RequireAuth(repo, ""))                        // Dehabilitar el Ingreso de un Usuario
 }

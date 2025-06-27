@@ -2,6 +2,8 @@ package routes
 
 import (
 	"labgestor-server/internal/controllers"
+	"labgestor-server/internal/repository"
+	"labgestor-server/middleware"
 
 	"github.com/labstack/echo/v4"
 )
@@ -10,7 +12,7 @@ type productoHandler struct {
 	controllers.ProductoController
 }
 
-func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController) {
+func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController, userRepo repository.UsuarioRepository) {
 	handler := productoHandler{controller}
 
 	//? -----------------------------------------------------
@@ -28,4 +30,5 @@ func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController)
 
 	e.GET("/productosSemana", handler.ObtenerProductosAnalizadosSemana)
 	e.GET("/productosTipoSemana", handler.ObtenerTipoProductosSemana)
+
 }

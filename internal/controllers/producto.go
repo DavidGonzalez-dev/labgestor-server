@@ -24,6 +24,7 @@ type ProductoController interface {
 
 	ObtenerProductosAnalizadosSemana(c echo.Context) error
 	ObtenerTipoProductosSemana(c echo.Context) error
+
 }
 
 type productoController struct {
@@ -367,8 +368,8 @@ func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 // Este handler nos permite actualizar el estado de un producto
 func (controller productoController) ActualizarEstadoProducto(c echo.Context) error {
 	// Obtenemos el id del producto
-	numeroRegistro := c.Param("numeroRegistro")
-
+	numeroRegistro:= c.Param("numeroRegistro")
+	
 	// Verificamos que el producto exista
 	producto, err := controller.Repo.ObtenerInfoProducto(numeroRegistro)
 	if err != nil {
@@ -410,3 +411,4 @@ func (controller productoController) ObtenerTipoProductosSemana(c echo.Context) 
 	}
 	return c.JSON(http.StatusOK, response.Response{Message: "Se obtuvieron la informacion de manera correcta", Data: data})
 }
+

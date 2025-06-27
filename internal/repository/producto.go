@@ -23,6 +23,7 @@ type ProductoRepository interface {
 
 	ObtenerProductosAnalizadosSemana() (map[string]any, error)
 	ObtenerTipoProductosSemana() ([]map[string]any, error)
+
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -237,20 +238,22 @@ func (repo *productoRepository) ActualizarRegistroEntradaProducto(entradaProduct
 	return nil
 }
 
-// Este metodo Permite cambiar el estado de un producto
-func (repo *productoRepository) ActualizarEstadoProducto(newEstado int, numeroRegistroProducto string) error {
 
+//Este metodo Permite cambiar el estado de un producto
+func(repo *productoRepository) ActualizarEstadoProducto(newEstado int, numeroRegistroProducto string) error{
+	
 	//Preparamos los datos que vamos a actualizar
-	updateData := map[string]any{
+	updateData := map[string]any {
 		"id_estado": newEstado,
 	}
 
 	result := repo.DB.Model(&models.Producto{}).Where("numero_registro=?", numeroRegistroProducto).Updates(updateData)
-	if result.Error != nil {
+
+	if result.Error != nil{
 		return result.Error
 	}
 	// Revisamos que halla afectado a alguna fila
-	if result.RowsAffected == 0 {
+	if result.RowsAffected == 0{
 		return errors.New("el producto que estas intentando actualizar no existe")
 	}
 	return nil
@@ -303,6 +306,7 @@ func (repo *productoRepository) ObtenerTipoProductosSemana() ([]map[string]any, 
 
 	return results, nil
 }
+
 
 // -------------------------------
 // Metodos de Ayuda

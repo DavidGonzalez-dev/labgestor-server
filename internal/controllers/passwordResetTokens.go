@@ -159,8 +159,7 @@ func (controller *passwordController) VerifySendToken(c echo.Context) error {
 	}
 
 	// Seteamos una cookie segura en el navegador para que el front pueda usar el endopoint de cambio de contraseña
-	// c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, Expires: userRecentToken.ExpirationTimestamp, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com" }) Configuracion en produccion
-	c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, Expires: userRecentToken.ExpirationTimestamp, HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
+	c.SetCookie(&http.Cookie{Name: "resetPasswordToken", Value: userRecentToken.Token, Expires: userRecentToken.ExpirationTimestamp, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com" })
 
 	return c.JSON(http.StatusOK, response.Response{Message: "El token es valido"})
 }

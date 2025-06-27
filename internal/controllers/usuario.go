@@ -172,8 +172,8 @@ func (controller *usuarioController) Login(c echo.Context) error {
 	// ? ---------------------------------------------------------
 
 	// Enviar de vuelta la token
-	// c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"}) Configuracion en producion
-	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
+
+	c.SetCookie(&http.Cookie{Name: "authToken", Value: tokenString, Expires: EXPTIME, HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"})
 	return c.JSON(http.StatusOK, response.Response{Message: "Se ha generado el token con exito", Data: map[string]string{"id": usuario.ID, "rol": usuario.Rol.NombreRol, "nombre": usuario.Nombres}})
 }
 
@@ -184,8 +184,8 @@ func (controller *usuarioController) Logout(c echo.Context) error {
 	// ? Eliminamos la cookie
 	// ? ---------------------------------------------------------
 	// Actualizamos la fecha de expiracion de la cookie para que expire ahora.
-	// c.SetCookie(&http.Cookie{Name: "authToken", Value: "", Expires: time.Now(), HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"}) Configuracion en producion
-	c.SetCookie(&http.Cookie{Name: "authToken", Value: "", Expires: time.Now(), HttpOnly: true, Secure: false, SameSite: http.SameSiteLaxMode, Path: "/"})
+
+	c.SetCookie(&http.Cookie{Name: "authToken", Value: "", Expires: time.Now(), HttpOnly: true, Secure: true, SameSite: http.SameSiteLaxMode, Path: "/", Domain: "labgestor.com"})
 	return c.JSON(http.StatusOK, response.Response{Message: "Se ha cerrado la sesion con exito"})
 }
 
