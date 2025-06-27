@@ -22,6 +22,7 @@ type ProductoRepository interface {
 	ActualizarEstadoProducto(newEstado int, numeroRegistroProducto string) error
 
 	ObtenerProductosAnalizadosSemana() (map[string]any, error)
+	ObtenerTipoProductosSemana() ([]map[string]any, error)
 }
 
 // Structura que implementa la interfaz anteriormente definida
@@ -257,36 +258,50 @@ func (repo *productoRepository) ActualizarEstadoProducto(newEstado int, numeroRe
 
 // Este metodo nos trae las estadisticas de los productos ingresados en la semana
 func (repo *productoRepository) ObtenerProductosAnalizadosSemana() (map[string]any, error) {
-    now := time.Now()
-    weekday := int(now.Weekday())
-    if weekday == 0 {
-        weekday = 7
-    }
-    
-    startOfWeek := now.AddDate(0, 0, -(weekday-1)).Truncate(24 * time.Hour)
-    
-    result := make(map[string]any)
-    diasSemana := []string{"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"}
-    
-    // Iterar por cada día de la semana
-    for i := 0; i < 7; i++ {
-        currentDay := startOfWeek.AddDate(0, 0, i)
-        nextDay := currentDay.AddDate(0, 0, 1)
-        
-        var count int64
-        err := repo.DB.Model(&models.RegistroEntradaProducto{}).
-            Where("fecha_recepcion >= ? AND fecha_recepcion < ?", currentDay, nextDay).
-            Count(&count).Error
-            
-        if err != nil {
-            return nil, err
-        }
-        
-        result[diasSemana[i]] = count
-    }
-    
-    return result, nil
+	now := time.Now()
+	weekday := int(now.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
 
+	startOfWeek := now.AddDate(0, 0, -(weekday - 1)).Truncate(24 * time.Hour)
+
+	result := make(map[string]any)
+	diasSemana := []string{"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"}
+
+	// Iterar por cada día de la semana
+	for i := 0; i < 7; i++ {
+		currentDay := startOfWeek.AddDate(0, 0, i)
+		nextDay := currentDay.AddDate(0, 0, 1)
+
+		var count int64
+		err := repo.DB.Model(&models.RegistroEntradaProducto{}).
+			Where("fecha_recepcion >= ? AND fecha_recepcion < ?", currentDay, nextDay).
+			Count(&count).Error
+
+		if err != nil {
+			return nil, err
+		}
+
+		result[diasSemana[i]] = count
+	}
+
+	return result, nil
+
+}
+
+// Este metodo nos permite obtener las estadisticas de cantidad de productos por tipo
+func (repo *productoRepository) ObtenerTipoProductosSemana() ([]map[string]any, error) {
+
+	var results []map[string]any
+
+	repo.DB.Table("productos AS p").
+		Select("tp.nombre_tipo, COUNT(*) AS cantidad_productos").
+		Joins("JOIN tipo_productos tp ON p.id_tipo = tp.id").
+		Group("tp.nombre_tipo").
+		Scan(&results)
+
+	return results, nil
 }
 
 // -------------------------------

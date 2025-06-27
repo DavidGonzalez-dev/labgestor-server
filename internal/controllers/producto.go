@@ -23,7 +23,7 @@ type ProductoController interface {
 	ActualizarEstadoProducto(c echo.Context) error
 
 	ObtenerProductosAnalizadosSemana(c echo.Context) error
-
+	ObtenerTipoProductosSemana(c echo.Context) error
 }
 
 type productoController struct {
@@ -35,7 +35,6 @@ type productoController struct {
 func NewProductoController(repo repository.ProductoRepository, pruebaRecuentoRepo repository.PruebaRecuentoRepository, deteccionMicroorganismosRepo repository.DeteccionMicroorganismosRepository) ProductoController {
 	return &productoController{Repo: repo, PruebaRecuentoRepo: pruebaRecuentoRepo, DeteccionMicroorganismosRepo: deteccionMicroorganismosRepo}
 }
-
 
 // Instanciamos la base de datos y los repositorios de los submodulos
 // -------------------------------------
@@ -368,8 +367,8 @@ func (controller productoController) ObtenerAnalisis(c echo.Context) error {
 // Este handler nos permite actualizar el estado de un producto
 func (controller productoController) ActualizarEstadoProducto(c echo.Context) error {
 	// Obtenemos el id del producto
-	numeroRegistro:= c.Param("numeroRegistro")
-	
+	numeroRegistro := c.Param("numeroRegistro")
+
 	// Verificamos que el producto exista
 	producto, err := controller.Repo.ObtenerInfoProducto(numeroRegistro)
 	if err != nil {
@@ -399,6 +398,15 @@ func (controller productoController) ObtenerProductosAnalizadosSemana(c echo.Con
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un erro al obtener los resultados", Error: err.Error()})
 	}
-	
+
 	return c.JSON(http.StatusOK, response.Response{Message: "Se encontraron los registros con exito", Data: data})
+}
+
+// Este hadler nos permite obtener la cantidad de productos por tipo
+func (controller productoController) ObtenerTipoProductosSemana(c echo.Context) error {
+	data, err := controller.Repo.ObtenerTipoProductosSemana()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un error al obtener la informacion", Error: err.Error()})
+	}
+	return c.JSON(http.StatusOK, response.Response{Message: "Se obtuvieron la informacion de manera correcta", Data: data})
 }

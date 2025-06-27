@@ -27,4 +27,5 @@ func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController)
 	e.PATCH("/actualizarEstadoProducto/:numeroRegistro", handler.ActualizarEstadoProducto)         // Actualizar el estado de un producto
 
 	e.GET("/productosSemana", handler.ObtenerProductosAnalizadosSemana)
+	e.GET("/productosTipoSemana", handler.ObtenerTipoProductosSemana)
 }
