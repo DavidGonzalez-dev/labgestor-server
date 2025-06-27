@@ -25,4 +25,6 @@ func NewProductoHandler(e *echo.Echo, controller controllers.ProductoController)
 	e.PUT("/registroEntradaProductos/:id", handler.ActualizarRegistroEntradaProducto)              // Actualizar un registro de entrada de producto
 	e.GET("/productos/:id/analisis", handler.ObtenerAnalisis)                                      // Obtener los analisis de un producto
 	e.PATCH("/actualizarEstadoProducto/:numeroRegistro", handler.ActualizarEstadoProducto)         // Actualizar el estado de un producto
+
+	e.GET("/productosSemana", handler.ObtenerProductosAnalizadosSemana)
 }

@@ -22,6 +22,8 @@ type ProductoController interface {
 	ObtenerAnalisis(c echo.Context) error
 	ActualizarEstadoProducto(c echo.Context) error
 
+	ObtenerProductosAnalizadosSemana(c echo.Context) error
+
 }
 
 type productoController struct {
@@ -388,4 +390,15 @@ func (controller productoController) ActualizarEstadoProducto(c echo.Context) er
 	}
 
 	return c.JSON(http.StatusOK, response.Response{Message: "El producto fue actualizado correctamente"})
+}
+
+// Este handler nos permite obtener la cantida de productos ingresados en la semana actual
+func (controller productoController) ObtenerProductosAnalizadosSemana(c echo.Context) error {
+
+	data, err := controller.Repo.ObtenerProductosAnalizadosSemana()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, response.Response{Message: "Hubo un erro al obtener los resultados", Error: err.Error()})
+	}
+	
+	return c.JSON(http.StatusOK, response.Response{Message: "Se encontraron los registros con exito", Data: data})
 }
