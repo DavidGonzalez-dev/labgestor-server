@@ -2,6 +2,7 @@ package routes
 
 import (
 	"labgestor-server/internal/controllers"
+
 	"labgestor-server/internal/repository"
 	"labgestor-server/middleware"
 
@@ -11,6 +12,7 @@ import (
 type deteccionMicroorganismosHandler struct {
 	controllers.DeteccionMicroorganismosController
 }
+
 
 func NewDeteccionMicroorganismosHandler(e *echo.Echo, controller controllers.DeteccionMicroorganismosController, userRepo repository.UsuarioRepository) {
 	handler := deteccionMicroorganismosHandler{controller}

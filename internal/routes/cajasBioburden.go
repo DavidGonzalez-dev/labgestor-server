@@ -2,6 +2,7 @@ package routes
 
 import (
 	"labgestor-server/internal/controllers"
+
 	"labgestor-server/internal/repository"
 	"labgestor-server/middleware"
 

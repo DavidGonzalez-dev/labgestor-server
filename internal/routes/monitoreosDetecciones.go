@@ -2,6 +2,7 @@ package routes
 
 import (
 	"labgestor-server/internal/controllers"
+
 	"labgestor-server/internal/repository"
 	"labgestor-server/middleware"
 
@@ -18,6 +19,7 @@ func NewMonitoreosDeteccionesHandler(e *echo.Echo, controller controllers.Monito
 	// ? ----------------------------------------------------------------------
 	// ? Puntos de entrada a la API
 	// ? ----------------------------------------------------------------------
+
 
 	e.POST("/monitoreosDetecciones", handler.Controller.CrearMonitoreosDetecciones, middleware.RequireAuth(userRepo, ""))                              // Registrar una nueva detección de monitoreo
 	e.GET("/monitoreosDetecciones/detecciones/:id", handler.Controller.ObtenerMonitoreosDeteccionesPorDeteccion, middleware.RequireAuth(userRepo, "")) // Obtener detecciones de monitoreo por ID de detección
